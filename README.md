@@ -1,5 +1,16 @@
 # scriptv 
-P2P Crypto based on cooperative consensus
+Node software.
+P2P Network for Watch-to-earn Distributed Content Distribution
+Inconsistent Consensus + PBFT cooperative consensus
+Distributed File System
+Tokenization. FT and NFT
+Frontent: Text Console / Android APP 
+Client RPC SDK for developing frontends in C++ and Java
+Backend daemons:
+    Gov (Public System/consensus - Public Evidences): C++
+    Wallet (Private System - Privacy, Anonymity): C++
+Lightweight
+
 
 # INSTRUCTIONS
 
