@@ -1,0 +1,12 @@
+trading_msg
+[peerinfo] h tid  u2 code  1 payload
+async
+-
+-
+
+trading_msg2
+[peerinfo] u8 route  h tid  u2 code  1 payload
+async
+-
+-
+

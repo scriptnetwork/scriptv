@@ -1,0 +1,175 @@
+#!/bin/bash
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+#depends: aapt
+us="##str3##"
+
+function help {
+    echo "$0                        Sign apks and bundles"
+    echo "$0  --install  [--run]    Sign and install apk in device using adb. run it."
+    echo "$0  --keyroot             Specify parent directory for finding cbs/$us/keystore.jks. if empty keyroot is loaded from file /var/$us/ush_config"
+}
+
+#==============example parse flags leaving line without flags in opt=============
+let inst=0
+let run=0
+keyroot=""
+while [[ true ]]; do
+    opt=$1
+    shift
+    if [[ "_$opt" == "_--install" ]]; then
+        echo "install"
+        let inst=1
+        continue
+    elif [[ "_$opt" == "_--run" ]]; then
+        echo "run"
+        let run=1
+    elif [[ "_$opt" == "_--keyroot" ]]; then
+        echo "keyroot"
+        keyroot="$1"
+        shift
+        continue
+    else
+        break
+    fi
+done
+#====================================
+cmd=$opt
+if [[ -n $cmd ]]; then
+    help
+    echo "KO 89785 Invalid command"
+    exit 1
+fi
+
+if [[ -z $keyroot ]]; then
+    if [[ ! -f /var/$us/ush_config ]]; then
+        echo "KO 87036 /var/$us/ush_config must exist with envvar keyroot"
+        exit 1
+    fi
+    . /var/$us/ush_config
+fi
+
+if [[ "_$keyroot" == "_" ]]; then
+    echo "KO 87037 Invalid keyroot."
+    exit 1
+fi
+
+let usev2=1
+jarsigner="jarsigner"
+apksigner="apksigner"
+keytool="keytool"
+if [ "_$JAVA_HOME" != "_" ]; then
+    jarsigner=$JAVA_HOME/bin/jarsigner
+    apksigner=$JAVA_HOME/bin/apksigner  #fix location. not tested
+    keytool=$JAVA_HOME/bin/keytool
+fi
+
+function sign_apks {
+    echo "signing APKs"
+    ks=$1
+    for file in `find app/build/outputs/apk -name "*-unsigned.apk"`; do
+        echo "found unsigned apk: $file"
+        newfile=`echo $file | sed "s/-unsigned//"`
+        echo "using $gpg_passphrase_file"
+	    echo $usev2
+	    echo "==================="
+        if [[ $usev2 -eq 1 ]]; then
+            echo "using v2"
+            $apksigner sign -v --ks $ks -ks-key-alias distr --v2-signing-enabled true $file <<< "$pass"
+            if [ $? -ne 0 ]; then
+                echo "apksigner failed" >2
+                exit 1
+            fi
+	    else
+            echo "using v1"
+            $jarsigner -keystore $ks $file distr <<< "$pass"
+            if [ $? -ne 0 ]; then
+                echo "signer failed" >2
+                exit 1
+            fi
+        fi
+        mv $file $newfile
+        echo "signature $newfile"
+        echo "$file -> $newfile"
+        $keytool -printcert -jarfile $newfile
+    done
+}
+
+function sign_bundles {
+    echo "signing bundles"
+    ks=$1
+    for file in `find app/build/outputs/bundle -name "*.aab"`; do
+        cert=`$keytool -printcert -jarfile $file`
+        if [[ "_$cert" != "_Not a signed jar file" ]]; then
+            echo "$file is already signed"
+            continue
+        fi
+        echo "found unsigned bundle: $file"
+        newfile=`echo $file | sed "s/-unsigned//"`
+        echo "using $gpg_passphrase_file"
+#        $jarsigner -verbose -keystore $ks $file distr <<< "$pass"
+        $jarsigner -keystore $ks $file distr <<< "$pass"
+        if [ $? -ne 0 ]; then
+            echo "signer failed" >2
+            exit 1
+        fi
+        echo "signature $newfile"
+        echo "$file -> $newfile"
+        $keytool -printcert -jarfile $file
+    done
+}
+
+#gpgkey=`cat $keyroot/distr_signing_key`
+gpg_passphrase_file="$keyroot/cbs/$us/gnupg/passphrase"
+#gpg="gpg --homedir $keyroot/.gnupg"
+pass=`cat $gpg_passphrase_file`
+
+ks=$keyroot/cbs/$us/keystore.jks
+echo "using keystore at $ks"
+if [[ -d app/build/outputs/apk ]]; then
+    sign_apks $ks
+    echo "APKs:"
+    find app/build/outputs/apk -type f -name "*.apk"
+    apk=$(find app/build/outputs/apk -type f -name "*.apk")
+    if [[ $inst -eq 1 ]]; then
+        echo "waiting for device"
+        adb wait-for-device
+        echo "installing $apk"
+        adb install $apk
+    fi
+    if [[ $run -eq 1 ]]; then
+        pkg=$(aapt dump badging $apk | awk -F" " '/package/ {print $2}'|awk -F"'" '/name=/ {print $2}')
+        act=$(aapt dump badging $apk | awk -F" " '/launchable-activity/ {print $2}'|awk -F"'" '/name=/ {print $2}')
+        echo "running $pkg/$act"
+        adb shell am start -n $pkg/$act
+    fi
+
+fi
+if [[ -d app/build/outputs/bundle ]]; then
+    sign_bundles $ks
+    echo "Bundles:"
+    find app/build/outputs/bundle -type f -name "*.aab"
+fi
+exit 0
+

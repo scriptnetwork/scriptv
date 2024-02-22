@@ -1,0 +1,1150 @@
+#!/bin/bash
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+###########################################################
+# ##str1##
+# ##str2##
+# ##str63##
+# ##str64##
+#
+# system install/update/uninstall and maintenance utilities
+###########################################################
+
+JAILDIR=""
+
+CHANNEL=0
+US=""
+BLOB_ADDR=""
+BLOB_ID=""
+GOVUSER=""
+UPSTREAM_URL=""
+SEEDS=""
+
+function cfg_vars0 {
+    STATIC_US="##str3##"
+    let STATIC_FCGI=##str45##
+    STATIC_CHANNEL=##str6##
+    STATIC_BLOB_ADDR="##str39##"
+    STATIC_BLOB_ID="##str40##"
+    STATIC_GOVUSER="##str11##"
+    STATIC_UPSTREAM_URL="##str65##"
+    STATIC_SEEDS="##str67##"
+    if [[ $append -eq 0 ]]; then
+        if [[ -f ${JAILDIR}/etc/$STATIC_US/config ]]; then
+            echo "Loading static config from ${JAILDIR}/etc/$STATIC_US/config"
+            . ${JAILDIR}/etc/$STATIC_US/config
+            STATIC_CHANNEL=$str6
+            STATIC_BLOB_ADDR="$str39"
+            STATIC_BLOB_ID="$str40"
+            STATIC_GOVUSER="$str11"
+            STATIC_UPSTREAM_URL="$str65"
+            STATIC_SEEDS="$str67"
+        fi
+    fi
+    CHANNEL=${STATIC_CHANNEL}
+    US=${STATIC_US}
+    BLOB_ADDR=${STATIC_BLOB_ADDR}
+    BLOB_ID=${STATIC_BLOB_ID}
+    GOVUSER=${STATIC_GOVUSER}
+    UPSTREAM_URL=${STATIC_UPSTREAM_URL}
+    SEEDS="${STATIC_SEEDS}"
+}
+
+cfg_vars0
+
+function do_help {
+    cat << EOF
+##str3## installation script.
+./$prog [flags] [command]
+
+flags:
+  --blob <file>        Blob file is given manually. /var/${US}/installed_blob__pinned is created.
+  --rebrand <node ip>  Clone the given node (rebrand).
+  --skip-seeds         In case the blob needs to be fetched, it is done trying only the BDE (brand distribution end),
+                           skipping going through a number of random nodes.
+  --force-publish      Write a copy of the blob in downloads dir. Warning: Other nodes may download it.
+  --full-install       Forces full installation. Otherwise only frequent-updated-files subset is installed.
+                           If the script detects a new installation the flag is enabled automatically.
+  --force              Ignores the file /var/${US}/installed_blob and go ahead with it. Otherwise the installation
+                           will proceed only if the new file is different than the last one installed.
+  --jail <jaildir>     Work in the specified directory.
+
+commands:
+  install/{nothing}        Fetchs the latest blob and installs it.
+  uninstall                removes the software from the system, leaving user data untouched.
+  bootstrap_home <homedir> Installs wallet-rpc for a new system user.
+  make                     Blob makefile.
+  extract_r2r_sdk          Obtains the R2R SDK from the blob.
+  extract_src              Obtains the source code.
+  fetch                    fetch blob from nodes.
+  fetch_local              Print published blob/s.
+  print_deps               Just prints debs as deps.
+  print_seeds              Print a sample of nodes supplying blob.
+  print_blob               Print location of current blob.
+  run_apt                  Run apt
+  install_core0_deps       secp&fcgi
+  publish                  Write a copy of the blob in downloads dir, omiting the instalation.
+  resolve_blob             Finds blob asking peers.
+  scan                     Poll nodes about latest blob.
+
+Blob Explore:
+  decompress <dir>         Unbox the blob into given dir.
+
+  help                     Print this.
+
+EOF
+
+    if [[ -f ${JAILDIR}/var/${US}/installed_blob__pinned ]]; then
+        echo "    WARNING: ${JAILDIR}/var/${US}/installed_blob__pinned exists."
+        echo "    tip for returning back to normal:"
+        echo "        rm ${JAILDIR}/var/${US}/installed_blob__pinned"
+    fi
+}
+
+blob=""
+let append=0
+let rebrand=0
+let skip_seeds=0
+jaildir=""
+let forcepublish=0
+let full_install=0
+let force=0
+let maxpeers=100
+cmdargs=""
+
+function parse_input {
+    while [[ true ]]; do
+        opt=$1
+        shift
+        if [[ "_$opt" == "_--blob" ]]; then
+            opt=$1
+            shift
+            blob=$opt
+            continue
+        elif [[ "_$opt" == "_--append" ]]; then
+            echo "Broken feature. Node can run only 1 brand 1 channel until it is fixed."
+            exit 1
+            let append=1
+            continue
+        elif [[ "_$opt" == "_--rebrand" ]]; then
+            let rebrand=1
+            continue
+        elif [[ "_$opt" == "_--skip-seeds" ]]; then
+            let skip_seeds=1
+            continue
+        elif [[ "_$opt" == "_--maxpeers" ]]; then
+            if [[ -z "${1##*[!0-9]*}" ]]; then
+                echo "$1 is not an integer"
+                exit 1
+            fi
+            let maxpeers=$1
+            shift
+            continue
+        elif [[ "_$opt" == "_--jail" ]]; then
+            opt=$1
+            shift
+            jaildir=$opt
+            continue
+        elif [[ "_$opt" == "_--force-publish" ]]; then
+            let forcepublish=1
+            continue
+        elif [[ "_$opt" == "_--full-install" ]]; then
+            let full_install=1
+            continue
+        elif [[ "_$opt" == "_--force" ]]; then
+            let force=1
+            continue
+        elif [[ _$opt == _-* ]]; then
+            do_help
+            >&2 echo "KO 86755 Invalid option $opt"
+            exit 1
+        else
+            break
+        fi
+    done
+    cmd=$opt
+    if [[ "_$cmd" == "_" ]]; then
+        cmd="install"
+    fi
+    cmdargs="$@"
+}
+
+function cfg_vars {
+    if [[ $append -eq 1 ]]; then
+        >&2 echo "KO 69078 append mode is a TODO."
+        exit 1
+    fi
+    if [[ -f /var/us_nets ]]; then
+        let n=$(cat /var/us_nets | grep "^[0-9]* .*" | wc -l)
+        if [[ $n -gt 1 ]]; then
+            echo "Found more than one entry in /us/nets"
+            cat /var/us_nets | grep "^[0-9]* .*" | grep " ${US} " > /tmp/x918274
+            mv /tmp/x918274 /var/us_nets
+            let n=$(cat /var/us_nets | grep "^[0-9]* .*" | wc -l)
+            if [[ $n -eq 1 ]]; then
+                >&2 echo "KO 78674 Unexpected content in /var/us_nets"
+                exit 1
+            fi
+        fi
+        CHANNEL=$(cat /var/us_nets | grep "^[0-9]* .*" | awk {'print $1'})
+        US=$(cat /var/us_nets | grep "^[0-9]* .*" | awk {'print $2'})
+        BLOB_ADDR=$(cat /var/us_nets | grep "^[0-9]* .*" | awk {'print $3'})
+        BLOB_ID=$(cat /var/us_nets | grep "^[0-9]* .*" | awk {'print $4'})
+        if [[ "_${US}" != "_${STATIC_US}" ]]; then
+            if [[ $rebrand -eq 1 ]]; then
+                echo "rebranding. Aborted. TODO"
+                exit 1
+            else
+                UPSTREAM_URL=""
+                SEEDS=""
+            fi
+        fi
+    fi
+    datadir=/home/${GOVUSER}/.${US}
+    if [[ "_$CHANNEL" != "_0" ]]; then
+        datadir=${datadir0}/$CHANNEL
+    fi
+    #cat ${datadir}/gov/nodes.* 2>/dev/null > /tmp/x5833677
+    file=/tmp/x5833677
+    echo ${SEEDS} | xargs -n1 > ${file}
+    ns=$(cat ${file} | wc -l)
+    SEEDS="$(cat ${file} | sed 's/72$/80/' | sort | uniq  | grep -v '^$' | shuf | xargs)"
+    rm -f ${file}
+    if [[ $maxpeers -gt 0 ]]; then
+        #echo "limit of $maxpeers seeds applied"
+        SEEDS="$(echo "$SEEDS" | xargs -n1 | head -n$maxpeers | xargs)"
+    fi
+#    cat << EOF
+#    CHANNEL=${CHANNEL}
+#    US=${US}
+#    BLOB_ADDR=${BLOB_ADDR}
+#    BLOB_ID=${BLOB_ID}
+#    GOVUSER=${GOVUSER}
+#    UPSTREAM_URL=${UPSTREAM_URL}
+#    ${ns} SEEDS (limit $maxpeers)
+#EOF
+
+}
+
+cfg_vars
+
+function set_jail0 {
+    if [[ "_$jaildir" != "_" ]]; then
+        echo "jail directory: $jaildir"
+        mkdir -p $jaildir
+        JAILDIR=$(realpath $jaildir)
+        if [[ $? -ne 0 ]]; then
+            >&2 echo "KO 87095 invalid jaildir."
+            exit 1
+        fi
+    fi
+}
+
+function do_bootstrap_home {
+    where=$1
+    if [[ "_$where" == "_" ]]; then
+        >&2 echo "KO 80153 Need target user home directory"
+        exit 1
+    fi
+    echo "TODO: bash_aliases, .us/config, wallet rpc device, downloads dir, rest dir"
+    exit 1
+}
+
+function do_decompress {
+    dir=$1
+    if [[ -d $dir ]]; then
+        >&2 echo "KO 89783 Directory $dir exists."
+        exit 1
+    fi
+    mkdir $dir
+    bl=$(realpath $blob)
+    pushd $dir > /dev/null
+        tar -I zstd -xf $bl
+        dirb=$(ls -1)
+        pushd "$dirb" > /dev/null
+            pwd
+        popd > /dev/null
+    popd > /dev/null
+    exit 0
+}
+
+function extract_src_from_blob {
+    blob=$1
+    mkdir src
+    if [[ $? -ne 0 ]]; then
+        >&2 echo "KO 59483 directory src exists."
+        exit 1
+    fi
+    pushd src > /dev/null
+        tar -I zstd -xf $blob
+        dir=$(ls -1)
+        pushd "$dir" > /dev/null
+            mv src/* ..
+            if [[ $? -ne 0 ]]; then
+                >&2 echo "KO 59499 "
+                exit 1
+            fi
+        popd > /dev/null
+        rm -rf $dir
+    popd > /dev/null
+}
+
+function extract_r2r_sdk_from_blob {
+    blob=$1
+    mkdir r2r_sdk
+    if [[ $? -ne 0 ]]; then
+        >&2 echo "KO 59483 directory r2r_sdk exists."
+        exit 1
+    fi
+    pushd r2r_sdk > /dev/null
+        tar -I zstd -xf $blob
+        dir=$(ls -1)
+        pushd $dir > /dev/null
+            ./make.sh r2r_sdk
+            if [[ $? -ne 0 ]]; then
+                exit 1
+            fi
+            mv r2r_sdk/* ..
+        popd > /dev/null
+        rm -rf $dir
+    popd > /dev/null
+}
+
+function do_extract_src {
+    if [[ "_$blob" == "_" ]]; then
+        if [[ ! -f ${JAILDIR}/home/$GOVUSER/downloads/blob/${US}/cur ]]; then
+            >&2 echo "KO 87025 cur blob not found at ${JAILDIR}/home/$GOVUSER/downloads/blob/${US}/cur"
+            exit 1
+        fi
+        blob=${JAILDIR}/home/$GOVUSER/downloads/blob/${US}/cur
+    fi
+    blob=$(realpath $blob)
+    extract_src_from_blob $blob
+    echo "Sources at directory src"
+    exit 0
+}
+
+function do_extract_r2r_sdk {
+    if [[ "_$blob" == "_" ]]; then
+        if [[ ! -f ${JAILDIR}/home/$GOVUSER/downloads/blob/${US}/cur ]]; then
+            >&2 echo "KO 87025 cur blob not found at ${JAILDIR}/home/$GOVUSER/downloads/blob/${US}/cur"
+            exit 1
+        fi
+        blob=${JAILDIR}/home/$GOVUSER/downloads/blob/${US}/cur
+    fi
+    blob=$(realpath $blob)
+    extract_r2r_sdk_from_blob $blob
+    exit 0
+}
+
+function do_make {
+    rm -rf tmp
+    mkdir tmp
+    if [[ $? -ne 0 ]]; then
+        >&2 echo "KO 59423 directory tmp exists."
+        exit 1
+    fi
+    pushd tmp > /dev/null
+        tar -I zstd -xf ${blob_local_file}
+        dir=$(ls -1)
+        pushd $dir > /dev/null
+            dname=$(basename $(pwd))
+            bname=$(echo $dname | tr '_' ' ' | awk '{ print $1 }')
+            if [[ "_$bname" != "_${US}" ]]; then
+                >&2 echo "KO 43096 Blob brand $bname doesn't match ${US}. Aborting."
+                return 1
+            fi
+            opts=""
+            if [[ "_${JAILDIR}" != "_" ]]; then
+                opts+="--jail ${JAILDIR} "
+            fi
+            echo "Invoking blob make.sh $opts $@"
+            ./make.sh $opts $@
+        popd > /dev/null
+        rm -rf $dir
+    popd > /dev/null
+    rm tmp -r
+    return 0
+}
+
+function do_scan {
+    echo "do scan"
+}
+
+function do_fetch_local {
+    echo "do fetch_local"
+}
+
+##embed-shenv##
+
+#debian
+debs="libc-dev make g++ spawn-fcgi nginx libcrypto++-dev automake libtool psmisc pipexec libjsoncpp-dev libunwind-dev libtool automake bc coreutils unzip cmake git quilt links nmap ack-grep tree miniupnpc libmicrohttpd-dev sudo tor ntp curl librsvg2-bin libb64-dev pkg-config libncurses-dev rsync zstd php-fpm nginx-common certbot python3-certbot-nginx emscripten"
+
+#freeBSD
+freebsd_pkgs="autotools gmake llvm-base gdb-cheri devel/pkgconf rsync python libb64 git"
+cheribsd_pkgs="${freebsd_pkgs} gdb-cheri"
+
+function inst_cryptopp_freebsd {
+    tmp="tmp_work875664"
+    rm -rf "./${tmp}"
+    mkdir ${tmp}
+    pushd ${tmp} > /dev/null
+        git clone https://github.com/weidai11/cryptopp.git
+        #clang-13: error: ABI 'purecap' is not supported without feature 'morello'
+        pushd cryptopp > /dev/null
+            make
+            if [[ $? -ne 0 ]]; then
+                >&2 echo "KO 99785"
+                exit 1
+            fi
+            make install
+            if [[ $? -ne 0 ]]; then
+                >&2 echo "KO 99785"
+                exit 1
+            fi
+            echo "Convenience link /usr/local/include/crypto++ -> cryptopp"
+            pushd /usr/local/include > /dev/null
+                ln -s cryptopp crypto++
+            popd > /dev/null
+        popd > /dev/null
+    popd > /dev/null
+    rm -rf "./${tmp}"
+}
+
+function do_print_deps {
+    if [[ $freebsd -eq 1 ]]; then
+        if [[ $cheribsd -eq 1 ]]; then
+            echo "pkgs=$cheribsd_pkgs"
+        else
+            echo "pkgs=$freebsd_pkgs"
+        fi
+    else
+        echo "debs=$debs"
+    fi
+    exit 0
+}
+
+function exec_cmd0 {
+    if [[ "_$cmd" == "_print_deps" ]]; then
+        do_print_deps
+        exit 0
+    elif [[ "_$cmd" == "_help" ]]; then
+        do_help
+        exit 0
+    fi
+}
+
+parse_input $@
+set_jail0
+exec_cmd0
+
+function inst_debs {
+    if [[ "_${JAILDIR}" == "_" ]]; then
+        echo "installing: $debs"
+        export DEBIAN_FRONTEND=noninteractive
+        yes | apt -yq install $debs
+        yes | apt -yq autoremove
+    else
+        echo "export DEBIAN_FRONTEND=noninteractive" >> ${JAILDIR}/pre-install_blob.sh
+        echo "yes | apt -yq install $debs" >> ${JAILDIR}/pre-install_blob.sh
+        echo "yes | apt -yq autoremove" >> ${JAILDIR}/pre-install_blob.sh
+    fi
+}
+
+function inst_pkgs {
+    if [[ $cheribsd -eq 1 ]]; then
+        tool="pkg64c"
+        pkgs="$cheribsd_pkgs"
+    else
+        tool="pkg"
+        pkgs="$freebsd_pkgs"
+    fi
+    
+    if [[ "_${JAILDIR}" == "_" ]]; then
+        echo "installing: $pkgs"
+        $tool install $pkgs
+    else
+        echo "$tool install $pkgs" >> ${JAILDIR}/pre-install_blob.sh
+    fi
+}
+
+function install_core0_distr_deps {
+    if [[ $freebsd -eq 1 ]]; then
+        inst_pkgs
+    else
+        inst_debs
+    fi
+}
+
+function run_apt {
+    mkdir -p ${JAILDIR}/tmp
+    cmdfile=${JAILDIR}/tmp/pre-install_blob.sh
+    echo "#!/bin/bash" > $cmdfile
+    echo "export DEBIAN_FRONTEND=noninteractive" >> $cmdfile
+
+    israspi=0
+    cat ${JAILDIR}/etc/apt/sources.list | grep "^deb .*/raspbian" > /dev/null
+    if [[ $? -eq 0 ]]; then
+        israspi=1
+    fi
+    echo "israspi=$israspi"
+
+    isdebian=0
+    cat ${JAILDIR}/etc/apt/sources.list | grep "^deb .*/debian" > /dev/null
+    if [[ $? -eq 0 ]]; then
+        isdebian=1
+    fi
+    echo "isdebian=$isdebian"
+
+    isubuntu=0
+    cat ${JAILDIR}/etc/apt/sources.list | grep "^deb .*/ubuntu" > /dev/null
+    if [[ $? -eq 0 ]]; then
+        isubuntu=1
+    fi
+    echo "isubuntu=$isubuntu"
+
+    if [[ $israspi -eq 1 ]]; then
+        sed -i "s/buster/bullseye/" ${JAILDIR}/etc/apt/sources.list
+        sed -i "s/bullseye/stable/" ${JAILDIR}/etc/apt/sources.list
+        echo "yes | apt -yq update" >> $cmdfile
+    fi
+
+    if [[ $isdebian -eq 1 ]]; then
+        sed -i "s/buster/bullseye/" ${JAILDIR}/etc/apt/sources.list
+        sed -i "s/bullseye/stable/" ${JAILDIR}/etc/apt/sources.list
+        echo "yes | apt -yq update" >> $cmdfile
+    fi
+
+    if [[ $isubuntu -eq 1 ]]; then
+        echo "yes | apt -yq update" >> $cmdfile
+    fi
+
+    if [[ $distu -eq 1 ]]; then
+        echo "yes | DEBIAN_FRONTEND=noninteractive apt -yq dist-upgrade" >> $cmdfile
+    fi
+    if [[ "_${JAILDIR}" == "_" ]]; then
+        echo "executing $cmdfile"
+        chmod +x $cmdfile
+        $cmdfile
+    fi
+    install_core0_distr_deps
+}
+
+function exec_cmd10 {
+    if [[ "_$cmd" == "_run_apt" ]]; then
+        run_apt
+    elif [[ "_$cmd" == "_help" ]]; then
+        do_help
+        exit 0
+    fi
+}
+exec_cmd10
+
+function init_jail {
+    US=$1
+    echo "Init Jail ${JAILDIR}"
+    mkdir -p ${JAILDIR}/usr/bin
+    if [[ -f /usr/bin/zstd ]]; then
+        touch ${JAILDIR}/usr/bin/zstd
+    fi
+    if [[ -f /usr/bin/tor ]]; then
+        touch ${JAILDIR}/usr/bin/tor
+    fi
+    if [[ -f /etc/apt/sources.list ]]; then
+        mkdir -p ${JAILDIR}/etc/apt
+        cp /etc/apt/sources.list ${JAILDIR}/etc/apt/
+    fi
+    if [[ -f /var/${US}/installed_blob__pinned ]]; then
+        mkdir -p ${JAILDIR}/var/${US}
+        cp /var/${US}/installed_blob__pinned ${JAILDIR}/var/${US}
+    fi
+    if [[ -f /etc/debian_version ]]; then
+        mkdir -p ${JAILDIR}/etc
+        cp /etc/debian_version ${JAILDIR}/etc/
+    fi
+    if [[ -f /home/${GOVUSER}/.${US}/config ]]; then
+        mkdir -p ${JAILDIR}/home/${GOVUSER}/.${US}
+        cp /home/${GOVUSER}/.${US}/config ${JAILDIR}/home/${GOVUSER}/.${US}/
+    fi
+    if [[ -f /var/${US}/installed_blob ]]; then
+        mkdir -p ${JAILDIR}/var/${US}
+        cp /var/${US}/installed_blob ${JAILDIR}/var/${US}/
+    fi
+    if [[ -f /var/us_nets ]]; then
+        mkdir -p ${JAILDIR}/var/
+        cp /var/us_nets ${JAILDIR}/var/
+    fi
+    if [[ -f /etc/${US}/config ]]; then
+        mkdir -p ${JAILDIR}/etc/${US}
+        cp /etc/${US}/config ${JAILDIR}/etc/${US}/
+    fi
+    find ${JAILDIR} -type f
+}
+
+if [[ "_${JAILDIR}" != "_" ]]; then
+    init_jail ${US}
+fi
+
+let runapt=0
+let reboot=0
+
+function test_os_apt {
+    if [[ ! -f ${JAILDIR}/etc/debian_version ]]; then
+        >&2 echo "KO 50128 Target operating system must be based on debian."
+        exit 1
+    fi
+    v=$(cat ${JAILDIR}/etc/debian_version)
+    echo "OS based on debian version $v"
+    if [[ $v == 12.* ]]; then # 12.0
+
+        echo "Error: Running on debian 12."
+        echo "This installer contains binaries for debian version 11."
+        echo "Hint: build from sources."
+    fi
+    if [[ $v != 11.* ]]; then
+        echo "debian_version: $v"
+        echo $v | grep "/sid" > /dev/null
+        if [[ $? -eq 0 ]]; then
+            echo "Error: Running on sid (unstable)."
+            echo "This installer contains binaries for the stable distribution."
+            echo "If you want to run a node on sid you'd have to build from sources."
+            exit 1
+        else
+            echo "Info: System needs apt distr-upgrade and reboot."
+            let runapt=1
+            let reboot=1
+        fi
+    fi
+
+    if [[ ! -f /usr/bin/zstd ]]; then
+        echo "missing zstd"
+        let runapt=1
+    elif [[ ! -f /usr/bin/tor ]]; then
+        echo "missing tor"
+        let runapt=1
+    elif [[ ! -f /var/us_nets ]]; then
+        echo "missing us_nets"
+        let runapt=1
+    elif [[ ! -f /etc/php/7.4/fpm/pool.d/www.conf ]]; then
+        echo "missing php-fpm"
+        let runapt=1
+    elif [[ ! -f /etc/nginx/snippets/fastcgi-php.conf ]]; then
+        echo "missing nginx-common"
+        let runapt=1
+    elif [[ ! -f /usr/bin/certbot ]]; then
+        echo "missing certbot"
+        let runapt=1
+    elif [[ ! -f /usr/lib/python3/dist-packages/certbot_nginx/__init__.py ]]; then
+        echo "python3-certbot-nginx"
+        let runapt=1
+    fi
+}
+
+seeds=""
+
+function hash_sample {
+    url_upstream="$1"
+    rm -f /tmp/curhash
+    echo "======Trying ${url_upstream}======"
+    cmd="timeout 10 wget -q "${url_upstream}/downloads/blob/${US}/curhash" -O /tmp/curhash"
+    echo "Exec: $cmd"
+    $cmd
+    let r=$?
+    if [[ $r -ne 0 ]]; then
+        >&2 echo "KO 69210 could not fetch from ${url_upstream}/downloads/blob/${US}/curhash"
+        return;
+    fi
+    if [[ ! -f /tmp/curhash ]]; then
+        >&2 echo "KO 68339 could not find a fetched file from ${url_upstream}/downloads/blob/${US}/curhash"
+        return;
+    fi
+    curhash=$(cat /tmp/curhash | xargs)
+    if [[ "_$curhash" == "_" ]]; then
+        >&2 echo "KO 68339 could not find /tmp/curhash fetched from ${url_upstream}/downloads/blob/${US}/curhash"
+        return;
+    fi
+    echo "curhash@${url_upstream}=$curhash"
+    echo "${url_upstream} $curhash" >> /tmp/upstream_src
+}
+
+function print_seeds {
+    echo "$SEEDS" | xargs -n1
+    exit 0
+}
+
+function print_blob {
+    echo -n "blob hash: "
+    cat ${JAILDIR}/home/$GOVUSER/downloads/blob/${US}/curhash
+    echo -n "blob path: "
+    echo "${JAILDIR}/home/$GOVUSER/downloads/blob/${US}/cur"
+    exit 0
+}
+
+function hash_sample_from_seeds2 {
+    httpnodes="$(echo "$SEEDS" | xargs) "
+    while [[ true ]]; do
+        httpnode=$(echo $httpnodes | tr ' ' '\n' | head -n1)
+        httpnodes=$(echo "$httpnodes" | sed "s#$httpnode ##")
+        if [[ "_$httpnode" == "_" ]]; then
+            break
+        fi
+        hash_sample "$httpnode"
+    done
+}
+
+httpnodes=""
+
+function mk_httpnodes {
+    rm -f /tmp/upstream_src
+    touch /tmp/upstream_src
+    hash_sample_from_seeds2
+    echo "samples obtained:"
+    cat /tmp/upstream_src
+    let ns=$(cat /tmp/upstream_src | wc -l)
+    if [[ $ns -eq 0 ]]; then
+        >&2 echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        >&2 echo "tried nodes: $SEEDS"
+        >&2 echo "KO 48836 Found no node publising curblob. Aborting."
+        exit 1
+    fi
+    echo "Poll result:"
+    cat /tmp/upstream_src | awk '{print $2}' | sort | uniq -c | sort -r
+    hash=$(cat /tmp/upstream_src | awk '{print $2}' | sort | uniq -c | sort -r | head -n1 | awk '{print $2}')
+    echo "most voted hash: $hash"
+
+    httpnodes="$(cat /tmp/upstream_src | grep " $hash\$" | awk '{print $1}' | xargs) "
+    echo "Nodes found publishing blob hash $hash: $httpnodes"
+}
+
+function fetch_from_seedX {
+    url_upstream="$1"
+    curhash=$2
+    rm -f curblob
+    echo "======Trying ${url_upstream}======"
+    set -x
+    timeout 10 wget -q "${url_upstream}/downloads/blob/${US}/cur" -O curblob
+    let r=$?
+    set +x
+    if [[ $r -ne 0 ]]; then
+        >&2 echo "KO 69213 could not fetch from ${url_upstream}/downloads/blob/${US}/cur"
+        blob=""
+        return $r;
+    fi
+    if [[ ! -f curblob ]]; then
+        >&2 echo "KO 68335 could not find the file fetched."
+        blob=""
+        return 1;
+    fi
+    blob=$(realpath curblob)
+    return $?
+}
+
+function fetch_from_seeds_cleanup {
+    rm -f ${JAILDIR}/tmp/us_nets
+}
+
+function fetch_from_seeds {
+    US=$1
+    if [[ skip_seeds -eq 1 ]]; then
+        echo "Not dowloading the blob from random peers"
+    else
+        mk_httpnodes
+        while [[ true ]]; do
+            httpnode=$(echo $httpnodes | tr ' ' '\n' | head -n1)
+            httpnodes=$(echo "$httpnodes" | sed "s#$httpnode ##")
+            if [[ "_$httpnode" == "_" ]]; then
+                break
+            fi
+            fetch_from_seedX "$httpnode" $hash
+            if [[ "_$blob" != "_" ]]; then
+                echo "got $blob from $httpnode"
+                break
+            fi
+        done
+        if [[ "_$blob" != "_" ]]; then
+            return
+        fi
+    fi
+    echo "Trying ${US} Distribution End @ ${UPSTREAM_URL}"
+    if [[ "_${UPSTREAM_URL}" == "_" ]]; then
+        >&2 echo "KO 21965 STATIC_UPSTREAM_URL is not defined"
+        fetch_from_seeds_cleanup
+        return 1
+    fi
+    #finally the BDE (brand distribution end)
+    hash_sample "${UPSTREAM_URL}"
+    if [[ "_$blob" == "_" ]]; then
+        >&2 echo "KO 67925 Aborted. No blob available."
+        fetch_from_seeds_cleanup
+        return 1
+    fi
+    return 0
+}
+
+addr=""
+key=""
+function read_addr_key {
+    line=$(cat ${JAILDIR}/var/us_nets | grep " $US ")
+    addr=$(echo $line | awk '{print $3}')
+    key=$(echo $line | awk '{print $4}')
+}
+
+let pinned=0
+blob_local_file=""
+
+function resolve_blob_curblob {
+    if [[ "_$blob_local_file" != "_" ]]; then
+        return 0 #already resolved
+    fi
+    if [[ "_$blob" != "_" ]]; then
+        blob_local_file=$(realpath $blob)
+        return 0
+    fi
+    if [[ ! -f ${JAILDIR}/home/$GOVUSER/downloads/blob/${US}/cur ]]; then
+        >&2 echo "KO 87025 cur blob not found at ${JAILDIR}/home/$GOVUSER/downloads/blob/${US}/cur"
+        exit 1
+    fi
+    blob_local_file=${JAILDIR}/home/$GOVUSER/downloads/blob/${US}/cur
+    blob_local_file=$(realpath $blob_local_file)
+    return 0
+}
+
+function resolve_blob {
+    echo "resolve blob"
+    if [[ "_$blob_local_file" != "_" ]]; then
+        return 0 #already resolved
+    fi
+    fsroot=""
+    if [[ "_$blob" != "_" ]]; then
+        blob=$(realpath $blob)
+        if [[ $? -ne 0 ]]; then
+            >&2 echo "KO 63110 blob $blob not found."
+            return 1
+        fi
+        fsroot=$(dirname "$blob")
+        blob=$(basename "$blob")
+        let pinned=1
+        echo "Manually given. fsroot=$fsroot blob=$blob"
+        blob_local_file=${fsroot}/$blob
+        echo "resolved blob: $blob_local_file"
+        return 0
+    fi
+    echo "finding out the blob file"
+    ushome=/home/${GOVUSER}/.${US}
+    let ffs=1
+    if [[ -f ${ushome}/config ]]; then
+        . ${ushome}/config
+        gov="${US}-gov -home ${ushome} -c ${CHANNEL} -p ${PORT}"
+        echo "gov=$gov"
+        $gov print_home > /dev/null
+        if [[ $? -eq 0 ]]; then
+            fsroot=$($gov print_home)/gov/fsroot
+            echo "looking up blob... : $gov list_files $addr $key | xargs"
+            blob=$($gov list_files $addr $key | xargs)
+            if [[ $? -eq 0 ]]; then
+                if [[ $blob != KO* ]]; then
+                    echo "working gov command. fsroot=$fsroot blob=$blob"
+                    let n=$(echo $blob | wc -w) #TODO remove after a29.20 - list_files could give more than 1 occurrence
+                    if [[ $n -eq 1  ]]; then
+                        let forcepublish=1
+                        let ffs=0
+                    else
+                        echo "${US}-gov gave multiple files."
+                    fi
+                else
+                    echo "${US}-gov is not working-1."
+                fi
+            else
+                echo "${US}-gov is not working-2."
+            fi
+        else
+            echo "${US}-gov is not working-3."
+        fi
+    else
+        echo "it's a new ${US} install."
+    fi
+    if [[ $ffs -eq 1 ]]; then
+        echo "Trying to fetch the $US blob using the seed list."
+        fetch_from_seeds $US
+        if [[ $? -ne 0 ]]; then
+            return 1
+        fi
+        fsroot=$(dirname "$blob")
+        blob=$(basename "$blob")
+        echo "fetched $US from seeds. fsroot=$fsroot blob=$blob"
+    fi
+    blob_local_file=${fsroot}/$blob
+    echo "resolved blob: $blob_local_file"
+    return 0
+}
+
+function update {
+    echo "================================="
+    echo "UPDATE $US address $addr key $key"
+    echo "================================="
+
+    if [[ $force -eq 0 ]]; then
+        if [[ -f ${JAILDIR}/var/${US}/installed_blob ]]; then
+            iblob=$(cat /var/${US}/installed_blob)
+            echo "installed blob /var/${US}/installed_blob: $iblob"
+        fi
+        if [[ "_$blob" == "_$iblob" ]]; then
+            echo "$US is already updated to $blob"
+            return 1
+        fi
+    fi
+    opts=""
+    if [[ $full_install -eq 1 ]]; then
+        opts="$opts --full-install "
+    fi
+    echo "Installing $US blob ${blob_local_file} channel $CHANNEL"
+    echo "opts=$opts"
+    do_make apply_blob $opts 
+    echo "touched ${JAILDIR}/var/${US}/installed_blob"
+    echo $blob > ${JAILDIR}/var/${US}/installed_blob
+    if [[ $pinned -eq 1 ]]; then
+        touch ${JAILDIR}/var/${US}/installed_blob__pinned
+    fi
+    return 0
+}
+
+function update_us_nets_file {
+    export USRHOME=/home/${GOVUSER}
+
+    if [[ ! -f ${JAILDIR}/var/us_nets ]]; then
+        echo "Creating us_nets"
+        mkdir -p ${JAILDIR}/var
+        echo "${CHANNEL} ${US} ${BLOB_ADDR} ${BLOB_ID}" > ${JAILDIR}/var/us_nets
+    fi
+    #If there are already networks, fail if we are not among them (or use --append for creating a new entry in /var/us_nets
+    us_nets_my_entry=$(cat ${JAILDIR}/var/us_nets | grep " ${US} " | head -n1)
+    USlast=$(echo ${us_nets_my_entry} | awk '{print $2}')
+    CHlast=$(echo ${us_nets_my_entry} | awk '{print $1}')
+    if [[ "_${USlast}" != "_${US}" ]]; then
+        echo "${JAILDIR}/var/us-nets doesn't contain ${US} network entries."
+        if [[ $append -eq 1 ]]; then
+            mkdir -p ${JAILDIR}/var
+            echo "${CHANNEL} ${US} ${BLOB_ADDR} ${BLOB_ID}" >> ${JAILDIR}/var/us_nets
+        else
+            >&2 echo "KO 67989 $US is not among the following existing networks. (${JAILDIR}/var/us_nets)"
+            cat ${JAILDIR}/var/us_nets
+            echo "Use --append to install a #${US} node."
+            exit 1
+        fi
+    fi
+}
+
+function do_publish2 {
+    echo "publishing"
+    if [[ $forcepublish -eq 1 ]]; then
+        set -x
+        if [[ -d ${JAILDIR}/home/${GOVUSER}/downloads/blob/${US}_prev ]]; then
+            rm -rf ${JAILDIR}/home/${GOVUSER}/downloads/blob/${US}_prev
+        fi
+        if [[ -d ${JAILDIR}/home/${GOVUSER}/downloads/blob/${US} ]]; then
+            mv ${JAILDIR}/home/${GOVUSER}/downloads/blob/${US} ${JAILDIR}/home/${GOVUSER}/downloads/blob/${US}_prev
+        fi
+        mkdir -p ${JAILDIR}/home/${GOVUSER}/downloads/blob/${US}
+        cp $blob_local_file ${JAILDIR}/home/${GOVUSER}/downloads/blob/${US}/cur
+        echo "$blob" > ${JAILDIR}/home/${GOVUSER}/downloads/blob/${US}/curhash
+        set +x
+        echo "published at ${JAILDIR}/home/${GOVUSER}/downloads/blob/${US}/"
+    else
+        echo "Not publishing."
+    fi
+}
+
+function do_publish {
+    read_addr_key
+    resolve_blob
+    if [[ $? -ne 0 ]]; then
+        return 1
+    fi
+    do_publish2
+    return $?
+}
+
+function post_install {
+    mkdir -p ${JAILDIR}/tmp
+    echo "#!/bin/bash" > ${JAILDIR}/tmp/post-install_blob
+    chmod +x ${JAILDIR}/tmp/post-install_blob
+    echo "chown ${GOVUSER}:${GOVUSER} /home/${GOVUSER}/.${US}" >> ${JAILDIR}/tmp/post-install_blob
+    date
+    echo "Installed $US blob $blob at ${JAILDIR}/"
+    echo ""
+    fetch_from_seeds_cleanup
+    date
+    if [[ -f ${JAILDIR}/var/${US}/installed_blob__pinned ]]; then
+        echo "Since you installed this package manually automatic upgrades are blocked for ${JAILDIR}/."
+        echo "Remove the file ${JAILDIR}/var/${US}/installed_blob__pinned to resume."
+    fi
+    echo "ldconfig" >> ${JAILDIR}/tmp/post-install_blob
+    if [[ $reboot -eq 1 ]]; then
+        echo "reboot" >> ${JAILDIR}/tmp/post-install_blob
+    else
+        echo "systemctl daemon-reload" >> ${JAILDIR}/tmp/post-install_blob
+        echo "systemctl restart ${US}-gov" >> ${JAILDIR}/tmp/post-install_blob
+        echo "systemctl restart ${US}-wallet" >> ${JAILDIR}/tmp/post-install_blob
+    fi
+    if [[ "_${JAILDIR}" == "_" ]]; then
+        echo "Executing post-install"
+        cat /tmp/post-install_blob
+        /tmp/post-install_blob
+        rm /tmp/post-install_blob
+    fi
+    exit 0    #unreachable when invoked from gov ch 0
+}
+
+function cleanup_oldstuff {
+    echo "clean up deprecated files"
+    #rm -f ${JAILDIR}/etc/apt/sources.list.d/us.list
+    #rm -f ${JAILDIR}/etc/apt/sources.list.d/raspi.list
+    #rm -f ${JAILDIR}/var/www/us_html/index.html
+    #rm -f ${JAILDIR}/var/www/us_html/geonodes.jpg
+    #rm -f ${JAILDIR}/var/www/us_html/us-c.png
+    #rm -f ${JAILDIR}/var/www/us_anon/geonodes.jpg
+    #rm -f ${JAILDIR}/var/www/us_anon/us-c.png
+    #rm -f ${JAILDIR}/home/${GOVUSER}/.${US}/wallet/trader/lib${US}trader-pat*.so
+    #chown root:root /home
+}
+
+function do_install {
+    test_os_apt
+    if [[ $runapt -eq 1 ]]; then
+        run_apt
+    fi
+    if [[ -f ${JAILDIR}/var/${US}/installed_blob__pinned ]]; then
+        echo "automatic installs is suspended for $US."
+        echo "delete ${JAILDIR}/var/${US}/installed_blob__pinned to resume"
+        return 1
+    fi
+
+    update_us_nets_file
+
+    read_addr_key
+
+    resolve_blob
+    if [[ $? -ne 0 ]]; then
+        >&2 echo "KO 76987"
+        return 1
+    fi
+
+    echo "update"
+    update
+    if [[ $? -ne 0 ]]; then
+        >&2 echo "KO 76986"
+        return 1
+    fi
+
+    echo "do_publish2"
+    do_publish2
+
+    echo "post_install"
+    post_install
+
+    cleanup_oldstuff
+    echo "FINISHED"
+}
+
+function do_install_core0_deps {
+    if [[ $? -ne 0 ]]; then
+        return 1
+    fi
+    opts="--only-install-deps "
+    echo "Installing deps $US blob $blob_local_file"
+    do_make apply_blob $opts
+    return $?
+}
+
+function do_uninstall {
+    echo -n "debs no longer needed: "
+    echo "$debs"
+    echo "run /usr/local/bin/${US}-uninstall"
+    #TODO: call uninstall in subcomponents
+    return 0
+}
+
+function do_scan {
+    #TODO use /ver/us_nets
+    mk_httpnodes
+    return 0
+}
+
+function exec_cmd20 {
+    if [[ "_$cmd" == "_install" ]]; then
+        do_install
+    elif [[ "_$cmd" == "_install_core0_distr_deps" ]]; then
+        install_core0_distr_deps
+    elif [[ "_$cmd" == "_install_core0_deps" ]]; then
+        read_addr_key
+        resolve_blob
+        do_install_core0_deps
+    elif [[ "_$cmd" == "_uninstall" ]]; then
+        do_uninstall
+    elif [[ "_$cmd" == "_bootstrap_home" ]]; then
+        where=$1
+        shift
+        do_bootstrap_home "$where"
+    elif [[ "_$cmd" == "_extract_r2r_sdk" ]]; then
+        do_extract_r2r_sdk
+    elif [[ "_$cmd" == "_make" ]]; then
+        resolve_blob_curblob
+        do_make $cmdargs
+    elif [[ "_$cmd" == "_extract_src" ]]; then
+        do_extract_src
+    elif [[ "_$cmd" == "_resolve_blob" ]]; then
+        read_addr_key
+        resolve_blob
+    elif [[ "_$cmd" == "_fetch" ]]; then
+        do_fetch
+    elif [[ "_$cmd" == "_fetch_local" ]]; then
+        do_fetch_local
+    elif [[ "_$cmd" == "_publish" ]]; then
+        let forcepublish=1
+        do_publish
+    elif [[ "_$cmd" == "_scan" ]]; then
+        do_scan
+    elif [[ "_$cmd" == "_print_seeds" ]]; then
+        print_seeds
+    elif [[ "_$cmd" == "_print_blob" ]]; then
+        print_blob
+    elif [[ "_$cmd" == "_decompress" ]]; then
+        where=$1
+        shift
+        do_decompress $where
+#    elif [[ "_$cmd" == "_decompress_r2r" ]]; then
+#        where=$1
+#        shift
+#        do_decompress_r2r $where
+    else
+        do_help
+        >&2 echo "KO 86756 Invalid command $cmd."
+        return 1
+    fi
+    return $?
+}
+
+exec_cmd20 ${cmdargs}
+exit $?
+

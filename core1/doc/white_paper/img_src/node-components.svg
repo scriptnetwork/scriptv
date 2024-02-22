@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="node-components.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     showguides="true"
+     inkscape:zoom="1.0570195"
+     inkscape:cx="529.79156"
+     inkscape:cy="359.50141"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#f9f9f9;stroke:none;stroke-width:0.799999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1530"
+       width="196.77493"
+       height="137.24146"
+       x="4.2692237"
+       y="35.763756"
+       inkscape:export-filename="node-components.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#e6e6e6;stroke:#000000;stroke-width:0.52916;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect234"
+       width="89.531868"
+       height="121.124"
+       x="12.112514"
+       y="41.374382" />
+    <rect
+       style="fill:#cccccc;stroke:#000000;stroke-width:0.409839;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect898"
+       width="83.580002"
+       height="11.656975"
+       x="13.915542"
+       y="52.328903" />
+    <rect
+       style="fill:#cccccc;stroke:#000000;stroke-width:0.52916;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect900"
+       width="83.740822"
+       height="91.568413"
+       x="13.729644"
+       y="65.673302" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:6.35px;line-height:0;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.175008"
+       x="16.643692"
+       y="59.924923"
+       id="text958"><tspan
+         sodipodi:role="line"
+         id="tspan956"
+         style="font-size:6.35px;line-height:1.15;stroke-width:0.175008"
+         x="16.643692"
+         y="59.924923">gov daemon-blockchain</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:7.00032px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.175008"
+       x="15.583694"
+       y="73.54512"
+       id="text1012"><tspan
+         sodipodi:role="line"
+         id="tspan1010"
+         style="stroke-width:0.175008"
+         x="15.583694"
+         y="73.54512">wallet daemon</tspan></text>
+    <rect
+       style="fill:#b3b3b3;stroke:#000000;stroke-width:0.587171;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1028"
+       width="79.438385"
+       height="48.825611"
+       x="16.384163"
+       y="87.890556" />
+    <rect
+       style="fill:#999999;stroke:#000000;stroke-width:0.6235;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1058"
+       width="71.248825"
+       height="28.537628"
+       x="22.524677"
+       y="103.69109" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:7.00032px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.175008"
+       x="17.48419"
+       y="95.613747"
+       id="text1032"><tspan
+         sodipodi:role="line"
+         id="tspan1030"
+         style="stroke-width:0.175008"
+         x="17.48419"
+         y="95.613747">sessions</tspan></text>
+    <rect
+       style="fill:#999999;stroke:#000000;stroke-width:0.6235;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1056"
+       width="71.248825"
+       height="28.537628"
+       x="20.811386"
+       y="101.07095" />
+    <rect
+       style="fill:#999999;stroke:#000000;stroke-width:0.6235;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1034"
+       width="71.248825"
+       height="28.537628"
+       x="19.098095"
+       y="98.450798" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:7.00032px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.175008"
+       x="22.420979"
+       y="104.93033"
+       id="text1038"><tspan
+         sodipodi:role="line"
+         id="tspan1036"
+         style="stroke-width:0.175008"
+         x="22.420979"
+         y="104.93033">agent</tspan></text>
+    <rect
+       style="fill:#808080;stroke:#000000;stroke-width:0.31036;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1054"
+       width="54.454041"
+       height="13.037326"
+       x="33.633198"
+       y="111.65967" />
+    <rect
+       style="fill:#808080;stroke:#000000;stroke-width:0.31036;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1046"
+       width="54.454041"
+       height="13.037326"
+       x="32.263664"
+       y="109.88863" />
+    <rect
+       style="fill:#808080;stroke:#000000;stroke-width:0.31036;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1040"
+       width="54.454041"
+       height="13.037326"
+       x="30.894135"
+       y="108.11758" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:7.00032px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.175008"
+       x="36.672127"
+       y="116.84158"
+       id="text1044"><tspan
+         sodipodi:role="line"
+         id="tspan1042"
+         style="stroke-width:0.175008"
+         x="36.672127"
+         y="116.84158">R2R protocol</tspan></text>
+    <rect
+       style="fill:#b3b3b3;stroke:#000000;stroke-width:0.454636;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1026"
+       width="59.424507"
+       height="12.250092"
+       x="20.068653"
+       y="142.21486" />
+    <rect
+       style="fill:#b3b3b3;stroke:#000000;stroke-width:0.454636;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1024"
+       width="59.424507"
+       height="12.250092"
+       x="18.175743"
+       y="140.10204" />
+    <rect
+       style="fill:#b3b3b3;stroke:#000000;stroke-width:0.454636;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1018"
+       width="59.424507"
+       height="12.250092"
+       x="16.282833"
+       y="137.98921" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:7.00032px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.175008"
+       x="16.858261"
+       y="146.49078"
+       id="text1022"><tspan
+         sodipodi:role="line"
+         id="tspan1020"
+         style="stroke-width:0.175008"
+         x="16.858261"
+         y="146.49078">wallets</tspan></text>
+    <rect
+       style="fill:#b3b3b3;stroke:#000000;stroke-width:0.582076;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1111"
+       width="78.997452"
+       height="10.008619"
+       x="16.042667"
+       y="75.637138" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:7.00032px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.175008"
+       x="20.263474"
+       y="82.323082"
+       id="text1115"><tspan
+         sodipodi:role="line"
+         id="tspan1113"
+         style="stroke-width:0.175008"
+         x="20.263474"
+         y="82.323082">algorithms</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:7.00032px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.175008"
+       x="12.842322"
+       y="48.401989"
+       id="text1119"><tspan
+         sodipodi:role="line"
+         id="tspan1117"
+         style="stroke-width:0.175008"
+         x="12.842322"
+         y="48.401989">node</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.763412;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+       d="m 97.443554,57.731155 7.739966,-0.0011"
+       id="path1184"
+       sodipodi:nodetypes="cc" />
+    <ellipse
+       style="fill:#808080;stroke:#000000;stroke-width:0.582075;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path1238"
+       cx="105.51972"
+       cy="57.681488"
+       rx="1.5244306"
+       ry="1.6686547" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.770589;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+       d="m 97.381113,68.221605 7.926787,0.0024"
+       id="path1240"
+       sodipodi:nodetypes="cc" />
+    <ellipse
+       style="fill:#808080;stroke:#000000;stroke-width:0.582075;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="ellipse1242"
+       cx="105.6437"
+       cy="68.175323"
+       rx="1.5244306"
+       ry="1.6686547" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:7.00032px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.175008"
+       x="111.89546"
+       y="65.634277"
+       id="text1344"><tspan
+         sodipodi:role="line"
+         id="tspan1342"
+         style="stroke-width:0.175008"
+         x="111.89546"
+         y="65.634277">TCP Ports</tspan></text>
+    <g
+       id="g1476"
+       transform="matrix(0.66144983,0,0,0.66144983,78.23345,-83.082716)">
+      <rect
+         style="fill:#e6e6e6;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect1464"
+         width="101.66104"
+         height="28.746973"
+         x="74.377663"
+         y="248.66682" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="81.130798"
+         y="259.80264"
+         id="text1470"><tspan
+           sodipodi:role="line"
+           id="tspan1466"
+           style="stroke-width:0.264583"
+           x="81.130798"
+           y="259.80264">User Interface</tspan><tspan
+           sodipodi:role="line"
+           style="stroke-width:0.264583"
+           x="81.130798"
+           y="273.03177"
+           id="tspan1468">GUI/CLI/ RPC API</tspan></text>
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.165;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+         d="m 62.29548,262.54533 11.98395,0.004"
+         id="path1472"
+         sodipodi:nodetypes="cc" />
+      <ellipse
+         style="fill:#808080;stroke:#000000;stroke-width:0.879999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="ellipse1474"
+         cx="59.762745"
+         cy="262.51428"
+         rx="2.3046806"
+         ry="2.522723" />
+    </g>
+    <g
+       id="g1462"
+       transform="matrix(0.66144983,0,0,0.66144983,75.473461,-85.434878)">
+      <rect
+         style="fill:#e6e6e6;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect1450"
+         width="101.66104"
+         height="28.746973"
+         x="74.377663"
+         y="248.66682" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="81.130798"
+         y="259.80264"
+         id="text1456"><tspan
+           sodipodi:role="line"
+           id="tspan1452"
+           style="stroke-width:0.264583"
+           x="81.130798"
+           y="259.80264">User Interface</tspan><tspan
+           sodipodi:role="line"
+           style="stroke-width:0.264583"
+           x="81.130798"
+           y="273.03177"
+           id="tspan1454">GUI/CLI/ RPC API</tspan></text>
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.165;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+         d="m 62.29548,262.54533 11.98395,0.004"
+         id="path1458"
+         sodipodi:nodetypes="cc" />
+      <ellipse
+         style="fill:#808080;stroke:#000000;stroke-width:0.879999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="ellipse1460"
+         cx="59.762745"
+         cy="262.51428"
+         rx="2.3046806"
+         ry="2.522723" />
+    </g>
+    <g
+       id="g1448"
+       transform="matrix(0.66144983,0,0,0.66144983,72.713473,-87.78704)">
+      <rect
+         style="fill:#e6e6e6;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect902"
+         width="101.66104"
+         height="28.746973"
+         x="74.377663"
+         y="248.66682" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="81.130798"
+         y="259.80264"
+         id="text1016"><tspan
+           sodipodi:role="line"
+           id="tspan1014"
+           style="stroke-width:0.264583"
+           x="81.130798"
+           y="259.80264">User Interface</tspan><tspan
+           sodipodi:role="line"
+           style="stroke-width:0.264583"
+           x="81.130798"
+           y="273.03177"
+           id="tspan1346">GUI/CLI/ RPC API</tspan></text>
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.165;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+         d="m 62.29548,262.54533 11.98395,0.004"
+         id="path1240-3"
+         sodipodi:nodetypes="cc" />
+      <ellipse
+         style="fill:#808080;stroke:#000000;stroke-width:0.879999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="ellipse1242-6"
+         cx="59.762745"
+         cy="262.51428"
+         rx="2.3046806"
+         ry="2.522723" />
+    </g>
+    <g
+       id="g1440"
+       transform="matrix(0.66144983,0,0,0.66144983,76.162014,-67.701024)">
+      <rect
+         style="fill:#e6e6e6;stroke:#000000;stroke-width:0.791173;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect1426"
+         width="101.4987"
+         height="28.457991"
+         x="74.722237"
+         y="283.98209" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="81.905647"
+         y="300.0365"
+         id="text1430"><tspan
+           sodipodi:role="line"
+           id="tspan1428"
+           style="stroke-width:0.264583"
+           x="81.905647"
+           y="300.0365">KATLAS node</tspan></text>
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.165;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+         d="m 62.7833,291.07896 11.98395,0.004"
+         id="path1432"
+         sodipodi:nodetypes="cc" />
+      <ellipse
+         style="fill:#808080;stroke:#000000;stroke-width:0.879999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="ellipse1434"
+         cx="60.250565"
+         cy="291.04791"
+         rx="2.3046806"
+         ry="2.522723" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.165;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+         d="m 62.80196,303.17402 11.98395,0.004"
+         id="path1436"
+         sodipodi:nodetypes="cc" />
+      <ellipse
+         style="fill:#808080;stroke:#000000;stroke-width:0.879999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="ellipse1438"
+         cx="60.269222"
+         cy="303.14297"
+         rx="2.3046806"
+         ry="2.522723" />
+    </g>
+    <g
+       id="g1424"
+       transform="matrix(0.66144983,0,0,0.66144983,73.4962,-70.129683)">
+      <rect
+         style="fill:#e6e6e6;stroke:#000000;stroke-width:0.791173;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect1410"
+         width="101.4987"
+         height="28.457991"
+         x="74.722237"
+         y="283.98209" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="81.905647"
+         y="300.0365"
+         id="text1414"><tspan
+           sodipodi:role="line"
+           id="tspan1412"
+           style="stroke-width:0.264583"
+           x="81.905647"
+           y="300.0365">KATLAS node</tspan></text>
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.165;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+         d="m 62.7833,291.07896 11.98395,0.004"
+         id="path1416"
+         sodipodi:nodetypes="cc" />
+      <ellipse
+         style="fill:#808080;stroke:#000000;stroke-width:0.879999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="ellipse1418"
+         cx="60.250565"
+         cy="291.04791"
+         rx="2.3046806"
+         ry="2.522723" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.165;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+         d="m 62.80196,303.17402 11.98395,0.004"
+         id="path1420"
+         sodipodi:nodetypes="cc" />
+      <ellipse
+         style="fill:#808080;stroke:#000000;stroke-width:0.879999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="ellipse1422"
+         cx="60.269222"
+         cy="303.14297"
+         rx="2.3046806"
+         ry="2.522723" />
+    </g>
+    <g
+       id="g1408"
+       transform="matrix(0.66144983,0,0,0.66144983,70.830385,-72.558341)">
+      <rect
+         style="fill:#e6e6e6;stroke:#000000;stroke-width:0.791173;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect1383"
+         width="101.4987"
+         height="28.457991"
+         x="74.722237"
+         y="283.98209" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="81.905647"
+         y="300.0365"
+         id="text1387"><tspan
+           sodipodi:role="line"
+           id="tspan1385"
+           style="stroke-width:0.264583"
+           x="81.905647"
+           y="300.0365">node</tspan></text>
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.165;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+         d="m 62.7833,291.07896 11.98395,0.004"
+         id="path1389"
+         sodipodi:nodetypes="cc" />
+      <ellipse
+         style="fill:#808080;stroke:#000000;stroke-width:0.879999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="ellipse1391"
+         cx="60.250565"
+         cy="291.04791"
+         rx="2.3046806"
+         ry="2.522723" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.165;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+         d="m 62.80196,303.17402 11.98395,0.004"
+         id="path1393"
+         sodipodi:nodetypes="cc" />
+      <ellipse
+         style="fill:#808080;stroke:#000000;stroke-width:0.879999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="ellipse1395"
+         cx="60.269222"
+         cy="303.14297"
+         rx="2.3046806"
+         ry="2.522723" />
+    </g>
+  </g>
+</svg>

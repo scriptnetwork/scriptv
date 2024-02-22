@@ -1,0 +1,24 @@
+request
+[peerinfo] H msg
+async
+-
+-
+
+peer_challenge
+[peerinfo] H msg  p pub  sig_t sig  sig_der_t sig_der
+async
+-
+-
+
+challenge2_response
+[peerinfo] p pub  sig_t sig  sig_der_t sig_der  request_data_t request_data
+async
+-
+-
+
+verification_result
+[notser] [peerinfo] request_data_t request_data
+async
+-
+-
+

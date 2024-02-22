@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:clickable="true"
+    android:id="@+id/contentX"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/endpoint_paste"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="0dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="280dp"
+            android:layout_height="wrap_content"
+            app:boxBackgroundMode="none"
+            android:hint="@string/tpyeendpoint">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/ep_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+<!--
+            android:background="#000000"
+                android:background="#000000"
+                android:textColor="#FFFFFF"
+
+-->
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/use_endpoint_btn"
+            android:text="@string/use"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_gravity="center_vertical|center_horizontal"/>
+<!--
+            android:textColor="@android:color/white"
+-->
+    </LinearLayout>
+    <com.journeyapps.barcodescanner.DecoratedBarcodeView
+        android:id="@+id/barcode_scanner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <ImageView android:id="@+id/barcodePreview"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_vertical|left"
+            android:layout_marginTop="-150dp"
+    >
+    </ImageView>
+</LinearLayout>
+

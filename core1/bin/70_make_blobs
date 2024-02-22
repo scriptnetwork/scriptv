@@ -1,0 +1,140 @@
+#!/bin/bash
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+echo "###################"
+echo "## 70_make_blobs ##"
+echo "###################"
+
+numh=`cat distr/build_hashes | grep "^vhash " | awk '{print $2}' | sort | uniq | wc -l`
+if [[ $numh -ne 1 ]]; then
+    echo "KO 6753 multiple hashes"
+    exit 1
+fi
+
+rm -rf blobs
+mkdir blobs
+
+hash=`cat distr/build_hashes | grep "^vhash " | awk '{print $2}' | sort | uniq`
+
+flagscode=""
+cat distr/build_hashes | grep "^vhash $hash" | grep "dbg-1" > /dev/null
+if [[ $? -eq 0 ]]; then
+    flagscode="${flagscode}D"
+fi
+cat distr/build_hashes | grep "^vhash $hash" | grep "logs-1" > /dev/null
+if [[ $? -eq 0 ]]; then
+    flagscode="${flagscode}L"
+fi
+cat distr/build_hashes | grep "^vhash $hash" | grep "counters-1" > /dev/null
+if [[ $? -eq 0 ]]; then
+    flagscode="${flagscode}C"
+fi
+cat distr/build_hashes | grep "^vhash $hash" | grep "connlog-1" > /dev/null
+if [[ $? -eq 0 ]]; then
+    flagscode="${flagscode}l"
+fi
+cat distr/build_hashes | grep "^vhash $hash" | grep "fcgi-1" > /dev/null
+if [[ $? -eq 0 ]]; then
+    flagscode="${flagscode}I"
+fi
+
+if [[ "_$flagscode" != "_" ]]; then
+    flagscode="_${flagscode}"
+fi
+
+shenvfile=`realpath ../core0/us/lib/shenv`
+
+for branddir in `find distr -maxdepth 1 -mindepth 1 -type d`; do
+    brand=$(basename $branddir)
+    if [[ ! -f distr/$brand/version ]]; then
+        continue
+    fi
+    echo ""
+    echo "branddir=$branddir"
+    echo "brand=$brand"
+    echo "hash=$hash"
+    #echo "find $branddir -name \"core_*_$hash.tar.zst\""
+    branch=`cat distr/${brand}/version | sed "s~\(.*\)_\(.*\)~\1~"`
+    hash2=`cat distr/${brand}/version | sed "s~\(.*\)_\(.*\)~\2~"`
+    if [[ "_$hash2" != "_$hash" ]]; then
+        echo "KO 71123 Inconsistent hashes."
+        exit 1
+    fi
+#    branch=`find $branddir -name "core_*_$hash.tar.zst" | sed "s#.*core_\(.*\)_${hash}.tar.zst#\1#"`
+    echo "brand $brand branch $branch hash $hash branddir $branddir"
+    pushd distr > /dev/null
+        blobdir="${brand}_${branch}_${hash}${flagscode}"
+        echo "blobdir=$blobdir"
+        rm -rf $blobdir
+        mkdir -p $blobdir
+        cp -r $brand/* $blobdir/
+        if [[ ! -f $blobdir/doc/release_notes ]]; then
+            echo "KO 87945 missing release_notes."
+            exit 1
+        fi
+        if [[ ! -f $blobdir/doc/strset ]]; then
+            echo "KO 87946 missing strset file."
+            exit 1
+        fi
+        mkdir -p $blobdir/lib
+        cp $shenvfile $blobdir/lib/
+        cp -r deps $blobdir/
+        echo "Excluding OS Image"
+        rm -rf $blobdir/raspberry_pi
+        cp $blobdir/bin/install_blob /tmp/${brand}_install_blob
+        pushd $blobdir/wallet-cli > /dev/null
+            apk=`find . -type f -name "*.apk"`
+            echo "apk=$apk"
+            if [[ "_$apk" != "_" ]]; then
+                apkhash=`us-wallet digest $apk`
+                if [[ $? -ne 0 ]]; then
+                    echo "KO 89782 need a working us-wallet program."
+                    exit 1
+                fi
+                ln -s "$apk" blob.apk
+                echo "$apkhash" > blobhash 
+                echo "apkhash=$apkhash"
+            fi
+        popd > /dev/null 
+        echo "writing blobmake.sh"
+#        pwd
+        ls ../snippet/blob_make.sh
+        echo "cp ../snippet/blob_make.sh $blobdir/make.sh"
+        cp ../snippet/blob_make.sh $blobdir/make.sh
+        chmod +x $blobdir/make.sh           
+        tar -I zstd -cf $blobdir.tzst $blobdir
+        mv $blobdir.tzst ../blobs/
+        mv /tmp/${brand}_install_blob ../blobs/
+        . $blobdir/doc/strset
+        rm -rf $blobdir
+        #write partid
+        echo "$str40" > ../blobs/${blobdir}.tzst.partid
+    popd > /dev/null
+done
+
+echo ""
+echo "blobs:"
+find blobs -type f
+exit 0
+

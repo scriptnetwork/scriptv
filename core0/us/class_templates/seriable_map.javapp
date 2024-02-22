@@ -1,0 +1,75 @@
+package us.gov.io;
+import us.CFG;                                                                                 // CFG
+import us.gov.crypto.ripemd160.hash_t;                                                         // hash_t
+import static us.stdint.*;                                                                     // *
+import us.ko;                                                                                  // ko
+import java.util.Map;                                                                          // Map
+import java.io.PrintStream;                                                                    // PrintStream
+import static us.gov.io.types.blob_t.serid_t;                                                  // serid_t
+import java.util.TreeMap;                                                                      // TreeMap
+
+/*
+This is not a Java class. Although it looks pretty similar, javac doesn't compile it as it is.
+It is meant to be transformed by make.sh producing a family of classes where <k, v> is sibstituted by actual classes.
+The intention is to function pretty much like C++ templates.
+Java generics use type erasure and with this technique the compiler cannot resolve function overloads, e.g. in blob_writer_t.blob_size(i.getValue())
+
+do a full rebuild (make clean) if you change this file. <orma src="make.sh#gen_template_file" ref=1>
+*/
+
+
+@SuppressWarnings("serial")
+public class seriable_map<k, v> extends TreeMap<k, v> implements seriable {
+
+    static private void log(final String line) {              //--strip
+        CFG.log_gov_io("seriable_map: " + line);              //--strip
+    }                                                         //--strip
+
+    @Override public serid_t serial_id() { return serid_t.no_header; }
+
+    @Override public int blob_size() {
+        int sz = blob_writer_t.sizet_size(size());
+        for (Map.Entry<k, v> i: entrySet()) {
+            sz += blob_writer_t.blob_size(i.getKey());
+            sz += blob_writer_t.blob_size(i.getValue());
+        }
+        return sz;
+    }
+
+    @Override public void to_blob(blob_writer_t writer) {
+        log("writing seriable_map"); //--strip
+        writer.write_sizet(size());
+        for (Map.Entry<k, v> i: entrySet()) {
+            writer.write(i.getKey());
+            writer.write(i.getValue());
+        }
+    }
+
+    @Override public ko from_blob(blob_reader_t reader) {
+        log("reading seriable_map"); //--strip
+        clear();
+        uint64_t sz = new uint64_t();
+        {
+            ko r = reader.read_sizet(sz);
+            if (ko.is_ko(r)) return r;
+        }
+        for (int i = 0; i< sz.value; ++i) {
+            k k_;
+            {
+                k_ = new k();
+                ko r = reader.read(k_);
+                if (ko.is_ko(r)) return r;
+            }
+            v v_;
+            {
+                v_ = new v();
+                ko r = reader.read(v_);
+                if (ko.is_ko(r)) return r;
+            }
+            put(k_, v_);
+        }
+        return ko.ok;
+    }
+
+}
+

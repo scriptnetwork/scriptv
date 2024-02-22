@@ -1,0 +1,85 @@
+#!/bin/bash
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+
+US=##str3##
+
+function clean {
+	rm -rf build
+	rm -f *.jar
+}
+
+javac=`which javac`
+if [ "_$JAVA_HOME" != "_" ]; then
+    javac=$JAVA_HOME/bin/javac
+fi
+
+
+function source {
+    rm -f ${US}-walletj.jar
+    mkdir -p build
+    $javac -d build -cp $libspath us/*.java
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
+    cd build
+        jar cfe ../${US}-walletj.jar us.walletj.class *
+    cd ..
+    echo "bin/${US}-walletj is ready"
+    echo "bin/${US}-examples is ready"
+}
+
+function all {
+    echo "compiling using $javac"
+    source
+}
+
+cmd=$1
+libspath=".:./sdk/${US}-sdk_bc.jar:./sdk/libs_bouncy/*"
+
+if [[ ! -f ./sdk/${US}-sdk_bc.jar ]]; then
+    echo "KO 79863 no sdk. symlink the directory containing ${US}-sdk_bc.jar and libs_bouncy as sdk"
+    echo "e.g."
+    echo "    ln -s ../sdk/wallet/java sdk"
+    exit 1
+fi
+
+if [ "_$cmd" == "_" ]; then
+    cmd="all"
+fi
+
+if [ "_$cmd" == "_all" ]; then
+    all
+fi
+
+if [ "_$cmd" == "_source" ]; then
+    source
+fi
+
+if [ "_$cmd" == "_clean" ]; then
+    clean
+fi
+
+exit 0
+

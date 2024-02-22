@@ -1,0 +1,38 @@
+Changes in object structure that affects blob serialization
+===========================================================
+Adding an attribute named 'flags': unit8_t flags;
+=================================================
+
+We are modifying a seriable object, increase serialization version:
+In file res/strings/en-uk
+Increase srt60
+e.g. 
+str60=10                #Blob serialization version
+you see the current version is 10. Increase it:
+str60=11                #Blob serialization version
+
+DO:
+    rm res/strings/en-uk.ovr #delete overrides
+    bin/configure #re-generate
+
+
+Now, all object out there that doesn't contain the field 'flags' are identified as [header.version <= 10]
+
+In the from_blob function, we shall be able to read both versions:
+
+ko c::from_blob(blob_reader_t& reader) {
+...
+
+    // <orma backwards_compatibility_hack version_from=0 version_from=10/> //report hack to coherency authority. Hacks must be tracked because they must be deleted in the future.
+    if (reader.header.version <= 10) { // we are reading an old format that doesn't include 'flags'
+        flags = 0;
+    }
+    else {
+        auto r = reader.read(flags); // we are reading the new format containing 'flags'
+        if (is_ko(r)) return r;
+    }
+
+...
+}
+
+TASK: Update per-brand default connection blobs after new verser (str95)

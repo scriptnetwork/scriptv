@@ -1,0 +1,331 @@
+#!/bin/bash
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+
+function help {
+    cat << EOF
+$0 <cmd>
+Commands:
+  run                                               postupgrade entry point
+  post_upgrade <brand>                              can be called between network upgrades
+  forkfromhere                                      only run this segment
+  update_static_cfg                                 only run this segment
+  relnotes                                          only run this segment
+EOF
+}
+
+function update_devjobs {
+    brand=$1
+    echo "=================== github brand $brand branch $branch"
+    if [[ -z $branch ]]; then
+        echo "KO 86681 need branch."
+        exit 1
+    fi
+
+    echo "Update devjobs" #TODO fix for multiple devjobs
+    echo "Run bin/devjob_tool --id ${devjob_id} sync"
+    echo "yes?"
+    read a
+
+    bin/devjob_tool --branch $branch --id ${devjob_id} sync
+
+    echo "CTRL-Z. complete tasks. the resume with fg and say yes"
+    echo "yes?"
+    read a
+}
+
+function android_playstore {
+    brand=$1
+    echo "=================== android_playstore brand $brand branch $branch"
+    if [[ -z $branch ]]; then
+        echo "KO 86681 need branch."
+        exit 1
+    fi
+
+    appstoreaccount=${googleplay_account}
+    appname=${android_app_name}
+
+    echo "Update Google PlayStore"
+    pushd ../core0/us > /dev/null
+        bin/apply_brand ../../core2/brands/$brand $branch
+        pushd brand_$brand/us > /dev/null
+            bin/configure --appstore
+            if [[ $? -ne 0 ]]; then
+                echo "KO 87964 configure failed."
+                exit 1
+            fi
+            make android
+            if [[ $? -ne 0 ]]; then
+                echo "KO 87965 make android failed."
+                exit 1
+            fi
+            bin/sign_apk --keyroot ${keyroot}
+            if [[ $? -ne 0 ]]; then
+                echo "KO 87966 sign_apk failed."
+                exit 1
+            fi
+            pwd
+        popd > /dev/null
+    popd > /dev/null
+
+    bundl="../core0/us/brand_$brand/us/android/app/build/outputs/bundle/release/output-release.aab"
+    if [[ ! -f $bundl ]]; then
+        echo "KO 67745 bundle not found."
+        exit 1
+    fi
+    bundle=`realpath $bundl`
+
+    cat << EOF
+Goto https://play.google.com/console/"
+    1> Use account
+       ---> $appstoreaccount
+    2> Choose app:
+       ---> $appname
+    3> Go to Production. Click 'Create New Release'
+    4> upload bundle at
+       ---> $bundle
+    5> Google suggests Release name like '22101819 (${brand}-${branch}_a9fab2.842136 2022-10-18_19-52-09)'
+    6> Change to something like:
+       ---> '${brand}-${branch}_a9fab2.842136 2022-10-18'
+    7> Fill release notes:
+       ---> 
+EOF
+
+    stage="alpha"
+    prev_branch=$(git branch -a | sort | sed "s#^.*${stage}\-\(.*\)#${stage}-\1#" | grep "^${stage}-"  | sort | uniq | grep "$branch" -B1 | head -n1)
+
+#    let ord=`echo $branch | sed "s~alpha-\(.*\)~\1~"`
+#    let prev=$ord-1
+    echo "------ Info for release notes: ${prev_branch} -> ${branch} "
+    cat doc/release_notes | grep "^${branch} " -A1000 | grep -v "${branch}" | grep "^${prev_branch}" -B1000 | grep -v "^${prev_branch}" | grep -v "^$"
+    echo "---------------------------------------"
+
+    echo "CTRL-Z. complete tasks. the resume with fg and say yes"
+    read a
+}
+
+function post_upgrade0 {
+    brand=$1
+    bdir=${brands}/${brand}
+    . ${bdir}/strset0
+
+    if [[ ${upload_googleplay} -eq 1 ]]; then
+        echo "Build $brand app for Google PlayStore? y/n"
+        read a
+        if [[ "_$a" == "_y" ]]; then
+            android_playstore $brand
+        else
+            echo "skipping $brand app for Google PlayStore"
+        fi
+    fi
+
+    if [[ "_${devjob_id}" != "_" ]]; then
+        echo "Sync devjobs for brand $brand? y/n"
+        read a
+        if [[ "_$a" == "_y" ]]; then
+            update_devjobs $brand
+        else
+            echo "skipping syncing ng devjobs for brand $brand"
+        fi
+    fi
+}
+
+function post_upgrade {
+    echo ""
+    echo "Post network upgrade tasks:"
+    inclbrands=`find distr -mindepth 1 -maxdepth 1 -type d  | grep -v "deps$" | tr '/' ' ' | awk {'print $NF'}`
+    let ecode=0
+    for brand in ${inclbrands}; do
+        echo "==post_upgrade============================================= brand ${brand}"
+        post_upgrade0 $brand
+    done
+}
+
+let create_new_branch=1
+
+function forkfromhere {
+    let bn=`echo $branch | sed "s~alpha-\([0-9]*\).*~\1~"`
+    let bn=$bn+1
+    proposed="alpha-$bn"
+    newb=$proposed
+    while [[ true ]]; do
+        echo -n "enter new or existing branch (or 'y' for ${newb})"
+        read newb
+        if [[ "_$newb" == "_" ]]; then
+            continue
+        fi
+        if [[ "_$newb" == "_y" ]]; then
+            newb=$proposed
+        fi
+        git branch | grep "$newb" > /dev/null
+        if [[ $? -eq 0 ]]; then
+            echo -n "Branch $newb already exists. Use it? (n will ask for a branch again) [y/n]: "
+            read ans
+            if [[ "_$ans" == "_y" ]]; then
+                let create_new_branch=0
+                break
+            fi
+        else
+            echo "Creating new branch $newb."
+            let create_new_branch=1
+            break
+        fi
+    done
+
+    curgit=`git branch | grep "^\* " | awk '{ print $2}'`
+    if [[ "_$curgit" == "_$branch" ]]; then
+        if [[ $create_new_branch -eq 0 ]]; then
+            echo "checking out branch $newb"
+            git checkout $newb
+            if [[ $? -ne 0 ]]; then
+                echo "KO 88979 git gave errors"
+                exit 1
+            fi
+            git pull
+        else
+            echo "creating new git branch $newb"
+            git checkout -b $newb
+        fi
+    fi
+
+    echo "updating branch in cbs/config"
+    sed -i "s/^branch=\"$branch\"/branch=\"$newb\"/" .cbs/config
+
+}
+function save_release_history {
+    if [[ ! -d distr ]]; then
+        echo "WARNING: distr not found - skipping save to history"
+        return
+    fi
+    echo "archiving distr files"
+    dir=release_history/$branch
+    mkdir -p $dir
+    mv distr $dir/
+    mv blobs $dir/
+    echo "Saved release history at $dir"
+}
+
+function update_static_cfg {
+    echo "Updating mainnet API service numbers:"
+    pushd ../core0/us/api > /dev/null
+        cp generated/gov/svc_v$(cat generated/gov/svc_cur_v) netsvc/gov
+        cp generated/wallet/svc_v$(cat generated/wallet/svc_cur_v) netsvc/wallet
+    popd  > /dev/null
+    echo " * netsvc/{gov,wallet} files have been updated."
+
+    let moco=`cat ../core0/us/res/strings/en-uk | grep "^str99=" | sed "s~^str99=\([0-9]*\).*~\1~"`
+    let moco=$moco+1
+    if [[ $moco -eq 256 ]]; then
+        let moco=0
+    fi
+    sed -i "s~^str99=\([0-9]*\)\(.*\)~str99=${moco}\2~" ../core0/us/res/strings/en-uk
+
+    echo " * Increased the monolitic deployments counter str99 in core0/us/res/strings/en-uk."
+}
+
+#TODO: REPEATED core0 dir !!!!!!!!!!! release_history/alpha-53/distr/us/src/core0/core0/us
+function relnotes {
+    . release_history/$branch/distr/us/src/core0/us/vcs_git_env
+    echo "======================================="
+    echo "info for core1/doc/release_notes:"
+    echo -n "${core0_branch}_${core0_hashname} ${core0_build_date} "
+    cat release_history/$branch/distr/build_hashes | grep vhash | sort | uniq
+    echo "======================================="
+}
+
+function postupgrade_entry_point {
+    if [[ ! -d distr ]]; then
+        echo "KO 20199 distr doesn't exists"
+        exit 1
+    fi
+    let ne=`cat distr/build_hashes | grep "$branch" | wc -l`
+    if [[ $ne -ne 3 ]]; then  #arch
+        echo "KO 43398 expecting 5 entries containing $branch in distr/build_hashes"
+        exit 1
+    fi
+    if [[ ! -d blobs ]]; then
+        echo "KO 40398 blobs doesn't exists"
+        exit 1
+    fi
+    let ne=`ls blobs -1 | grep ".tzst.partid" | grep "$branch" | wc -l`
+    let ene=`ls ${brands}/ -1 | wc -l`
+    if [[ $ne -ne $ene ]]; then
+        echo "KO 43398 expecting $ene blobs containing $branch in blobs/"
+        exit 1
+    fi
+
+    echo "Confirm that the network is running ${branch}."
+    echo "Yes?"
+    read a
+
+    post_upgrade
+    save_release_history
+    forkfromhere
+    update_static_cfg
+    relnotes
+
+
+    if [[ $create_new_branch -eq 0 ]]; then
+        echo "Please commit the newly created branch $nreb with these changes (netsvc. release notes)"
+    else
+        echo "Please commit the branch $nreb with these changes (netsvc. release notes)"
+    fi
+
+    echo "==============================================="
+
+    echo "Last, but not least, modify doc/release_notes, commit, and push the new branch."
+    echo "cypherpunks write code."
+
+    exit $ecode
+
+}
+
+. .cbs/config
+
+cmd=$1
+shift
+
+if [[ "_$cmd" == "_run" ]]; then
+    postupgrade_entry_point
+    exit 1
+fi
+if [[ "_$cmd" == "_post_upgrade" ]]; then
+    brand=$1
+    shift
+    post_upgrade0 $brand
+    exit 1
+fi
+if [[ "_$cmd" == "_forkfromhere" ]]; then
+    forkfromhere
+    exit $?
+fi
+if [[ "_$cmd" == "_update_static_cfg" ]]; then
+    update_static_cfg
+    exit $?
+fi
+
+
+help
+exit 1
+

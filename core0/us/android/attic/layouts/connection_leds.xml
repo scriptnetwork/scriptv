@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<us.cash.leds_t
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#000000"
+    android:padding="3px"
+>
+    <View android:id="@+id/pb_send" 
+        android:layout_width="match_parent" 
+        android:layout_height="0dp"
+        android:layout_weight="1"
+    />
+    <View android:id="@+id/pb_receive" 
+        android:layout_width="match_parent" 
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="3px"
+    />
+    <View android:id="@+id/pb_online" 
+        android:layout_width="match_parent" 
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="3px"
+    />
+</us.cash.leds_t>
+
+

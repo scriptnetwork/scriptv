@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ ! -f core1/.cbs/config ]; then
+    echo "KO 15502 missing core1/.cbs/config"
+    exit 1
+fi
+. core1/.cbs/config
+
+pushd core1 > /dev/null
+    US=`ls -1 $brands/ | head -n1`
+    branddir=`realpath $brands/$US`
+popd  > /dev/null
+
+echo "Configuring Core0"
+pushd core0/us > /dev/null
+    bin/configure --testdebug --brand-dir $branddir $@ || exit 1
+popd > /dev/null
+
+echo ""
+echo "Configuring Core1"
+pushd core1/us/trader > /dev/null
+    bin/configure || exit 1
+popd > /dev/null
+
+echo "Core0 and Core1 are configured."
+
+exit 0

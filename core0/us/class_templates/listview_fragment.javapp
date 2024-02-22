@@ -1,0 +1,339 @@
+package us.cash;
+import android.widget.AbsListView;                                                             // AbsListView
+import androidx.appcompat.app.ActionBarDrawerToggle;                                           // ActionBarDrawerToggle
+import androidx.appcompat.app.ActionBar;                                                       // ActionBar
+import android.app.Activity;                                                                   // Activity
+import androidx.appcompat.app.AlertDialog;                                                     // AlertDialog
+import android.widget.ArrayAdapter;                                                            // ArrayAdapter
+import java.util.ArrayList;                                                                    // ArrayList
+import android.graphics.BitmapFactory;                                                         // BitmapFactory
+import android.graphics.Bitmap;                                                                // Bitmap
+import android.os.Build;                                                                       // Build
+import android.os.Bundle;                                                                      // Bundle
+import android.content.Context;                                                                // Context
+import us.gov.socket.datagram;                                                                 // datagram
+import java.text.DecimalFormat;                                                                // DecimalFormat
+import android.content.DialogInterface;                                                        // DialogInterface
+import androidx.drawerlayout.widget.DrawerLayout;                                              // DrawerLayout
+import android.widget.FrameLayout;                                                             // FrameLayout
+import java.util.HashMap;                                                                      // HashMap
+import us.gov.crypto.ripemd160.hash_t;                                                         // hash_t
+import android.widget.ImageButton;                                                             // ImageButton
+import android.widget.ImageView;                                                               // ImageView
+import static us.ko.*;                                                                         // *
+import static us.stdint.*;                                                                     // *
+import java.io.InputStream;                                                                    // InputStream
+import us.ko;                                                                                  // ko
+import android.view.LayoutInflater;                                                            // LayoutInflater
+import android.widget.LinearLayout;                                                            // LinearLayout
+import android.widget.ListView;                                                                // ListView
+import android.view.Menu;                                                                      // Menu
+import android.view.MenuItem;                                                                  // MenuItem
+import com.google.android.material.navigation.NavigationView;                                  // NavigationView
+import java.text.NumberFormat;                                                                 // NumberFormat
+import static us.ko.ok;                                                                        // ok
+import us.pair;                                                                                // pair
+import android.widget.ProgressBar;                                                             // ProgressBar
+import us.wallet.protocol;                                                                     // protocol
+import android.widget.RelativeLayout;                                                          // RelativeLayout
+import androidx.annotation.RequiresApi;                                                        // RequiresApi
+import us.string;                                                                              // string
+import android.widget.TextView;                                                                // TextView
+import android.widget.Toast;                                                                   // Toast
+import androidx.appcompat.widget.Toolbar;                                                      // Toolbar
+import android.view.ViewGroup;                                                                 // ViewGroup
+import android.view.View;                                                                      // View
+import us.gov.cash.account_t;
+import java.util.Map;                                                                          // Map
+import static us.gov.cash.types.cash_t;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import android.content.Intent;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import android.graphics.Color;
+import android.widget.LinearLayout;
+
+/*
+This is not a Java class. Although it looks pretty similar, javac doesn't compile it as it is.
+It is meant to be transformed by make.sh producing a family of classes where <k, v> is sibstituted by actual classes.
+The intention is to function pretty much like C++ templates.
+Java generics use type erasure and with this technique the compiler cannot resolve function overloads, e.g. in blob_writer_t.blob_size(i.getValue())
+
+do a full rebuild (make clean) if you change this file. <orma src="make.sh#gen_template_file" ref=1>
+*/
+
+public final class listview_fragment<t> extends fragment {
+
+    private static void log(final String line) {                       //--strip
+        CFG.log_android("list_view_fragment<t>: " + line);             //--strip
+    }                                                                  //--strip
+
+    public listview_fragment<t>() {
+        super(false);
+    }
+
+    static class item_t {
+
+        public item_t(String token, String amount) {
+            this.token = token;
+            this.balance = amount;
+        }
+
+        public String token;
+        public String balance;
+    }
+
+    static class view_holder extends RecyclerView.ViewHolder {
+
+        public static interface item_click_listener {
+            void on_coin_click(int position);
+        }
+
+        public view_holder(View item_view, final item_click_listener listener, final adapter adapter_) {
+            super(item_view);
+            listener_ = listener;
+            coin = item_view.findViewById(R.id.coin);
+            balance = item_view.findViewById(R.id.balance);
+            layout = item_view.findViewById(R.id.layout);
+            if (listener != null) {
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View view) {
+                        int position = getAdapterPosition();
+                        adapter_.toggle_selection(position);
+                        if (position != RecyclerView.NO_POSITION) {
+                            listener_.on_coin_click(position);
+                        }
+                    }
+                });
+            }
+        }
+
+        void bind(final item_t item, final int position, boolean selected) {
+            log("bind " + item.token + " " + selected); //--strip
+            coin.setText(item.token);
+            balance.setText(item.balance);
+            if (selected) {
+                layout.setBackgroundColor(coins.selcolor);
+            }
+            else {
+                if ((position & 1) == 0) {
+                    layout.setBackgroundColor(coins.odditycolor);
+                }
+                else {
+                    layout.setBackgroundColor(Color.WHITE);
+                }
+            }
+        }
+
+        item_click_listener listener_ = null;
+        TextView coin;
+        TextView balance;
+        LinearLayout layout;
+    }
+
+    static class adapter extends RecyclerView.Adapter<view_holder> {
+
+        public adapter() {
+            coins_ = new ArrayList<item_t>();
+        }
+
+        public void set_item_click_listener(view_holder.item_click_listener listener) {
+            this.listener = listener;
+        }
+
+        public void set_account(final account_t account) {
+            account_ = account;
+            coins_ = new ArrayList<item_t>();
+            int sz = 1 + account.num_coins();
+            if (sz < min_entries) {
+                sz = min_entries;
+            }
+            coins_.ensureCapacity(sz);
+            coins_.add(new item_t(us.CFG.UGAS, app.formatter.format(account.box.value.value)));
+            for (Map.Entry<hash_t, cash_t> entry : account.box.t.entrySet()) {
+                coins_.add(new item_t(entry.getKey().encode(), app.formatter.format(entry.getValue().value)));
+            }
+            if (coins_.size() < min_entries) {
+                for (int i = coins_.size(); i < min_entries; ++i) {
+                    coins_.add(new item_t("-", "-"));
+                }
+            }
+            selected = RecyclerView.NO_POSITION;
+            notifyDataSetChanged();
+        }
+
+        @Override public view_holder onCreateViewHolder(ViewGroup parent, int view_type) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.balance_item, parent, false);
+            return new view_holder(view, listener, this);
+        }
+
+        @Override public void onBindViewHolder(view_holder holder, int position) {
+            item_t item = coins_.get(position);
+            holder.bind(item, position, position == selected);
+        }
+
+        @Override public int getItemCount() {
+            return coins_.size();
+        }
+
+        public void toggle_selection(int pos) {
+            if (pos >= 1 + account_.box.t.size()) {
+                if (selected != RecyclerView.NO_POSITION) {
+                    int sel = selected;
+                    selected = RecyclerView.NO_POSITION;
+                    notifyItemChanged(sel);
+                }
+                return;
+            }
+            if (selected != pos) {
+                if (selected != RecyclerView.NO_POSITION) {
+                    int sel = selected;
+                    selected = RecyclerView.NO_POSITION;
+                    notifyItemChanged(sel);
+                }
+                selected = pos;
+                if (selected != RecyclerView.NO_POSITION) {
+                    notifyItemChanged(selected);
+                }
+                if (pos != RecyclerView.NO_POSITION) {
+                    if (!msgtapagain) {
+                        toast("Tap again on the highlighted coin to select it.");
+                        msgtapagain = true;
+                    }
+                }
+            }
+        }
+
+        public pair<hash_t, cash_t> get_selected_coin() {
+            if (selected == RecyclerView.NO_POSITION) {
+                return null;
+            }
+            if (selected == 0) {
+                return new pair<hash_t, cash_t>(hash_t.zero_, account_.box.value);
+            }
+            Map.Entry<hash_t, cash_t> entry = account_.box.t.entrySet().stream().skip(selected - 1).findFirst().get();
+            return new pair<hash_t, cash_t>(entry.getKey(), entry.getValue());
+        }
+
+        static int min_entries = 50;
+        ArrayList<item_t> coins_;
+        view_holder.item_click_listener listener = null;
+        account_t account_ = null;
+        int selected = RecyclerView.NO_POSITION;
+        boolean msgtapagain = false;
+    }
+
+    public merged_accounts() {
+        super(true);
+    }
+
+    @Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saved_state) {
+        log("onCreateView"); //--strip
+        View v = super.onCreateView(inflater, container, saved_state);
+        LinearLayout o = (LinearLayout) inflater.inflate(R.layout.merged_accounts, null);
+        f_content.addView(o);
+
+        rv = o.findViewById(R.id.recycler_view);
+        rv.setLayoutManager(new LinearLayoutManager(ac));
+        rv.addItemDecoration(new DividerItemDecoration(ac, LinearLayoutManager.VERTICAL));
+        adapter_ = new adapter();
+        final merged_accounts self = this;
+        parent = (coins) ac;
+        if (parent.selcoin_mode()) {
+            adapter_.set_item_click_listener(new view_holder.item_click_listener() {
+                @Override public void on_coin_click(int position) {
+                    self.on_coin_click(position);
+                }
+            });
+        }
+        rv.setAdapter(adapter_);
+        return v;
+    }
+
+    void on_coin_click(int coin_position) {
+        toast("on_coin_click " + coin_position); //--strip
+        pair<hash_t, cash_t> coin = adapter_.get_selected_coin();
+        if (coin == null) {
+            clicked_coin = null;
+            return;
+        }
+        if (clicked_coin != null) {
+            if (coin.first.equals(clicked_coin)) {
+                choose_coin(coin.first, coin.second);
+                return;
+            }
+        }
+        clicked_coin = coin.first;
+    }
+
+    void choose_coin(final hash_t coin, final cash_t max) {
+        Intent data = new Intent();
+        data.putExtra("selcoin", coin.value);
+        data.putExtra("maxcoins", (long) max.value);
+        ac.setResult(ac.RESULT_OK, data);
+        ac.finish();
+    }
+
+    @Override public void onResume() {
+        log("onResume"); //--strip
+        super.onResume();
+        if (!a.has_hmi()) {
+            ac.finish();
+            return;
+        }
+        load_o();
+    }
+
+    @Override public void on_click_refresh() {
+        log("on_click_refresh"); //--strip
+        super.on_click_refresh();
+        load_o();
+    }
+
+    @Override void on_busy() {
+        a.assert_ui_thread(); //--strip
+    }
+
+    @Override void on_ready() {
+        a.assert_ui_thread(); //--strip
+        clicked_coin = null;
+        adapter_.set_account(account_);
+    }
+
+    public void load_o__worker() {
+        a.assert_worker_thread(); //--strip
+        log("load_merged_account__worker"); //--strip
+        if (!a.has_hmi() || a.hmi().rpc_peer == null) {
+            ko r = new ko("KO 70699 HMI is off."); //--strip
+            log(r.msg); //--strip
+            return;
+        }
+        account_t account = new account_t();
+        ko r = a.hmi().rpc_peer.call_merge_accounts(account);
+        if (is_ko(r)) {
+            report_ko__worker(r);
+            return;
+        }
+        account_ = account;
+    }
+
+    void load_merged_account() {
+        a.assert_ui_thread(); //--strip
+        log("load merged_account"); //--strip
+        set_busy(true);
+        Thread t = new Thread(new Runnable() {
+            @Override public void run() {
+                load_merged_account__worker();
+                set_busy__worker(false);
+            }
+        });
+        t.start();
+    }
+
+    RecyclerView rv;
+    adapter adapter_;
+    t o;
+    hash_t clicked_o = null; 
+*/
+}
+

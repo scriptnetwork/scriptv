@@ -1,0 +1,9 @@
+#!/bin/bash
+
+apk=`find ../../../core1/distr/katlas/wallet-cli -name "*.apk"`
+apk=$(basename $apk)
+
+echo "Management cnsole: https://play.google.com/console/u/2/developers/8929940230129143062/app/4974600129896543628/app-dashboard?timespan=thirtyDays"
+
+echo "Uploading APK to Google PlayStore: $apk"
+

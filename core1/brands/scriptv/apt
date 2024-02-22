@@ -1,0 +1,7 @@
+#!/bin/sh
+apt install zstd sloccount xmlstarlet adb
+
+#xmlstarlet - needed by:
+#	brands/brand/bin/configure
+
+

@@ -1,0 +1,49 @@
+#!/bin/bash
+
+cmd=$1
+shift
+
+let doconf=0
+if [[ $cmd == "--configure" ]]; then
+    let doconf=1
+fi
+if [[ $cmd == "clean" ]]; then
+pushd core0/us > /dev/null
+    make clean || exit 1
+popd > /dev/null
+
+pushd core1/us/trader > /dev/null
+    make clean || exit 1
+popd > /dev/null
+
+pushd core2/us/trader > /dev/null
+    make clean || exit 1
+popd > /dev/null
+    exit 0
+fi
+
+
+
+pushd core0/us > /dev/null
+    if [[ $doconf -eq 1 ]]; then
+        bin/configure
+    fi
+    make $@ || exit 1
+popd > /dev/null
+
+pushd core1/us/trader > /dev/null
+    if [[ $doconf -eq 1 ]]; then
+        bin/configure
+    fi
+    make $@ || exit 1
+popd > /dev/null
+
+pushd core2/us/trader > /dev/null
+    if [[ $doconf -eq 1 ]]; then
+        bin/configure
+    fi
+    make $@ || exit 1
+popd > /dev/null
+
+exit 0
+

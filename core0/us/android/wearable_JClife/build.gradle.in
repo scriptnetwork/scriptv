@@ -1,0 +1,82 @@
+//===-                           S C R I P T  T.V.
+//===-                           https://script.tv
+//===-
+//===-            Copyright (C) 2017-2024 Script Network
+//===-            Copyright (C) 2017-2024 manicberet@gmail.com
+//===-
+//===-                      GNU GENERAL PUBLIC LICENSE
+//===-                       Version 3, 29 June 2007
+//===-
+//===-    This program is free software: you can redistribute it and/or modify
+//===-    it under the terms of the GPLv3 License as published by the Free
+//===-    Software Foundation.
+//===-
+//===-    This program is distributed in the hope that it will be useful,
+//===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+//===-
+//===-    You should have received a copy of the General Public License
+//===-    along with this program, see LICENCE file.
+//===-    see https://www.gnu.org/licenses
+//===-
+//===----------------------------------------------------------------------------
+//===-
+apply plugin: 'com.android.library'
+
+android {
+    namespace "us.wearable_JClife"
+    compileSdkVersion ##str103##  //Search R6Tr465 SYNC core1/snippet/build_job_make wearable_JClife/build.gradle
+
+//    lintOptions {
+//        abortOnError false
+//    }
+
+    defaultConfig {
+
+        minSdkVersion ##str104##  //Search R6Tr465 SYNC core1/snippet/build_job_make wearable_JClife/build.gradle
+        targetSdkVersion ##str103##  //Search R6Tr465 SYNC core1/snippet/build_job_make wearable_JClife/build.gradle
+        versionCode 9
+        versionName "9.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+/*
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+*/
+/*
+    task makejar(type: Jar) {
+        from file('build/intermediates/javac/debug/compileDebugJavaWithJavac/classes')
+        archiveName = 'wearable_JClife_' + defaultConfig.versionName + '.jar'
+        destinationDir = file('build/libs')
+        include "com/jstyle/blesdk2025/**"
+    }
+    makejar.dependsOn(build)
+*/
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.6.0-alpha05'
+//    implementation 'androidx.appcompat:appcompat:1.3.1'
+//  implementation 'com.google.android.material:material:1.4.0'
+    implementation 'com.google.android.material:material:1.7.0-alpha03'
+    implementation 'com.github.tbruyelle:rxpermissions:0.12'
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.5'
+//    implementation 'io.reactivex.rxjava2:rxjava:2.1.16'
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+
+//    implementation 'io.reactivex.rxjava2:rxjava:2.1.16'
+//    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    testImplementation 'junit:junit:4.13.2'
+//    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.5.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+//    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+//    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    implementation project(':blesdk_2025')
+}

@@ -1,0 +1,934 @@
+TODO FEATURES:
+New:
+
+* Scaling on key-space. Windowing/Paging/Sharding. Nodes verify a configurable number of pages of the keyspace, the range of keys assigned to each node is defined in consensus as a function depending on the partitioning algorithm of the overlay, which takes into account the average node capacity. e.g. partitions.
+  Let P be the number of partitions of a key-space of 100.000.000.000 accounts/addresses.
+  P=2^M; (P=Num partitions; M=Sharding Level)
+  M=0; P=1; Each node cares of the full keyspace.
+  M=1; P=2. Each node cares about half of the keyspace. Nodes on Partition 0 have 0 on its id's LSB, those on Partition 1 have 1.
+  M=2; P=4; 4 partitions; Nodes distributed on Partitions 00, 01, 10, 11 (or 0,1,2,3). Nodes with id ending on 01 care only of the second page of the full keyspace
+  And so on.  
+  A node manages all addresses ending in id & ((1 << M)-1).
+Priority:
+
+
+Business Patterns:
+ distributed development organization.
+ Investor HODLrs buy coin. Coin has exchange prize. 
+
+
+Shortlisted features/fixes:
+    * svcfish tests. nodes v0, v1. v1 shifts all api svc. v0 can propagate evs to v1 and viceversa.
+    * doc. clang backend producing C++ model of the compiled program.
+    * trades are lost on restarting daemons, implemented persistemce.
+    * GFR - File registry. Git.
+    * Address include channel to prevents cross-network tx replay attacks
+
+    * wallet. front-end to create a coin
+    * wallet. Coin metadata. key-value database [name, description, images, website, etc]
+    * DEX
+      * Nodes are local centralized exchangues. 
+      * wallet dex order new in <asset> <amount> <payment_processor_charge_info> out <asset> <amount> <payment_processor_pay_info>
+                    e.g. new in USD 100 [stripe:3398855774] out EUR 100 [stripe:3398855774]
+                         cancel <oid>
+    * Android app
+      * private trade registed in public registry.
+      * Settings. Two configurations LAN and WAN. Easy switch between them. 
+      * System Notifications. 
+      * Lookup IP button.
+        *WAN: resolves IP asking to random nodes
+        *LAN: resolves IP performing a search in the local area network.
+      * can be transmitted from device to device, together with a settings string.
+      * settings_string, QR-encoded, for LAN and WAN configurations
+    * Hackathon - Contest
+      *Zero inflation coins: wallet close_mint <addr> 
+      
+    * Fiat Currencies. Shared mints. root mints with not requiring private_key
+      * Declare how much USD, EUR, GBP, ... can coin by coining them. 
+
+    * replaced protocol-role identifiers from (string,string) to hash_t (composed by concatenating half of each string hash_t
+    * us wallet trader DAGchat - Integrated DAGchat in chat.   
+    * us doc spec - oa/spec/model Reproducible builds - Building pipeline workflow. -> spec/model.xmi
+    * us doc spec - us/doc/spec/request/AI_integration - AI API spec request
+    * us doc spec - Bootstraped Specs seriers of deeply technical documents. us/doc/spec/USPS-SPEC-10 Datagram
+    * us gov socket - Enabled Ban blacklist for nodes deemed evil by the heuristics. 
+    * Integrate CUREX [Developed by OA between 2015-2016] as matching engine for the DEX      
+    * Random Public AD - 1 bitmap/cycle. Agree on the hash. Available in DFS
+    * Private AD. Negotiate the release of a cell of data.
+                  Trader protocol policy. Export Control.
+    * Raspi Images are more 1st-user friendly. GUI, Explanation Video.
+    * Raspi Images using decentralized blobs instead of downloading from central server.
+    * FairLuck - Gambling Core. Evidences containing a random input   
+    * FairLuck - Gambling Core. RNG based on blockchain activity. Provides (the first?) unpredictable-outcome transactions. Final result executed in following cycle.
+    * FIX: core install was able to add two entries for the same channel in /var/us_networks
+    * relocated /var/us_nets to /etc
+    * wallet daemon supports multiple wallets for the same user
+    * wallet daemon supports multiple wallets for different users
+    * SPEC network protocol, to encourage different node implementations to remove single point of failure.
+    * GOV Node Service Level. Bits: 0-ssh port closed/open; 1-protocol 72; 2-protocol 73; 3-http protocol
+    * Continuous build System. Improve parallelization of "cbs upgrade_networks".
+    * custodial wallets: datagrams travelling through trusted connections go unencrypted. e.g. between wallets in the same nome using the loopback interface.
+    * sendq. recvq. Fine-grained multiplexation of multiple datagrams for each socket. Enables multiple dgram transmission in parallel for a single socket (e.g. sending a high priority consensus message in the middle of a transmission of a big file)
+    * Added timestamp in uploaded public files
+    * Created DAO to fund the development community.
+    * payoff algorithm
+        *Analyzes git log to get devjob comparative effort distribution (DJCED).
+        *daily budget, weekly and monthly budgets. Distributed according to DJCED.
+    * Android app. File Explorer view embedded in protocol fragments
+    * Android app. protocol fragments load from external jars that are supplied by the node separately from the main app.
+    * sendq: EAGAIN datagrams skipped temporarily to attend other queued datagrams.
+    * wallet: w2w protocol. query/advertise coin metadata.
+    * cryptography: 25519 [ref. https://libraries.io/github/Jaguar0625/JavaScriptNrs ]
+    * doc factory, serialize magic number. Viewers can deduce the type from the file header.
+    * scalability: subnetworks.
+    * changed the name vote to the more aligned with the philosophy 'claim'
+    * FIX. Personality exchange handshake signature verification.
+    * Configure raspi node SWAP to be 2*RAM /etc/dphys-swapfile
+    * R2R Activities, Data bundle containers of trades.
+    * R2R - Document lifecycle abstraction. Easy managing of new types of documents in the workflow
+    * Fix linking problem with ncurses
+    * Coin mint can be irreversably destroyed.
+    * Java. type representing TCP port shall be int not short. Use custom classes uint16_t, etc.
+    * persistency on active trades 
+    * el nodo pierde la configuracion uPnP y hay que hacer close-ports y ports.
+    * DOC Coding Style
+    * Roles hi-tech startup: CEO2CEO CEO2CTO CTO2CTO DEV2DEV DEV2CTO DEV2CEO
+    * Transferable owner locking_program
+    * Account immutability flag. Once set: coins have fixed supply. data cannot be modified/removed. locking_program can still be changed (e.g. transfer ownership)
+    * use case: send file with proof of reception: document containning
+        file hash
+        timestamp pubkey signature sender
+        timestamp pubkey signature recipient
+    * blobs made of debian packages.
+    * become/find a debian maintainer for adding plebble to official debian
+    * rpc-cli timeout configurable in HMI (CFG_DGRAM_ROUNDTRIP_TIMEOUT_SECS rendezvous_t.cpp)
+
+    * first node running on an ARM morello board.
+    * core1/bin/clone_node <ip4addr>
+    * dev2lead protocol. devjob automation 
+    * gambling R2R set. LuckNet, genesis operator FairLuck. R2Rs: luck2op, player2op, player2luck
+    * sportsvlubs R2R set. tftNet, genesis operator TFT. R2Rs: fan2club, fan2fan, club2club
+    * brand_package creator's GUI
+    * ceo2ceo protocol
+    * deferred blobs. blob hash_lookup wallet function
+    * bookmarks suppering deferred blobs
+    * collapse version numbering "branch alpha-49" = alpha-N ; instead of being arbitrary N comes from current monotonic counter cycling on 256 values
+
+    * private addresses, not backed in the blockchain.
+    * All addresses are mints with max supply. 
+    * wallet. Coin Metadata. rate related to gas. (not listed in ledger)
+    * w2w. exchange coins protocol. 
+
+    * frontend(dev)2backend(dev) R2R Protocol. Coordinate the merging of front-end / back-end codebases. Interoperatibitily.
+
+    * evidence_processor (relay): batches. Unleash wallet ev/s (evidence admission) without being a datagram machine gun
+         1- ev-inputs -> accumulator (double buffer)
+         2- After 1 second, build ev from accumulated inputs and relay.
+
+    * About custodial wallets. Procedure for upgrading to privacy wallet. Button Run your privacy wallet
+
+    *Bitcoin. Install bitcoin-core node.
+    *Bitcoin. gov/engine. Open TCP port, capture and transform BTC-TX into evidences.
+    *Bitcoin. gov/engine. Sync Bitcoin blockchain into plebble (tx, order). 
+
+    *cli/android: Users are be able to create certificates from a text.
+
+    *doc explain how QR's work
+    *app. knight mode
+
+    *dev tool: design patterns. zoomable hierarchy mirroring a root directory of files.
+         The resulting memory graph of nodes and vertexes is mapped with the help of symlinks and can be traversed.
+         File view will analyce its content in search for source code.
+         Alternative other graphs can be formed with an extra edge set that can be loaded from a file.
+        With the help of metadata the rendering will produce a tree of "design patterns". Nodes in this graph correspong to lines in the file, and namespace and asset identifier in a UML model.
+              e.g. us/gov/socket/clients.h -> us::gov::socket::clients_t
+                   design pattern: Resizeable Vector Container of instances of types client_t
+                   design pattern template:: examplecode to implement this pattern [c+/java]
+        Render an interactive wasmapp/androidapp to explore the design, and suggest better implementations of the pattern or the project code.
+
+            *Patterns:
+                * diffusor/dispatcher. 1 event emmiter ---> [diffusor] ---> N event emmiters
+                * pipe. all in goes out the same way. Possible implementations: pointers, shared_pointers, posix pipes, shell pipe character
+
+                * graph, tree, vector,.. in general the containers family.
+                * spinning function 
+                * daemon: spinning function waiting for new connections. Container of pipes.
+                * onion: set of pipes composed by a stack of set of pipes
+                        e.g. onion routing: messages are routed through a pipe that is made of several encryption layers added by different nodes.
+                * router: dispatcher where the signal is conducted via only one choice out of N possible.
+                * loopback - emitter becomes receiver by register itself as a listener of itself so it can react on changes producided by itself, or a subcomponent.
+                    container emits signals to multiple subscribers. signal originates from a sub-component. container makes itself a subscriber and react to these signals too.
+                * view.drawer = view containing 2 elements: content and menu.
+                * layer: e.g. collapse multiple filesystem paths into a single identifier namespace
+                    core0/us/gov
+                    core1/us/gov
+                    core2/us/gov
+                    The namespace us/gov is built by the merge of different file trees.
+                        e.g. gimp layers
+
+                * MMI, HMI Dynamics,   MIM versus MIM. MIM=Master Information Model, based on a graph.
+
+    *android. test-leds only in debug mode. toolbar.java#led_test__worker
+    *cli API. pushman to call other end API which is also a server. (requires java impl of server).
+
+
+    *GUI Toolkit
+    *Tree ->
+        Menu HMI on
+            coins - fragmented_activity
+                tab1 - recycler_view<account_t>   <-- cursors, pages (big data viewer)
+                tab2 - recycler_view<accounts_t>
+                
+            
+        Menu2
+
+    * R2R ProductOwner(dev) <--> Tech Consultor(sales)  dev-sales
+      Video: 
+            list of graphs 
+                (graph=mindmap; node=concept; edge=association)
+                (graph=files; node=file; edge=parent)
+                Parts. Motorcycle Assembly. Drawings
+                operational ranges:
+                    tx/sec. admission. [0 - 40000]
+                    settlement wait. secs [0 - 60]
+            
+
+    *Scan anything -> if it is not a trade then kindly show it in a text box beside a 'copy to clipboard' toolbar button.
+    *Compose any QR. Input arbitrary text and generate a QR.
+    * App use AppToolbar ans CoordinateLayout with scroll to hide the toolbar while scrolling
+
+    * social backup and recovery of secrets using shamir shared secret scheme
+    * Heads Up Display. Start a video/voice take with another. A *||* experience where human-mobile-mobile-human are lined up. Fullscreen video with two sources (rear/front cam) and information on overlay (HUD)
+    * Android. Settings. option "Source code explorer.", enables contextual menu on widgets, redirecting to a file:line link
+
+    * android. New Certificate. add a custom énter'key in the soft-keyboard like the toolbar.
+     
+In progress/testing:
+    * Continuous build System. Produces final assets or error report for every git commit.
+
+    * move bin/us-seeds to gov::engine::daemon::housekeeping thread
+    *unify type name notation:
+        suffixless: classes meant to be inherited (abstract and non-abstract classes that are not usually instantiated without specialization)
+        suffix _t: final clases.
+
+RELEASE NOTES
+
+Planned Releases
+
+* 1.0
+* beta
+* alpha
+
+Issues:
+The adition of this header causes core1/bin/devjob sync to fail, as commanded by bin/99_postupgrade:
+error: patch failed: core0/us/snippet/distr_makefile.in:1
+# ##################################################################
+#blob location: tft_alpha-53_7-8d558b/core/x86_64/makefile
+#pwd: -------------------------------------------^
+###################################################################
+
+
+================================================================================
+DISCLAIMER for alpha and beta stages.
+================================================================================
+The Operating System running the node is configured in a way 
+KATLAS (The company developing the product) can gain root access via ssh via TCP port 16671. 
+The only purpose of remote access is to facilitate the developent of the system during its early pre-release time.
+Privacy can be considered compromised during the alpha phase of the product, although 
+we sustain ethic (privacy respecting) behaviour and never access information outside system configuration files.
+
+This development tool will be closed forever before releasing 1.0.
+Disabling the remote access:
+In the case you want to deny developer access to your node you can do it by simply
+removing from the file /root/.ssh./authorized_keys the following entries:
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDSpgi5bcoMafxLdvnQ5UZ8xhUIMGZFoh5UpJBSEPEietRuu25GUT1NOyDzvt7jGjcXC8wVqbWKkdtBcl9nYMtKI81tARrN7hChGg4hgbeXKfTZtBx9jt0eAh3C0fdZycCxfr6jdkdnSUxhFbi32wCZxBcHwqe0wpUrd6zYFZZ3FUnk4SaY6ZaZKlrco4TZKxC0ZCsqmoy1kirBca1T97xqb4bdXfKshrJRCoUkLKe0tr46yG/0wML8TENE/B7QZ5uwljTmCdMxRM0bEvc3nyrGItqk9tByQakVoCmwZyl/ct4VN1A2m30FVzqopOvVew15Vh6BxypvuU+t0DxYpfNp
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+lBq/FJCf3vwkLA938STb7jNYb6uWhX29iyOBkJtPqqQWeZoXHkpGx2QTUt0blt6n3eFY77Sj0CUNipKuj7HyvvWI9OOtI4g83SxS/gp4e3xdJ+/K++u2mGNltsPEhSXIxgZLxUaJ6IQ8NDknywiO1IoEVjJPz0MrNlWY3C2WPrWtNaR8rrducFpXbpZJfuZdMJjAWAuZN/InBMK3GCdSRPENNdksxirOeuPzV26ab7xJVyBXXCYuknH/+WX3Mo3mKzy1gbIM7gel3Utnm4RSbwIcRam7ZrygTkzrIBGVHb8PWjWT2a1K/0GnaZCZAGiTRZMJtQ/uEGURJv2SWH77
+
+================================================================================
+ 
+Production releases on stage mature - runnning on main-net since date
+
+
+Production releases. 1.0
+--------------------------
+
+Production releases. beta
+--------------------------
+
+Production releases. alpha
+--------------------------
+
+alpha-56 - 
+    codephrase: "No me pises que llevo chanclas." 
+    * Published White Paper on 15-Apr-2023 at https://plebble.net/plebble_white_paper.pdf. core1/doc/white_paper/2023_Apr.
+    * co2vc R2R Protocol for the funding of projects.
+    * staged: DAO node builder. core2/poc_spec
+    * Fixed regression bug in function "request roles".
+    * cash. Coin Mints can be sealed by calling set_supply with -1. Coin become zero-inflation.
+    * Blob-serialization-version has been increased. Seal mint feature added the field named flags in gov/cash/t_t.h; res/string/en-uk#str60: 10->11 
+    * added howto doc/howto__blob_serialization__modifying_a_seriable_class
+    * CFG_LOW_GAS_LEVEL has been added to static configuration. Amount of OIL (gas is a previous name for oil) that guarantees the existence of a sealed mint.
+    * predictable-oil-reserve is enforced for addresses containing sealed mints.\
+    * Coin users of a sealed mint must have the guarantee of impeeding the potential destruction of a non-inflationary mint
+      by a rogue coin issuer (by transferring out all the remaining oil).
+    * new functions in wallet API: {accounts, merge_accounts}, meant to deprecate the function {balance}. They use blob DTO as payload instead of plain text.
+    * udp_send wallet function. bottom ground to p2p efficient streaming of encrypted content, e.g p2p video.
+    * started replacing likely/unlikely branch predicting functions with the new std c++20 keywords [[likely]]/[[unlikely]]
+    Android:
+    * Android-SDK api level 32. required v2 signatures. updated bin/sign_apk for using apksigner instead of jarsigner
+    * Collapse of view/scan menu-entries into QR.
+    * Improved interactive tests.
+    * Fix. Show my QR. wasn't showing the no-role QR
+    * In Activity {Connections} the header picture can now shrink, leaving more space for the data. Adding new item scrolls down and let's you pick non-custodial or custodial, showing a select-choose to pick a template (suppplied by the brand)
+    * API 32 set in static config res/strings/en-uk. gradle-7.4.2 -> gradle-8.1 
+    * Disabled Jetifier. Only androidx stuff.
+    * Refactor of Scan-QR Activity, based on a zxing and androidx.
+    * Java SDK. Compile with openjdk version "19.0.1"
+    * Upgrade of Android SDK commandlinettools 8512546->9477386   #https://developer.android.com/studio#command-tools
+    * Replaced ListView with RecyclerView all over.
+    * Optimized the HMI power on/off switch (removed unneccesary waits), now it goes notably faster.
+    * Removed unneccesary popup messages (toast) during the connection setup.
+    * new connections flash for a time among others in order to easily identify it.
+    * Fixed bug in leds send,revc.
+    * Users can start a different hmi even if other is online (automatically stops the previous before starting the new one). 
+    * Added shortcut buttons (menu, trash) to connection entries in manage connections screen.
+    * Generalized the hmi upstream status reporting algorithm accepting an arbitrary number of listeners.
+    * UX. Added hmi status icons in remote connections activity
+    * Replaced toolbar with a lighter one which is static for all activities.
+    * Buttons in toolbar are dynamic and recycled.
+    * Improved the hmi monitoring system with arbitrary listeners.
+    * Refactored the hmi status listeners (leds and connections activity) now with better performance using lighter controls to change their background color. (View)
+    * The toolbar is more lightweight and it's now static, with buttons dynamically allocated/destroyed. Now it is more resource saavy for the good.
+    * node_pairing activity (HMI Settings) has a better look with its controls aligned and the ampliated led display which explain the meaning of each led.
+    * datagram_dispatcher promoted to a hmi-replaceable container in a.device_endpoints.
+    * datagram_dispatcher is now using indexing by pointers rather than integers.
+    * layout_engine abstraction layer for modelling UX: automating output of GUI and Command shell human interfaces in reaction to backend demands. Pre-stage.
+    * instrumentation class with functions not included in a production release. e.g. take screenshot. Pre-stage for app shell operable from the wallet backend.
+    * node_pairing activity renamed device_endpoint__conf.
+    * flattened activity classes by breaking down into classes for smaller parts. e.g. scroll_activity, fragmented_activity
+    * flattened activity classes by splitting behavioral classes y Views, now under 'scr' namespace. e.g. , device_endpoint__conf + scr.device_endpoint__widgets
+    * Front-end big refactor. Complete overhaul, refactor and re-integration. Here, down this deep, it feels like in the Titan sub. Need to go up in logic layers, not before all tests pass in the layer below.
+    * Fixed BUG. Android. connections list. index N is active. delete index M, M<N. Crash. It wont recover either. as an invalid active index is tried at boot.  
+
+alpha-55.3
+    * cdt2hh R2R protocol for talent hunters and job seekers
+
+alpha-55.2
+
+alpha-55.1 - alpha-55.1_10-392024 2023-08-04_23-41-45 vhash 10-392024 <- R d8dea3b43791c159665e2ed59161a02b53e64141 alpha-55.1 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * PoC patient, GP, cardiologist and Research Body. Wearables and timeseries. 
+
+alpha-55 - alpha-55_9-1dca62 2023-01-30_12-26-17 vhash 9-1dca62 <- R 794d1200fb0499c646a2fdc046c63ae8611e89aa alpha-55 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    codephrase: "Not to touch the Earth." 
+    * aarch64c new architecture integrated in the network deployment pipeline.
+    * FreeBSD, cheriBSD adaptation. First Node based on the new ARM processor:
+          UK Research & Innovation - DSbD DigitalSecurebyDesign Programme
+          Digital Catapult - ARM. Tech Prototype: ARM Morello board. SoC IntegratING CHERI spec (Cambridge University)
+          Campartmentalization: Fat Pointers, or pointers-with-metadata encoding capabilities, can be efficiently enforced by hardware aarch64c
+    
+    * Anonymizer mezzanine Antier sit just under send_queue (gov/socket). Deliver to DarkNet(via Tor), or to clear Internet(Anonymity is slightly compromised in the sense that your IPv4 can be associated with your node activity, but is limited to the extend that said activity, either good or bad, can be produced by any node in the network not neccesarily yours, since nodes work relaying information blindly, without care about message content, which goes encrypted if it happens to be a secret en-route.
+    * Enabled 'likely/unlikely' macros for compiler built-ins, for both GNU and LLVM clang compilers. Thanks for it!, openai chat-gpt!.
+    * Add "Create Certificate/NFT" Function.
+    * Android: During a trade, certificates can be sent using the trader cockpit.
+    * certificate authority. Start of Authority/linked certificates.
+    * cert management, import cert.
+    * android. fixed bug connections. meta info wasn't being shown.
+    * renamed the root crypto as OIL, (BLOOD also considered) meaning the lubricant function it has the system (hence representing the value of keeping the 'plebble machine' operative)
+
+alpha-54 - plebble-alpha-54_8-40a865 2022-12-16_20-13-53 vhash 8-40a865 <- R 9ca859d4839190e8bf52a44378d21d2ac3fbe2e7 alpha-54 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * sysops can do sudo commands using 'gov cmd sudo'
+    * PoC IoE. katlasnet wallets with R2R for regulator2business business2business
+    * Regulation workflow
+    * core2. tool converting PoC spec into functional prototypes.
+    * Bug manifested in a live presentation. Fixed=> 127.0.0.1 addresses were able to get registered by public_algorithm app40, causing trades to remote computers be redirected to our own wallet. Fix: loopback addresses are not listed in the public directory (items which, to add up, add zero value to this table).
+
+alpha-53 - plebble-alpha-53_7-f2d3d8 2022-12-08_15-38-50 vhash 7-f2d3d8 <- R e0130a4d7a2e583b64c79da81a81ba5ecbb95e3d alpha-53 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * install_blob leaves the prev blobs at downloads/<brand>_prev/cur
+    * core0 protocol a2a - actor2actor
+    * android - added bootstrap GUI for new art, sportclubs and health roles.
+    * build automation - Android activity screen capture function. Improved brand spec dir generation and bde_setup package generation.
+    * improved core1/bin/brandtool. Towards scalability on building brands in a distributed ecosystem. 
+    * brandtool can generate bde_data containing the new adition of wallet templates and hooks, on top of bind, nginx, keys, bookmarks, etc.
+    * brandtool can repeteadly be applied to core0_input__brand_package (core1/brands/*)
+    * brandtool can repeteadly be applied to remote BDE
+    * android. Fix. bug pairing settings didn't show the device public key unless connected.
+    * cbs. integrated the production of core0 + R2R protocols in core0, core1 and core2
+    * bash scripts send errors to cerr instead of cout
+    * bash replaced old bourne style `` with $()
+    * r2r. Added home and html static data for core0 and core1
+    * r2r. workflows are compiled in separated shared libraries
+    * makefiles. reviewed and updated
+    * cbs. Adapted installation scripts to deal with detached workflows    * cbs. Adapted installation scripts to deal with detached workflows
+    * Adapting bash scripts to FreeBSD. lib/shenv
+
+alpha-52-hotfix - plebble-alpha-52-hotfix_6-faa779 2022-11-27_03-22-34
+    * new wallet hook run in a separate thread produced a race condition. protocols_t could not be loaded because the worker thread could not finish before it was needed.
+    * Added brand HQ bookmark
+
+alpha-52 - alpha-52_6-20032d 2022-11-25_21-17-46 vhash 6-20032d <- R 9f118a5947cc0c4efbfb08f250a5f7cf383c2f32 alpha-52 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * fix regression. reviewed wallet access authorization process.
+    * Shell RPC-Client (c++, java) "--custodial" option allows selection of a remote custodial wallet by its id.
+    * Brands are able to produce wallet templates for new guest(custodial) wallets, with multiple option wallet-type choices for the user (onboarding users under a role).
+    * c++ code generator produces separate implementation files for dto's.
+    * interfaces readable and writable are been file-split from former blob_reader/writer.
+    * fixed template discrimination. It couldn't work out well the difference between seriable objects with and without header for the various objects: those inheriting from seriable and the rest.
+    * implemented bookmark_index api in the java sdk.
+    * android. accomodated the concept of bookmark_index in the bookmarks view. "Find peers by wanted role. e.g. patients look for doctors; doctors look for patients; buyers look for sellers, ...
+    * Refactor of the traders_t structure (the place where the different trades are managed by the wallet engine). Allows trading between different custodial wallets allocated in the same NC-Wallet.
+    Interface versions:
+       = protocol API. gov: 8; wallet: 9
+       = blob serialization (us::gov::io::blob_reader_t::current_version): 10
+       + wallet plugins (us::wallet::trader::business_t::interface_version): 10 -> 11
+
+alpha-51 - alpha-51_4-eb3eea 2022-11-04_21-42-40 vhash 4-eb3eea <- R e80801d54ba1815ba81ce76009502b171ec9dfb8 alpha-51 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * android. hotfix alpha-51_7477d2+.5d5b3c (upstream git 90cfc9c21043e1eaebcb9ba0c84db2f449db9181) deployed only to PlayStore. app Crashes on install-from-scratch (Note: this use case wasnt tested!). The app tried to open settings before main activity was created. 
+    * removed old api gov::id::peer_challenge_response. superseded by peer_challenge2_response
+
+alpha-50 - alpha-50_3-5ccae0 2022-11-02_15-57-23 vhash 3-5ccae0 <- R 2862548edd44a468a18bcbb9a1253a428381b5ad alpha-50 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * added field subhome to select an specific custodial/non-custodial, with the keyword 'new' meaning user's desire to allocate a custodial wallet.
+    * apitool can generate c++ dto's without being marked final selectively with the arg prefix [extensible_dto]
+    * Added test option --verser to select only maintenance tasks associated with a change in blob serialization versions.
+    * Added an extra function in gov/id api so rpc-clients are notified about their assigned wallet subhome, if this doesn't match the proposed one.
+    * blob serialization version (verser) 9 -> 10
+    * Updated per-brand default connection blobs after new verser.
+
+alpha-49 - alpha-49_2-12e646 2022-10-29_15-41-36 vhash 2-12e646 <- R 71a5d1ff98c280dd3c89a0cfa22ea2689d66a766 alpha-49 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * version hash include monotonic value increased on every new deployment.
+    * Fixed regression bug in APi handler that would terminate the connection on any guest wallet.
+    * all hmi's (gov/wallet/ are responding to "software upgrade available" signal coming from the layer 'id' in response of a peer running a newer version.
+    * changed the software upgrade mechanism in the android app. (removed polling thread, and simplified the process)
+
+alpha-48 - alpha-48_f5f5faea 2022-10-27_11-49-00 vhash f5f5faea <- R de6e3a99bc7b0a99151b06efea1490e8b32498f0 alpha-48 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * apitool API generator produces versions based on changes in the api spec for each process (gov, wallet)
+    * handshake includes api version run by the peer, and svc translator (svcfish) are automatically used to seamlessly communicate with the previous API version in 
+    * code generator produces api diffs and gennerates code for svcfish (compatibility svc map)
+    * svcfish commected to inbound and outbound of processes gov and wallet in c++ and java for both the server engine and the user rpc client
+    * monotonic version fingerprint exchanged in handshake, will be used to determine if peers are running new version and trigger install_blob
+    * hook gov::id::peer_t::upgrade_software() triggered just after handshake when a peer runs a newer version.
+
+alpha-47 - alpha-47_0f9e51dd 2022-10-23_16-41-28 vhash 0f9e51dd <- R e1f0a003b0b8835313de8de1ef9e0e574f80487f alpha-47 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * Enabled daily task install_blob in us-seeds scripts.
+    * Improved post upgrade brand scripts
+    * Automated new brand creation in core1/bin/brand_tool
+    * Added wallet functions to craft and decode wallet_connections - make/decode_wallet_connection;
+    * wallet option -B used to supply a wallet connection blob as an alternative to the tuple {ipaddr, port, channel};
+    * added API function 'conf' allowing tweaking the server with {key, value} configurations.
+    * wallet. Prevent non-custodial wallets from accessing engine and pairing svc numbers.
+    * added wallet devices runtime configuration via api call 'conf'.
+    * improved automation of brand generation and post network-upgrade per-brand tasks (upload google playstore, update github)
+
+alpha-46 - alpha-46_84364c16 2022-10-19_17-09-01 vhash 84364c16 <- R 84b47d72f863948d871e21fd578499b2bdacc688 alpha-46 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * RPC device revocation for automatic custodial wallets. Once unpaired it cannot be automaticalley paired again against an automatically-created guest wallet.
+    * android app. Added unpair button in connection settings.
+    * android app. Fixed regression in new connections, where turning on/off connections would affect to the first one insted of the choosen one.
+
+alpha-45 - alpha-45_87bd6071 2022-10-18_18-01-59 vhash 87bd6071 <- R a9fab23375b2cd28abf9b7032fe0e9bc3dda59ab alpha-45 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * Upgraded traders container to allocate more that one instance of a trade_id, needed for trades between local wallets. 
+    * improved log system intialization (specifying log root dir from command line). Fixed bug on walletd that would use root logdir twice.
+
+alpha-44 - alpha-44_df81d7f9 2022-10-16_23-40-43 vhash df81d7f9 <- R 8441112a2a1c01b2be0ca8ba3fd1f1429347957b alpha-44 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * walletd. Automatic creation and initialization of guest wallets (custodial) upon connections of new RPC frontend devices.
+    * r2r pat2slt level 2, human chat.
+    * improved blob install scripts
+
+alpha-43-hotfix alpha-43-hotfix_a92ae2e1 2022-10-14_01-29-45 vhash a92ae2e1 <- R 8356c2a80be47418f455e85968aab631f16dc515 alpha-43-hotfix dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * Fix connection manager who didn't upgrade correctly from previous versions.
+
+alpha-43 - alpha-43_b8c4e6c3 2022-10-11_17-28-52 vhash b8c4e6c3 <- R 378e6cc5eb3435d4bdc366ba56a481e4c7feaec0 alpha-43 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * Improved cbs with more automated steps (80, 90, 99)
+    * makefiles adapted for clang
+    * traders persistence. Current wallet trades runtime state is recovered from disk after wallet restart.
+    * android. Separated activity for managing connections (previously embedded in main activity)
+    * android. app configuration stored in binary form via seriable interface instead of json.
+    * android. UX/UI fragments for slt in the pat2slt R2R protocol.
+    * android. wallet_connection serialization, included default connection at per-brand static configuration..
+
+alpha-42 - network not updated, only android app in appstore
+    * android AppStore first upload
+
+alpha-41 - alpha-41_e8ceb453 2022-08-08_23-01-03 vhash e8ceb453 <- R 82ebdbb3773ec7b13122e7d0251f9ea0729b5fdc alpha-41 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * Fix in sw_updates algorithm
+    * fix. generation of a branded android app in git working copy (where package name is unchanged in sources) produced a compilation error bcs Manifest contained unmatched name.
+
+alpha-40 - alpha-40_66bd7f78 61e452670c9b0c2129e4bf4df4b144cdec08286d 2022-08-08_14-22-09 vhash 66bd7f78 <- R 61e452670c9b0c2129e4bf4df4b144cdec08286d alpha-40 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * upgraded gradle scripts to use newer libraries. Andropid API level 32. Java8 -> Java12
+    * upgraded android_sdk auto-download for local android make.sh and cbs
+    * android. Generation of bundles for AppStore
+
+alpha-39 - alpha-39_d9e0cf60 2022-08-06_23-09-10 vhash d9e0cf60 <- R cf16d9ef512e361fbf4cecc2a37690f060e3c825 alpha-39 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * Remove temporary purge algorithm put to invalid localhost and null entries in wallet db 40.
+    * android app Buf fixes in the new menu organization.
+    * android sw_updates made optional (str83) . APK uploaded to google app store doesn't need sw updates.
+    * android fix automatic updates
+    * android About-app screen.
+    * android LnF touches.
+    * gov/id fix returned error is prev handshake object found. it shouldn't.
+    * android apks for different brands are signed with different keyroots.
+
+alpha-38 - vhash 4b7cadfd <- R dad0255e6d7289a4a6fa10c1e05f49055d7e4e9e alpha-38 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * android app Multi HMI. Allowing the managemnent of multiple nodes or connection methods.
+    * Fix: Traders mutex restored. alpha-37-hotfix1 deadlocked in self-trades.
+    * Prevent from registering localhost and null entries in wallet db 40.
+    * purge invalid localhost and null entries in wallet db 40.
+
+alpha-37-hotfix2 - 
+    * duplicate evidence were being unneccesarily saved.
+    * deadlock motivating hotfix1 was not fully fixed.
+
+alpha-37-hotfix1 - vhash 2a618df7 <- R e8f0eb7aa5d2c1ebbc7e7cbc0b52762f1c05ecc8 alpha-37-hotfix1 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * Fix: R2R traders down. trader::exec was causing a deadlock double-locking a mutex, hanging the process and freezing R2R trades.
+    * save evidences, configurable by command line option, default no. can be turned on by users to record incoming evidences 
+
+alpha-37 - vhash 1025c768 <- R 792510851947c77dfe19d00ef5eb07ca2ad7e8bf alpha-37 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * wallet auto prepair devices with pin. Create guest wallets named after linked to device-pubkey
+    * fix a trade start (w/o protocol) was not working on the app.
+
+alpha-36 - alpha-36_8ffb9049 2022-07-05_19-01-52 vhash 8ffb9049 <- R 910bf5353fa897407c1ccff8b525e4be3894cb56 alpha-36 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * android - moved toolbar and main menu drawer to base class activity.
+    * android - increased API level 30->31 (for Android 12).
+    * wallet generates an address if empty allowing invoice and hence transfer of funds via bank2bank protocol for guest wallets.
+    * wallet. fix. trade list on root wallet was showing trades belonging to guest wallets.
+    * updated seeds at etc/nodes.distr0 and str67
+
+alpha-35 - mezzanine release
+    * wallet::trader::business_t::interface_version 8->9
+    * android - upgrade to non-custodial button
+    * scalability. sharding simulation test/sim
+    * maskcoord - shard coordinates 
+    * cliques. multidimensional arrangement of tightly connected nodes working on the same shard.
+
+alpha-34 - alpha-34_803807dc 2022-06-07_08-03-43 vhash 803807dc <- R 8b16242a29b9b805c5bc4e5875b8447efdb00cd7 alpha-34 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * android fix bug scan QR
+    * android code lint
+    * android bluetooth connectivity with smartwatches
+    * upnp added standard HTTPS port 16643
+
+alpha-33 - vhash 54c9e6e0 <- R a8b70ebc1053172533bcd817005af42ae384e372 alpha-33 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * android app leds repositioning.
+    * android app flattened balance view 
+
+alpha-32 - alpha-32_b5608c9a 2022-05-29_00-42-10 vhash b5608c9a <- R 94a60a4beaeadbd8cb5da63a68f0496aa624ad0d alpha-32 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * aesthetic tweaks on brand app
+
+alpha-31 - alpha-31_08d3513f 2022-05-28_12-57-57 vhash 08d3513f <- R 5bb497922b388518f84b0c30a631dbc213d48993 alpha-31 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * core2 r2r libraries bookmarks actor-journey.
+    * core2 r2r libraries distributed selectively by brand.
+    * brand default bookmarks
+
+alpha-30 - alpha-30_1e6010c3 2022-05-26_17-22-21 vhash 1e6010c3 <- R 2dc1cae4147d2d7bb0608f1836dde4c70337cd3f alpha-30 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * R2R per-brand distribution pipeline for core2 protocols
+    * aarch64 fixes
+    * install_blob make able to manage instal;led r2r libs
+    * core2 r2r libs per brand
+    * brand_bookmarks. bookmarks introduced by brand distributions.
+    * fix. QR always refer to the remote side for the initiator.
+    * fix. start dialogue using peer role (like when using QR)
+
+alpha-30 - alpha-30_3bd02b3d 2022-05-15_21-19-06 vhash 3bd02b3d <- R 17b93b42312e9d22f23aab10e5feedf1bf53cba3 alpha-30 dbg-0 logs-0 counters-0 connlog-0 fcgi-0
+    * Android bug in sw updates asking for storage permissions in worker thread.
+    * updated seeds
+
+alpha-29.23 - 15 May 2022 - alpha-29.23_93059958 vhash 93059958 <- R 5b539c5d12a9a09ca332e6be603b30a2a35fedce
+    * Refactored transaction-tracking circuit all the way down to gov.
+    * console/android 'Pay' is back to life after being down for a time.
+    * cbs - symlinked aarch64. Prevent installing on sid distros.
+    * bug in files with no line ending at eof (traced to grep) caused devjob_tool to fail syncing devjobs and motivated the rewrite of header-patching from bash to C++ obtaining a faster and satisfying console experience.
+    * ser serialization version 7 -> 8. Got rid of ols specific code for v7
+
+alpha-29.23 - 25 Apr 2022 - alpha-29.23_8543e584 2022-04-25_19-46-36 vhash 8543e584 <- R ee16aace94e39fb42a14e68e8819403003327a2e
+    * android fix automatic updates. write blob in external storage
+    * android fix w2w payments couldn't complete.
+    * Fixed bug in get_component_update needed for Android automatic updates.
+
+alpha-29.22 - 14 april 2022 - alpha-29.22_0e00eddb 2022-04-14_22-59-24
+    * r2r sdk generated from blob
+    * cbs devjob{new|sync} enabling up|downflow of branded child repositories.
+
+alpha-29.21 - 13 Apr 2022 - vhash 3b49ec5d <- R ed01cd048537149f76a2be59bd68bb6b87a249ef
+    * r2r tests shared library refactored and moved to core0
+    * r2r protocols build makefiles detached from core0 
+    * shortened vhash. "alpha-29.21_3b49ec5d"
+
+alpha-29.20 - Apr 2022
+    * cbs. r2r-sdk extraction from blob
+    * gov/cash. bug. fixed. different files shouldn't have the same name.
+    * nginx. lane 80 repurposed to use https. Option to freeze updates on nginx conf for the node site.
+    * API. Restful API can be enabled for particular users.
+
+alpha-29.19 - 2 Mar 2022
+    * svc API changed.
+    * wallet. new api functions for handling private timeseries.
+    * wallet. java api sdk example "private timeseries".
+    * channel is no longer a static process-wide variable. Now defined as a daemon attibute enabling multiple channels to be run in the same process.
+
+alpha-29.18 - 1 Mar 2022 - vhash 170b0e951f5a9e309f58d6dda6be13febc89d5af5b48eb53d5488a61f7e8fef5 <- R 54db678dc6b75a4c2b9008a4bb004bee23b6cbf4 alpha-29.18
+    * install_blob has been improved to serve to various purposes. the entry point script, downloader of the latest blob, via working blockchain or via seed nodes http.
+    * android app java files cleanup.
+
+alpha-29.18 - 26 Feb 2022 - vhash aa737723243dcf81a2a23adc1974ea601f7ba693d2b8a758bbaf7ef371c68918 <- R 9b4c0458b3d627f2cb9a4f9f6bdf8b2e1764d30b alpha-29.18
+    * walletj - updated the java wallet client to the new alpha-29 infraststructure.
+    * demo node - setup a demo-node with free acesss allowing a quick assesment before deciding to run your own node.
+    * java SDK examples on how to incorporate the wallet in your java programs.
+
+alpha-29.17-hotfix - 22 Feb 2022 - Only Android app.
+    wallet_android_alpha-29.17_5f44966c3dd402813aa72348853020a08e5110d7bd4f4f0e8bfc77010e591fcf
+    * sdk-java. blob_reader/writer for signatures updated for serialization version sv8
+
+alpha-29.17 - 21 Feb 2022 - vhash 37fffab8160f73df882665138a9ad31373cb71c7332740fd4b930e39b4011883 <- R aa0b7d6cb64a0ff7849e7e703bc5ab54f156cfb5 alpha-29.17
+    * Fixed problem that caused nodes to hang. Introduced by a missing critical section protecting
+    * Fixed potential dangling pointer. Now it is assumed that a local_deltas blob can include ill formed app-id's, which could lead to nullptr when instancing the corresponding app.
+    * cbs. Support ccache+distcc compilation farm.
+
+alpha-29.16
+    * core1. filename change for R2R wallet plugins. From libuswallet{prot-role}.so to libustrader{prot-role}.so
+    * core1. refactored of build makefiles for R2R protocols.
+    * core1. cbs. Scripts obtain user data from config file rather than being hardcoded.
+    * core0. peer. account has a new parameter w that will increase with time. Older accounts will have more voting power than newer ones, increasing the difficulty of a successful 51% attack
+    * core0. gov. blob. Increased serialization version 7-> 8. Removed old stream serialization code prior to v6.
+    * core0. gov. blob. Added protection max_sizet for container readers, preventing inf. loop attacks.
+
+alpha-29.15
+    * Tidy up, cleanup code
+    * improved devjob conduct, selective on brand
+
+alpha-29.14 - Major code refactor - 12 Feb 2022 - c0-a1527f6ac6913ebe0ec9be85b241a04d081bbbe1 c1-506ef860a0c497a12551d5a8e689b0d4322d0428
+    * wallet. Workflows for R2R protocols.
+    * gov. HMI classes fully refactored.
+    * gov. netdaemon full refactor affecting RPC daemons.
+    * apitool. Fully Refactored. 
+    * gov protocol. replace debug text-stream serializers with optimized binary serializers.
+    * gov: Fix inner makefiles compile always in release if invoked directly 
+    * wallet: build-times. make. break down in per-file targets  
+    * doc. Added doc/us/gov/model.xmi Umbrello UML Model for gov. Class diagram for the Public Governance Engine. The public side of things. 
+    * doc. Added more doc files in doc/us/gov/socket and doc/us/gov/cli
+    * rpc_api 
+      implemented rendezvous hash-table of sequences for sync calls (where response is ready on function end) used by API calls) for async calls (where the response will arrive later via another process). 
+      * added field sequence in the datagram to multiplex them correctly in the wire.
+      * re-implementation of sendrecv(), now using datagram sequence numbers and rendezvous wait for answer with timeout. 
+    * cfg. added CFG_REPORT_REASON to enable gently disconnection reason given back to the offender. Good for debugging and testing.
+    * unit tests for net_daemon
+      * fuzzy tests, attacking vectors, 1st line countermeasures for datagram admission or early evil client detection.
+      * gov-rpc tests
+      * wallet-rpc tests
+    * logs.
+      * worker thread logs can be placed in an arbitrary directory that can be at runtime just before the thread starts. 
+      * log tasks are replaced on log_start if a previous task for the same thread-id existed.
+      * files for different threads with same thread_id contains a reuse count.  
+      * Improved sdk/java logging, logs can be turned on/off selectively.
+    * govx and walletx. params class moved to library, so they can be used in unit tests.
+    * Improved makefiles for parallel compilaton.
+    * Disabled ncurses interface mode after some unsolved linking problem.
+    * HMI logic layer moved to lib, leaving an extra-thin client. Some new tests added to the HMI (Human-Machine Interface). 
+    * wallet reload_doc - make all wallets sync their doc files with the hard drive.
+    * Gov Protocol: Extended datagram headers to include 2-byte sequence field. Enables multiplexing of activities based on query/response. 
+    * Added interactive mode to wallet console.
+    * Fixed bug in rotate_peers when number of nodes was small (~3) if all nodes in the network are unreachable it kept in infinite loop. .
+    * Heavy refactoring of the datagram circuit (C++ and Java), with dedicated send and recv threads. 
+    * Android: incoming datagrams are handled by a thread pool of workers.
+    * Device pairing: Unauthorized attemps are shown collapsed by pubkey.
+    * Device pairing: Once paired a device all entries in unauthorized attempts are removed.
+	* Android app:
+      * Added help tips and direct send doc buttons
+      * Fixed chat behaviour and chat window to resize when open keyboard.
+	  * Added basket user friendly view at bid2ask.
+	  * All Toolbar buttons for all activities are now in the encapsulated Toolbar layout.
+	  * Fixed missing titles in some activities.
+	  * Fixed stack activities and back button bugs.
+	  * Fixed frozen app bug when back after exit application throught back button.
+	  * Improved texts layouts to adjust dinamically to any device.
+      * Style review. Unified style for all languages. No hungarian notation. no camelCase. Lower-case identifiers with no distinction between classes or objects. No comments.
+      * Improved abstraction: Role fragments have been broken down into a class hierarchy.
+      * Improved encapsulation: Coding the workflow for the different roles in their corresponding fragments is now easier and more intuitive.
+    * apitool upgrade:
+      * Produces datagram contruction/parsing generated code from api spec.
+      * Produces unit tests code.
+    * Fixed regression caused by datagram constructor/parser new code-gen automation. decrypt - alt vector<byte> parser bug - It took 2 days to solve, deserving for such offence a mention here.
+    * Improved symmetric cryptography performance by optimizing code (removed unnecesary initializations and data movement). up to 40% speedup for short messages and 10% for long ones in encryption/decryption operations.
+    * apitool (code generator for API spec)
+      * has been refactored isolating code for the different target languages improving its maintenance-ability.
+      * Created code generators for all required datagram constructors, parsers and unit tests, calculated from the api spec master files.
+      * api-stream wrapping native api. Allows a better integration with languages and output formats.
+      * service numbers generation algorithm has been improved so service numbers are protected from having conflicts.
+    * gov
+      * hmi class providing all functions a console may demand.
+    * wallet
+      * hmi class providing all functions a console may demand.
+      * world view of endpoints.
+    * FIX: wallet-daemon. pairing. Disconnect al devices belonging to publickey when revoking authorization.
+    * Improved IP lookup for devices.
+    * us-trader tests, or R2R tests. they can replicate a complete network with nodes with different roles.
+      * Devices can be tested with a testing backend.
+    * Enabled C++20
+    * Improved software updates cycle allowing RPC clients to receive sw updates from nodes of different brand. 
+      nodes+console local rpc_clients: git->cbs->blobs->blobs_upload->import_blob 
+      remote console clients (java or C++) and android app. app_blob<-wallet::rpc_api<-wallet::local_api<-distr_blob<-gov::rpc_api<-govd 
+
+alpha-28.1 - Never deployed
+    * Fixed bug for which nodes based on Ubuntu won't recognize tar --zstd affecting install_blob impeeding nodes to upgrade.
+    * Developer workflow: Improved sync algorithm for patch submission.
+    * Improved the configure script that generate makefiles. 
+
+alpha-28 - 5 Sep 2020
+    * fixed bug in r2r Pharmacy R2R protocol.
+    * Android app. Numerous UX improvements.
+      * Embedded chat window.
+      * Settings screen. History of connections.
+    * Improvements in the toolchain (makefiles, configure, apply_brand, cbs)
+    * Improved algorithm that computes the final hash of the release. sha256 of all inputs.
+    * Reproducible builds: Software versioning workflow has been improved and as a result the labeling has been altered. Label synthetises Core0 and Core1 interventions on the controlled source code. 
+      e.g. 81834a67d1+.217f2582=[Core 0 Hash, 10 1st digits][+].[configuration hash, 8 1st digits]
+           if + is present, like in the example, it flags that local changes outside git were present at the time of compilation, identifying those versions that could not be reproducible from sources.
+
+alpha-27.958e90392e8ba4bdd6c56b51d02a7e68781c52066ec032f2d3229516b94fe51e - 21 Jul 2020
+    * Updated both minimun target Sdk version and complie Sdk version for android app to 29
+    * Android app. Main menu refactoring. Along with others:  Balance view. chat
+
+alpha-27.348aca39052ceaaf9517fce21ad2a280c2b159b7af743a12641bd12650f8c380 - 22 June 2020
+    * wallet reload_doc - make all wallets sync their doc files with the hard drive.
+    * Android app - Improved usability adding a lateral menu. Minimum API level from 26 to 29.
+
+alpha-26 - 17 June 2016
+    * minor fixes.
+
+alpha-26 2c8434c48191d62ea31c5dbfc1887caa0d460f747752ef1de8fb639691fb8fec - 16 June 2016
+    * R2R. Improved workflow document abstraction. create/read tools from command line 
+    * Android i18n. Added European Spanish (ES-ES) and British English (EN-UK).
+    * Fixed bug in send-queue could cause to stall connections (inifite retry) if connection is lost during a partially sent ongoing dgram. 
+
+alpha-25 - 13 June 2020
+    * R2R
+      * Improved workflow document abstraction. create/read tools from command line 
+      * R2R. Android better workflow control of documents 
+      * Android: Added next step hints (e.g. next steps in the process) on specialized fragment and status lines for each document indicating possible/required actions. 
+      * Redirections are managed by the document consumer -who is in control of who's the next actor to connect to- instead of the document issuer. 
+      * Detailed R2R interaction with AI medical data (simulated and real) for the COVID-19 anonymous testing pilot.
+
+alpha-25 9dec527b50b47fb0ca054d44b78e487a4ada3eeaf42773f4534480c2e98e5c45 - 7 June 2020
+    * R2R demo with integrated chat.
+      * bid2ask - buyer-to-seller
+
+alpha-24 - 23 May 2020
+    * Wallet device pre-authorization with random PIN (auto option) 
+    * sendq. outbound traffic dedicated thread
+      * Delivers datagrams in chunks fitting ethernet datagrams, using a priority queue based on datagram service number.
+      * Enables load balancing by Multiplexation datagram payloads across outbound sockets (a small chunk at a time).
+      * Delivers high-priority traffic (e.g. consensus) before lower priority traffic (e.g. DFS)
+    * Fixed an infamous stall-on-response bug that was causing too much trouble.
+    * Android app. Doc viewer can download files exchanged in R2R protocols to local storage or share the doc to other apps.
+    * Tested on Raspberry Pi-Zero. armv6l included in suported distributions, which are: armv6l, armv7l and x86_64.  
+    * R2R protocols: Improved local configuration algorithms for increased flexibility when dealing with different personalities.
+      * shared/private params sharing made generic.
+      * Cascade load of configuration parameters.
+      * Home directory changes based on changes in either self or peer personalities.
+      * Personality adoped can change if home changes, jumping to another home directory. Cycle prevention to avoid infinite loops in configurable jumps.
+      * Improved abstraction when dealing with signed documents.
+    * wallet: traders. R2R protocols static functions for signing business documents offline.
+    * make, print a warning when building a brand that doesn't match the installed one. 
+
+alpha-23 - 18 May 2020
+    * Multi-wallet node. Nodes can store guest wallets (custodial mode)
+      * custodial/guest privacy wallets (cloud mode)/non-custodial(node owner) modes configurable in a per node basis.  
+    * Improved pat2ai R2R protocol to integrate a PoC for a COVID-19 test.
+    * R2R generic parameters sharing.
+    * Endpoint format (Trader QR code) is: [channel] <node pkh>[.subhome] <port> [protocol] [role]
+    * wallets can connect to remote/local wallets vian an improved endpoint supporting the routing to guest wallets (subhome field).
+    * Codebase: Replaced endl with the more efficienct '\n' line ending character.
+    * Device pairing modes. 
+      * Pre-authorizations for new custodial wallets based on PIN.  
+        * One time PINs; Multi user PINs (they can be used as promotional codes).  
+      * Open pre-authorizations for new custodial wallets without requiring PIN.  
+    Android app
+    * Straight forward custodial (cloud/pseudo)-privacy wallet setup with zero after-install steps.
+    * Improved settings screen.
+    * Improved the algorithm to merge and sync remote devjobs (codebase for teams).
+    * RPC api. Added an outbound datagram queue to control half-opened TCP connections.
+
+alpha 22 - 7 May 2020
+   * Optimized protocol 3-Way Handshake. Strenghted message length and removed unnecesary encoding steps;
+     Included advertised TCP port and short sw version fingerprint.
+     Breaks compatibility with nodes running previous versions.
+
+alpha 21 - 2 May 2020
+   * Consensus protocol v5
+     * Node profiles used to monitor the network during development (CPU/Capacity, etc) are no longer included in the consensus protocol.
+   * Counters are an optional compilation flag --with[out]-counters. 
+   * Android App. System Notifications 
+
+alpha 20 - 30 April 2020
+   * Software updates goes decentralized. Blobs are indexed in the Foundation address and nodes are fed from it coming from DFS.
+   * devjobs for development teams can be synced several times.
+   * CBS - Software blobs are published in the ledger. (Distributed Software Distribution System)
+
+alpha 19 - 27 April 2020
+   * bug fix.
+
+alpha 18 - 23 April 2020
+   * bin/apply_brand. Generate a tailored fork of the codebase.
+   * sdk - Java
+     * Added push on top of existing pull transmission mechanisms between nodes and devices. 
+   *Android App
+     * Visual improvements in android app. L&F Skins.
+     * Referrer, for going back to previous trade.
+     * Removed most of old pull arch. Replaced by push arch
+     * Improved automatic updates mechanism.
+   *Wallet
+     * Remote functions API.
+     * Improved Health R2r Protocols
+   *Sockets
+     * Improved tx control: send/recv independent mutexes per client
+
+alpha 17 - never released.
+alpha-16 - never released.
+    * Android App - R2R Service journey
+    * wallet - R2R Service journey
+    * devices - enabled push technology. disabling progresively poll tech.
+
+alpha-15 - 5 March 2020
+    * rpc_api datagram reception is executed in dedicated thread. Allows backend pushing without polling.
+    * Continuous build system (CBS) improvements.
+      * R2R protocols included in build jobs.
+      * Generation of dev-jobs
+      * Build and install debug versions in specific nodes. 
+    * Android app. 
+      * Bookmarks
+      * Automatic updates can be actioned manually.
+
+alpha 14 - 27 Feb 2020
+    * Android app
+      * Binaries stored in the blockchain
+      * Automatic updates.
+
+alpha-13.2 - 19 Feb 2020
+    * of cbs - Improved pipeline git->distribution points.
+    * pocus - android sandbox app to experimentwith file store/view.
+    * Added comments in functions that must be reviewed on any future streams version upgrade. 
+    * fix regresion. S-block loader were not correctly upgraded causing network shutdown for 1h. 
+	
+alpha-13.1 - 18 Feb 2020
+    * streams version upgraded from 3 to 4. Public files have attributes (path and size).
+    * dfs - files are stored in paths. 
+    * configure calls android/make.sh files and create dependencies symlinks in android/app/libs/
+
+alpha-13 - 16 Feb 2020
+    * gov cash - Charge file storage per Mib instead of per Kib. SC8192
+
+alpha-12 - 15 Feb 2020
+    * gov clean_files deletes files not listed in the ledger. 
+    * cbs included vm/setup in distr. A script for installing a node in debian/raspbian. 
+    * Fixed bugs
+      * syncd was asking always to the same first two neighbours. Now it asks to two random neighbours. 
+      * us-ports
+
+alpha-11 - 20 Jan 2020
+    * us etc - Ability to run multiple networks on different channels.
+    * of build-pipeline - 
+    * us raspberry - Improved node-bootstraping image supporting multiple brands.
+    * datagram - enforced encryption for all services above auth
+
+#notes for the following releases have been deduced from git history.
+
+alpha-10.2 - 19 Jan 2020
+alpha-10.1 - 17 Jan 2020
+alpha-10 - 16 Jan 2020
+alpha-9 - 26 Dec 2019
+alpha-8 - 30 Nov 2019
+alpha-7 - 27 Nov 2019
+alpha-6 - 23 Nov 2019
+alpha-5 - 10 Nov 2019
+alpha-4 - 16 Oct 2019
+alpha-3 - 21 Oct 2019
+alpha-2 - 25 Sep 2019
+alpha-1.1 - 22 Sep 2019
+alpha-1.0 - 19 Sep 2019
+alpha-rc16 - 9 Sep 2019
+alpha-rc15 - 26 Aug 2019
+alpha-rc14 - 14 Jul 2019
+alpha-rc13 - 26 Jun 2019
+alpha-rc12.1 - 19 Jun 2019
+alpha-rc12 - 13 Jun 2019
+alpha-rc11.7 - 17 May 2019
+alpha-rc11.6.3 - 17 May 2019
+alpha-rc11.6.2 - 12 May 2019
+alpha-rc11.6.1 - 16 May 2019
+alpha-rc11.6.0 - 5 May 2019
+alpha-rc11.6 - 20 Mar 2019
+alpha-rc11.5 - 14 Mar 2019
+alpha-rc11.4 - 8 Mar 2019
+alpha-rc11.3 - 24 Feb 2019
+alpha-rc11.2 - 20 Feb 2019
+alpha-rc11.1 - 15 Feb 2019
+alpha-rc11 - 7 Feb 2019
+alpha-rc10 - 21 Jan 2019
+alpha-rc9 - 11 Jan 2019
+alpha-rc8 - 9 Jan 2019
+alpha-rc7 - 8 Jan 2019
+alpha-rc6 - 24 Dec 2018
+alpha-rc5 - 18 Dec 2018
+alpha-rc4.1 - 11 Dec 2018
+alpha-rc4 - 6 Dec 2018
+alpha-rc3 - 20 Nov 2018
+alpha-rc2 - 10 Nov 2018
+
+alpha-rc1 
+    * vm bootstrap script
+    * raspberry pi image based on raspbian
+    * apitool - automates local/rpc API
+    * worker dispatcher
+    * syncd
+    * unit tests
+    * main consensus cycle
+    * improvements in evidence processor
+    * neuralyzer - prune old blocks (those created 10 minutes ago).
+    * multitoken
+    * file storage
+    * 1 key-value map can be stored in each address.
+    * search k-v function
+    * accounts reaching 0 gas value dissapear with all their content.
+
+alpha-rc1 Nov 2018 - Mainnet goes live 
+    * Genesis node, Genesis block.
+
+pre-alpha
+    * us api make - apitool - integrated tool for transforming network protocols specs into code include for C++, Java and C#
+    * us android - First transaction over NFC exchanging addresses - Ago 2018
+    * Android app foused on gas transfers.
+    * wallet as key container
+    * wallet daemon
+    * devices (e.g. android)
+    * node authentication
+    * signal handlers
+    * evidence calendar
+    * evidence processor
+    * Lean blockchain. Not really a long blockchain, just the last block and few older ones(~10) .
+    * Old block can be forgotten, ignored and destroyed.
+    * Neuralyzer. Pruning old blocks. Makes the size of the database (blockchain) grow nothing in absence of address creation.
+    * DFS. Distributed File System
+    * many more core features.
+
+PoC -  Mar 2017
+    * Successful proof where a new cooperative, lightweight consensus algorithm can build a blockchain in a stable manner.
+    * A blockchain where 
+      * length is measured in depth rather than height
+      * Older blocks can be forgotten.
+
+Idea - Feb 2017
+
+background: core developer at bitcoin fork bitcoin-cash.
+    * Identified problems with Bitcoin
+      * PoW treated as dogma. No scientific reason to be.
+        * It wastes valuable energy
+      * PoS 
+        * Greener consensus algorithm, but introduces bias in economy. Poor get poorer while rich get richer.
+      * Ever growing database. 
+        * Immutability is sold as a feature to the world, when is rather an undesirable side-consequence of the blockchain design.
+      * Unable to change cypher-suite. secp256k1 will become obsolete and broken and the community will have to reset the database.
+      * Network of miners have a shrinking force that impeeds the network to expand.
+      * People dont use bitcoin because 
+        * It is hard to get bitcoins
+        * It is hard to become a miner.
+      * Bitcoin code is not proffessional.
+        * Monolithic executable makes it very difficult to use the code as a shared library.
+        * Necessity to maintain previous versions of the protocol (because of the inmmutable character of the blockchain).
+      * Cryptoscene evolution got stuck for long time focused on misleading discussions, e.g. block-size debate, that go nowhere.
+      * Community is not anonymous (biased by identity, instead of objective about the submissions).
+

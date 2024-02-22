@@ -1,0 +1,71 @@
+#!/bin/bash
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+
+bde=katlas
+scp="scp -i /media/root1m3/fe088ad9-c0f4-4ab1-9c9e-7362217cf827/id_rsa_groot"
+ssh="ssh -i /media/root1m3/fe088ad9-c0f4-4ab1-9c9e-7362217cf827/id_rsa_groot"
+
+rm distr -rf
+
+function via_cbs {
+    bin/cbs --brand katlas --flags "--with-logs" --stop_on_blobs run
+    #echo "Interrupt at blobs"
+
+
+    if [[ ! -d blobs ]]; then
+        echo "KO 50499. Missing blobs dir. Use bin/cbs --brand <brand> --flags \"--with-logs\" run to produce it."
+        exit 1
+    fi
+
+    pushd blobs > /dev/null
+        for blob in $(find . -type f -name "*.tzst"); do
+            $ssh $bde rm katlas_alpha-55.1_9-*.tzst
+            $scp $blob $bde:/root/
+            $ssh $bde rm -f /var/katlas/installed_blob__pinned
+            $ssh $bde rm -rf /var/log/katlas/*
+            $ssh $bde install_blob --blob $blob
+        done
+    popd > /dev/null
+}
+
+function via_build_brand {
+#    git add -u
+#    git commit -m a
+#    git push
+#    pushd ../core0/us > /dev/null
+#        bin/apply_brand ../../core2/brands/katlas alpha-55.1
+#        cd brand_katlas/us/
+#        bin/configure
+#        make android
+#        bin/sign_apk --install --run
+#    popd > /dev/null
+echo "core2"
+}
+
+#via_build_brand
+via_cbs
+
+exit 0
+

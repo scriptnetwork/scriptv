@@ -1,0 +1,9 @@
+
+Run:
+./ustest-c0 --no_restart_wallet
+
+1st time run will create cache for subsequent runs in directory 
+
+logs at directory logs
+
+

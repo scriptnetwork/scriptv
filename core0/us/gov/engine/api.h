@@ -1,0 +1,83 @@
+//===-                           S C R I P T  T.V.
+//===-                           https://script.tv
+//===-
+//===-            Copyright (C) 2017-2024 Script Network
+//===-            Copyright (C) 2017-2024 manicberet@gmail.com
+//===-
+//===-                      GNU GENERAL PUBLIC LICENSE
+//===-                       Version 3, 29 June 2007
+//===-
+//===-    This program is free software: you can redistribute it and/or modify
+//===-    it under the terms of the GPLv3 License as published by the Free
+//===-    Software Foundation.
+//===-
+//===-    This program is distributed in the hope that it will be useful,
+//===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+//===-
+//===-    You should have received a copy of the General Public License
+//===-    along with this program, see LICENCE file.
+//===-    see https://www.gnu.org/licenses
+//===-
+//===----------------------------------------------------------------------------
+//===-
+#pragma once
+#include <us/gov/types.h>
+//#include <us/gov/cash/accounts_t.h>
+#include <us/gov/cash/addresses_t.h>
+#include <us/gov/io/seriable.h>
+
+#include "protocol.h"
+//#include "local_deltas_t.h"
+//#include "track_status_t.h"
+
+namespace us::gov::cash {
+    struct accounts_t;
+}
+
+namespace us::gov::engine {
+
+    struct peer_t;
+    struct local_deltas_t;
+    struct track_status_t;
+
+    using blob_writer_t = io::blob_writer_t;
+    using blob_reader_t = io::blob_reader_t;
+
+    struct dto {
+        using blob_t = io::blob_t;
+        using accounts_t = cash::accounts_t;
+        using addresses_t = cash::addresses_t;
+        using readable = us::gov::io::readable;
+        using writable = us::gov::io::writable;
+
+        #include <us/api/generated/gov/c++/engine/hdlr_dto-hdr>
+        #include <us/api/generated/gov/c++/engine/cllr_dto-hdr>
+        #include <us/api/generated/gov/c++/engine_auth/hdlr_dto-hdr>
+        #include <us/api/generated/gov/c++/engine_auth/cllr_dto-hdr>
+        #include <us/api/generated/gov/c++/cash/hdlr_dto-hdr>
+        #include <us/api/generated/gov/c++/cash/cllr_dto-hdr>
+        #include <us/api/generated/gov/c++/traders/hdlr_dto-hdr>
+        #include <us/api/generated/gov/c++/traders/cllr_dto-hdr>
+        #include <us/api/generated/gov/c++/sys/hdlr_dto-hdr>
+        #include <us/api/generated/gov/c++/sys/cllr_dto-hdr>
+    };
+
+    struct caller_api: dto {
+        #include <us/api/generated/gov/c++/engine/cllr_purevir>
+        #include <us/api/generated/gov/c++/engine_auth/cllr_purevir>
+        #include <us/api/generated/gov/c++/cash/cllr_purevir>
+        #include <us/api/generated/gov/c++/traders/cllr_purevir>
+        #include <us/api/generated/gov/c++/sys/cllr_purevir>
+    };
+
+    struct api: caller_api {
+        #include <us/api/generated/gov/c++/engine/hdlr_purevir>
+        #include <us/api/generated/gov/c++/engine_auth/hdlr_purevir>
+        #include <us/api/generated/gov/c++/cash/hdlr_purevir>
+        #include <us/api/generated/gov/c++/traders/hdlr_purevir>
+        #include <us/api/generated/gov/c++/sys/hdlr_purevir>
+    };
+
+}
+
