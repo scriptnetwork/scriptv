@@ -1,0 +1,116 @@
+//===-                           S C R I P T  T.V.
+//===-                           https://script.tv
+//===-
+//===-            Copyright (C) 2017-2024 Script Network
+//===-            Copyright (C) 2017-2024 manicberet@gmail.com
+//===-
+//===-                      GNU GENERAL PUBLIC LICENSE
+//===-                       Version 3, 29 June 2007
+//===-
+//===-    This program is free software: you can redistribute it and/or modify
+//===-    it under the terms of the GPLv3 License as published by the Free
+//===-    Software Foundation.
+//===-
+//===-    This program is distributed in the hope that it will be useful,
+//===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+//===-
+//===-    You should have received a copy of the General Public License
+//===-    along with this program, see LICENCE file.
+//===-    see https://www.gnu.org/licenses
+//===-
+//===----------------------------------------------------------------------------
+//===-
+#pragma once
+#include <us/wallet/trader/trader_protocol.h>
+#include "workflows_t.h"
+#include "business.h"
+
+namespace us::wallet::trader::workflow {
+    using namespace std;
+    struct item_t;
+//    struct doc0_t;
+
+    struct trader_protocol: us::wallet::trader::trader_protocol {
+        using b = us::wallet::trader::trader_protocol;
+        using workflow_item_t = workflow::item_t;
+//        using workflow_doc0_t = workflow::doc0_t;
+        using doc0_t = us::wallet::trader::cert::doc0_t;
+
+
+    public:
+        trader_protocol(business_t&);
+        ~trader_protocol() override;
+
+    public:
+        ko rehome(ch_t&) override;
+        bool requires_online(const string& cmd) const override;
+        void help_online(const string& indent, ostream&) const override;
+        void help_onoffline(const string& indent, ostream&) const override;
+        void help_show(const string& indent, ostream&) const override;
+        void on_file_updated(const string& path, const string& name, ch_t&) override;
+        ko exec_offline(const string& cmd0, ch_t&) override;
+        ko exec_online(peer_t&, const string& cmd0, ch_t&) override;
+        bool on_signal(int sig, ostream&) override;
+        ko trading_msg(peer_t&, svc_t svc, blob_t&&) override;
+        blob_t push_payload(uint16_t pc) const override;
+        ko rehome_workflows(ch_t& ch);
+        virtual ko on_receive(peer_t&, item_t&, doc0_t*, ch_t&);
+        virtual ko workflow_item_requested(item_t&, peer_t&, ch_t&);
+        bool sig_reset(ostream&);
+        bool sig_hard_reset(ostream&);
+        void sig_reload(ostream&);
+        virtual void on_send_item(const string& what) {}
+        ko on_attach(trader_t&, ch_t&) override;
+        virtual void create_workflows(ch_t&) = 0;
+        virtual void init_workflows(ch_t&) = 0;
+
+        enum push_code_t: uint16_t { //communications node-HMI
+            push_begin = b::push_end,
+
+            push_workflow_item = push_begin,
+            push_doc,
+            push_redirects,
+
+            push_end,
+            push_r2r_begin = b::push_r2r_begin
+        };
+
+        enum service_t: uint16_t { //communications node-node
+            svc_begin = b::svc_end,
+
+            svc_workflow_item_request = svc_begin,
+            svc_workflow_item,
+            svc_redirects_request,
+            svc_redirects,
+
+            svc_end,
+            svc_r2r_begin = b::svc_r2r_begin
+        };
+
+        template<typename t> t* add(t* workflow, ch_t& ch) {
+            _workflows.add(workflow, ch);
+            return workflow;
+        }
+/*
+        template<typename t> t* add0(t* workflow, ch_t& ch) {
+            _workflows.add0(workflow, ch);
+            return workflow;
+        }
+*/
+    public:
+        inline business_t& get_business() { return static_cast<business_t&>(business); }
+
+        size_t blob_size() const override;
+        void to_blob(blob_writer_t&) const override;
+        ko from_blob(blob_reader_t&) override;
+
+    public:
+        workflows_t _workflows;
+        bookmarks_t redirects;
+        mutable mutex redirects_mx;
+
+    };
+
+}
+

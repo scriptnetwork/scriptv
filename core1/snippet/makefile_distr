@@ -1,0 +1,37 @@
+PREFIX:=/usr/local
+pwd:=$(shell pwd)
+
+OS:=$(shell uname)
+ifeq (${OS},Linux)
+    ARCH:=$(shell uname -m)
+endif
+ifeq (${OS},FreeBSD)
+    ARCH:=$(shell uname -p)
+endif
+
+test:
+	echo ${ARCH}
+	$(MAKE) -C ${ARCH} test
+
+${ARCH}:
+	tar -xzf ${ARCH}.tgz
+
+install: ${ARCH}
+	$(MAKE) -C ${ARCH} install
+
+install-nginx: ${ARCH}
+	$(MAKE) -C ${ARCH} install-nginx
+
+install-system-base: ${ARCH}
+	$(MAKE) -C ${ARCH} install-system-base
+
+install-dev:
+	mkdir -p ${PREFIX}
+	bash -c "pushd ${PREFIX} >/dev/null; tar -xzf ${pwd}/${ARCH}-dev.tgz --strip-components=1; popd>/dev/null"
+
+clean:
+	$(RM) -rf ${ARCH}
+
+.PHONY: test install install-nginx install-system-base
+
+

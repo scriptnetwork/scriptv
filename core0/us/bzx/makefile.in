@@ -1,0 +1,82 @@
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+US:=##str3##
+USHBZ:=${US}-bz
+USGOV:=${US}gov
+LIBUSGOV:=lib${US}gov
+USWALLET:=${US}wallet
+USBZ:=${US}bz
+LIBUSWALLET:=lib${US}wallet
+CXXFLAGS=-g -O0 -std=c++20 -DDEBUG
+CPPS:=$(wildcard *.cpp)
+OBJS:=$(patsubst %.cpp, %.o, ${CPPS})
+HS:=$(wildcard *.h)
+OS:=$(shell uname)
+ifeq (${OS},Linux)
+    ARCH:=$(shell uname -m)
+else
+    ifeq (${OS},FreeBSD)
+      ARCH:=$(shell uname -p)
+    endif
+endif
+
+INC:=-I../.. -I/usr/local/include
+
+LIB:=-L../bz -l${USBZ}
+LIB+=-L../wallet -l${USWALLET}
+LIB+=-L../gov -l${USGOV}
+
+ARCH:=$(shell uname -m)
+ifeq ($(ARCH),armv7l)
+    LIB+=-latomic
+endif
+
+LIB+=-pthread
+
+RPATH:=-Wl,-rpath,../wallet
+RPATH+=-Wl,-rpath,../gov
+
+%.o: %.cpp
+	$(CXX) -fPIC -c ${CXXFLAGS} ${INC} $^ -o $@
+
+${USHBZ}: ${OBJS}
+#ifeq ($(WASM),1)
+#	em++ ${CXXFLAGS} ${OBJS} -L../gov -L../wallet ${LIBS} ${NC} ${LIBCRYPTO} -I../.. -pthread -lstdc++fs -o ${USHWALLET}_wasm
+#else
+#	g++ ${CXXFLAGS} ${OBJS} -L../gov -L../wallet ${LIBS} ${NC} ${LIBCRYPTO} -Wl,-rpath,../wallet -Wl,-rpath,../gov -I../.. -pthread -lstdc++fs -o ${USHWALLET}
+#	g++ ${CXXFLAGS} ${OBJS} ${INC} ${LIBS} ${LIBCRYPTO} -Wl,-rpath,../wallet -Wl,-rpath,../gov -pthread -lstdc++fs -o ${USHBZ}
+	@echo ""
+	@echo "[--->Link executable: ${USHBZ}]"
+	$(CXX) ${CXXFLAGS} ${RPATH} ${OBJS} ${LIB} -o ${USHBZ}
+	@echo ""
+#endif
+
+all: ${USHBZ}
+
+clean:
+	$(RM) -f ${USHBZ}
+	$(RM) -f *.o
+
+.PHONY: all clean
+

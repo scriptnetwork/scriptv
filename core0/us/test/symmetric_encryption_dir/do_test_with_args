@@ -1,0 +1,46 @@
+#!/bin/bash
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+
+read -r priv_a public_a <<< $(LD_LIBRARY_PATH=../../gov:/usr/lib ../helpers/generate_keys_cpp) 
+read -r priv_b public_b <<< $(LD_LIBRARY_PATH=../../gov:/usr/lib ../helpers/generate_keys_cpp) 
+
+MESSAGE=$1
+
+encrypted="$(LD_LIBRARY_PATH=../../gov:/usr/lib ./test_cpp $priv_a $public_b encrypt "$MESSAGE")"
+
+decrypted="$(java -cp ".:../../sdk/java/libs/*:../../sdk/java/us-wallet-sdk.jar" Main $priv_b $public_a "decrypt" $encrypted)"
+
+encrypted2="$(java -cp ".:../../sdk/java/libs/*:../../sdk/java/us-wallet-sdk.jar" Main $priv_b $public_a "encrypt" "$MESSAGE")"
+
+decrypted2="$(LD_LIBRARY_PATH=../../gov:/usr/lib ./test_cpp $priv_a $public_b decrypt $encrypted2)"
+if [ "$MESSAGE" == "$decrypted" ] && [ "$MESSAGE" == "$decrypted2" ]
+then
+    echo "PASSED"
+else 
+    echo "FAILED"
+fi
+
+
+

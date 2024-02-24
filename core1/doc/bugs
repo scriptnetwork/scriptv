@@ -1,0 +1,20 @@
+==================================================================================================================================================================
+Android
+Reproduce: run app, then run backend, pair app,
+expected: app connects
+
+without touching anything in the app the app actually connects in a few seconds, but after a little while a disconnection occurs with this logcat:
+
+10-03 09:36:42.377  8637 12689 E us.cash : device_endpoint_t: HMI is ok. Node is up.
+10-03 09:36:42.382  8637 12689 E us.cash : device_endpoints__conf: ZZH6 on_hmi__worker. XXII. ok
+10-03 09:36:42.390  8637  8637 E us.cash : device_endpoints__conf: HMI status: online with 192.168.0.44:22073 channel 123
+10-03 09:36:42.390  8637  8637 E us.cash.scr: device_endpoints__conf__adapter_t: ZZH6 set_conn_ico. pos 0 led state -16711936 green
+10-03 09:36:42.426  8637  8637 E us.cash : device_endpoints__conf: HMI status: online with 192.168.0.44:22073 channel 123
+10-03 09:36:47.413  8637 11785 E us.cash : hmi_t: set_status red KO 3029.2 Timeout
+10-03 09:36:47.413  8637 11785 E us.cash : hmi_t: reporting status: KO 3029.2 Timeout
+10-03 09:36:47.413  8637 11785 E us.cash : device_endpoints_t: walletd_status_handler_t: on_status. KO 3029.2 Timeout
+10-03 09:36:47.413  8637 11785 E us.cash : device_endpoints_t: info src:us.cash.hmi_t@67ad0a6 us.cash.hmi_t@67ad0a6
+10-03 09:36:47.413  8637 11785 E us.cash : monitor_handlers_t: on_status -> listeners size: 3
+10-03 09:36:47.413  8637 11785 E us.cash : device_endpoints__conf: ZZH6 on_status. XXII. red KO 3029.2 Timeout
+
+

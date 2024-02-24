@@ -1,0 +1,29 @@
+#!/bin/bash
+#create default connections blob
+
+wallet="us-wallet"
+file=/tmp/const_866774
+
+ip=88.80.187.201
+port=16673
+chan=0
+
+name1="KATLAS custodial wallet"
+template1_name=""
+
+#name2=""
+#template2_name=""
+
+
+con1=`$wallet make_wallet_connection $ip $port $chan "$name1" "new $template1_name"`
+#con2=`$wallet make_wallet_connection $ip $port $chan "$name2" "new $template2_name"`
+
+rm -f $file
+$wallet wallet_connections_add $file $con1
+#$wallet wallet_connections_add $file $con2
+
+$wallet decode_wallet_connections -f $file
+echo "str95=\"`$wallet encode $file`\""
+rm -f $file
+
+exit 0

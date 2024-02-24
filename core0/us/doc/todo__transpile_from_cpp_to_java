@@ -1,0 +1,4 @@
+c++ -> AST
+==========
+cd api
+clang -std=c++20 -Xclang -ast-dump -fsyntax-only model.cpp

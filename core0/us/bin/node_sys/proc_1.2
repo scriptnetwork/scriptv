@@ -1,0 +1,14 @@
+#!/bin/bash
+
+pushd /home/gov/src/dtf/us
+make install
+popd
+
+v=`us-gov version | awk '{print $1}'`
+echo "installed version is $v"
+
+systemctl restart us-wallet
+systemctl restart us-gov
+
+exit 0
+

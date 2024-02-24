@@ -1,0 +1,23 @@
+#!/bin/bash
+
+core0=$1
+hashfile=$2
+
+echo "tweaking strings in android app"
+echo "core0 $core0"
+echo "tgt $tgt"
+tgt=$core0/us/android/app/src/main/res/values/strings.xml
+
+xmlstarlet ed --inplace -u "/resources/string[@name='title_activity_trades']" --value "Activities" $tgt
+xmlstarlet ed --inplace -u "/resources/string[@name='title_activity_tradelog']" --value "Activity log" $tgt
+xmlstarlet ed --inplace -u "/resources/string[@name='title_activity_trade']" --value "Activity" $tgt
+xmlstarlet ed --inplace -u "/resources/string[@name='trader']" --value "Operator" $tgt
+xmlstarlet ed --inplace -u "/resources/string[@name='activetrades']" --value "Active activities" $tgt
+xmlstarlet ed --inplace -u "/resources/string[@name='newmessagefromtrade']" --value "New message from activity" $tgt
+xmlstarlet ed --inplace -u "/resources/string[@name='newtrade']" --value "New activity" $tgt
+xmlstarlet ed --inplace -u "/resources/string[@name='therearenotrades']" --value "There are not current activities" $tgt
+xmlstarlet ed --inplace -u "/resources/string[@name='allactivetrades']" --value "All active activities" $tgt
+xmlstarlet ed --inplace -u "/resources/string[@name='loadingtrader']" --value "Loading operator..." $tgt
+
+sha256sum $tgt >> $hashfile
+

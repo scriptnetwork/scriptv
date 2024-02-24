@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- convert this file to visual html with [core1]/bin/android_colors -->
+    <color name="colorPrimary">#ffff00</color>
+    <color name="colorPrimaryDark">#cccc00</color>
+    <color name="colorAccent">#CECEC5</color>
+    <color name="colorPrimaryLight">#CCCCCC</color>
+    <color name="colorCustomBG">#ffff00</color>
+    <color name="colorCardInitiatorBG">#feee00</color>
+    <color name="colorCardFollowerBG">#eefeed</color>
+    <color name="colorCustomFG">#323336</color>
+    <color name="titleBarBG">#bbbb00</color>
+    <color name="titleBarFG">#FFFFFF</color>
+    <color name="colorBackgroundButtonStart">#cccc00</color>
+    <color name="colorBackgroundButtonEnd">#ffff00</color>
+    <color name="colorBackgroundButtonDisabled">#eeee00</color>
+    <color name="toolBarButtonBG">#3e4142</color>
+    <color name="windowBG">#ffffff</color>
+</resources>

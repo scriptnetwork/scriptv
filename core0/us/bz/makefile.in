@@ -1,0 +1,64 @@
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+US:=##str3##
+LIBUSBZ:=lib${US}bz
+USGOV:=${US}gov
+CPPS := $(wildcard *.cpp)
+STDFLAGS:=-std=c++17 -Wno-psabi
+DEBUGFLAGS:=-g -O0 ${STDFLAGS} -DDEBUG
+RELEASEFLAGS:=-O3 ${STDFLAGS} -DNDEBUG
+CXXFLAGS:=${DEBUGFLAGS}
+
+INC:=-I../.. -I/usr/local/include
+LIB+=-L../gov -l${USGOV} -pthread
+
+ifneq (,$(findstring -g,${CXXFLAGS}))
+    RPATH:=-Wl,-rpath,../wallet
+    RPATH+=-Wl,-rpath,../gov
+else
+    RPATH:=
+endif
+
+${LIBUSBZ}.so: ${CPPS}
+	@echo ""
+	@echo "[--->Link shared library: ${LIBUSBZ}.so]"
+	$(CXX) -fPIC -shared ${CXXFLAGS} ${RPATH} ${CPPS} ${INC} ${LIB} -o ${LIBUSBZ}.so
+#	$(CXX) -fPIC -shared ${CXXFLAGS} ${CPPS} ${INC} -o ${LIBUSBZ}.so
+	@echo ""
+
+debug: export CXXFLAGS:=${DEBUGFLAGS}
+debug: targets
+
+release: export CXXFLAGS:=${RELEASEFLAGS}
+release: targets
+
+targets: ${LIBUSBZ}.so
+
+all: export CXXFLAGS:=${DEBUGFLAGS}
+all: targets
+
+clean:
+	$(RM) -f ${LIBUSBZ}.so
+
+.PHONY: all clean targets release debug

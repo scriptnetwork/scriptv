@@ -1,0 +1,21 @@
+TESTS DESIGN
+
+core0: trust and privacy system
+  Deploys nodes with gov, wallet daemons and their respective rpc-console clients, talking via TCP/IP.
+  Provides batch tests and interactive mode, where text-HMI (consoles) can be tested by developers.
+  Provides wallets with bank (w2w R2R protocol), and interaction replay tests.
+  Provides backend for Android app tests.
+
+core1: brand - wallet extensions
+  Deploys nodes with gov, wallet daemons and their respective rpc-console clients, talking via TCP/IP.
+  Provides batch tests and interactive mode, where text-HMI (consoles) can be tested by developers.
+  Provides wallets with shop (bid2ask R2R protocol), and interaction replay tests.
+  Provides backend for Android app tests.
+
+core2: your development
+  Deploys nodes with gov, wallet daemons and their respective rpc-console clients, talking via TCP/IP.
+  Provides batch tests and interactive mode, where text-HMI (consoles) can be tested by developers.
+  Provides wallets with your own R2R protocols, and interaction replay tests.
+  Provides backend for Android app tests.
+
+

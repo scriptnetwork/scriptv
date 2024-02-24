@@ -1,0 +1,968 @@
+#!/bin/bash
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+
+. lib/shenv
+
+function banner {
+    cat << EOF
+----------------------------------------------
+$str4
+----------------------------------------------
+             Core-0 Configuration
+----------------------------------------------
+
+EOF
+}
+
+function dump_conf {
+    cat << EOF
+    OS $str100 ($(osStr))
+    strset $strset
+    channel $channel
+    with-logs $logs
+    debug $dbg
+    counters $counters
+    connlog $connlog
+    fcgi $fcgi
+    instrumentation $instr
+    tests $test
+    android_google_appstore $appstore
+EOF
+}
+
+strset="en-uk"
+if [[ ! -f res/strings/$strset ]]; then
+    echo "unknown set $strset"
+    exit 1
+fi
+
+. res/strings/$strset
+androidname0=${str28}
+
+#api_v override
+let api_v_gov0=${str97}
+let api_v_wallet0=${str98}
+if [[ $? -ne 0 ]]; then
+    echo "KO 81009"
+    exit 1
+fi
+
+if [[ -f res/strings/${strset}.ovr ]]; then
+    echo "found override string set"
+    . res/strings/${strset}.ovr
+fi
+
+channel=$str6
+dbg=$str29
+logs=$str33
+counters=$str41
+connlog=$str42
+fcgi=$str45
+brand=$str3
+test=$str62
+let appstore=$str83
+
+function help {
+    cat << EOF
+bin/configure [--strset en-uk] [--with[out]-logs] [--[test]debug | --[test]release] [--with[out]-counters] [--with[out]-connlog ] [--with[out]-fcgi ] [--brand-dir <brand-dir>] [--appstore] [--help]"
+    or:
+        [--clean_conf] Cleanup classes produced in past executions and exit.
+
+    flags:
+        dbg $dbg
+        logs $logs
+        counters $counters
+        brand $brand
+EOF
+}
+
+branddir=""
+let clean_conf=0
+
+while [[ true ]]; do
+    x=$1
+    shift
+    if [[ "_$x" == "_" ]]; then
+        break
+    elif [[ "_$x" == "_--strset" ]]; then
+       strset=$1
+       shift
+    elif [[ "_$x" == "_--with-logs" ]]; then
+        logs=1
+    elif [[ "_$x" == "_--without-logs" ]]; then
+        logs=0
+    elif [[ "_$x" == "_--with-counters" ]]; then
+        counters=1
+    elif [[ "_$x" == "_--without-counters" ]]; then
+        counters=0
+    elif [[ "_$x" == "_--debug" ]]; then
+        dbg=1
+        test=0
+    elif [[ "_$x" == "_--release" ]]; then
+        dbg=0
+        connlog=0
+        counters=0
+        logs=0
+        test=0
+    elif [[ "_$x" == "_--testdebug" ]]; then
+        dbg=1
+        counters=1
+        test=1
+    elif [[ "_$x" == "_--testrelease" ]]; then
+        dbg=0
+        connlog=0
+        counters=1
+        logs=0
+        test=1
+    elif [[ "_$x" == "_--with-connlog" ]]; then
+        connlog=1
+    elif [[ "_$x" == "_--without-connlog" ]]; then
+        connlog=0
+    elif [[ "_$x" == "_--with-fcgi" ]]; then
+        fcgi=1
+    elif [[ "_$x" == "_--without-fcgi" ]]; then
+        fcgi=0
+    elif [[ "_$x" == "_--brand-dir" ]]; then
+        branddir=$1
+        shift
+    elif [[ "_$x" == "_--appstore" ]]; then
+        let appstore=1
+        shift
+    elif [[ "_$x" == "_--clean_conf" ]]; then
+        let clean_conf=1
+        shift
+    elif [[ "_$x" == "_--help" ]]; then
+        help
+        exit 0
+    else
+        echo "unknown arg $x"
+        help
+        exit 1;
+    fi
+done
+
+if [[ $clean_conf -eq 0 ]]; then
+    if [[ -d android/app/src/main/java/us/cash ]]; then
+        let g=$(find android/app/src/main/java/us/cash -type f | wc -l)
+        if [[ $g -gt 0 ]]; then
+            echo "There are files in android/app/src/main/java/us/cash in a dir that is expected empty"
+            echo "make clean_conf should reset the state."
+            exit 1
+            #rm -rf android/app/src/main/java/us/cash/*
+        fi
+    fi
+fi
+
+function findbrand {
+    d=$1
+    if [[ -d $d ]]; then
+        n=$(find $d -maxdepth 1 -mindepth 1 -type d | wc -l)
+        if [[ $n -eq 1 ]]; then
+            branddir=`find $d -maxdepth 1 -mindepth 1 -type d`
+            echo "selecting existing brand at $branddir"
+        fi
+    fi
+}
+
+if [[ "_$branddir" == "_" ]]; then
+    findbrand ../../core1/brands
+    if [[ "_$branddir" == "_" ]]; then
+        findbrand ../../core2/brands
+    fi
+fi
+
+if [[ "_$branddir" != "_" ]]; then
+    if [[ ! -d $branddir ]]; then
+        >&2 echo "KO 49441 brand $branddir not found."
+        exit 1
+    fi
+    cp $branddir/${strset} res/strings/${strset}.ovr
+    brand=$(basename $branddir)
+    echo "applied brand $brand"
+else
+    if [[ -f res/strings/${strset}.ovr ]]; then
+        echo "building with existing override file res/strings/${strset}.ovr"
+    else
+        echo "building whitelabel US brand"
+    fi
+fi
+
+if [[ -f res/strings/${strset}.ovr ]]; then
+    . res/strings/${strset}.ovr
+fi
+
+if [[ $dbg -eq 1 ]]; then
+    str29=1
+else
+    str29=0
+fi
+
+if [[ $logs -eq 1 ]]; then
+    str33=1
+else
+    str33=0
+fi
+
+if [[ $counters -eq 1 ]]; then
+    str41=1
+else
+    str41=0
+fi
+
+if [[ $connlog -eq 1 ]]; then
+    str42=1
+else
+    str42=0
+fi
+
+if [[ $fcgi -eq 1 ]]; then
+    str45=1
+else
+    str45=0
+fi
+
+if [[ $counters -eq 0 ]]; then
+    test=0
+    echo "WARNING: without counters tests must be disabled."
+fi
+
+if [[ $test -eq 1 ]]; then
+    str62=1
+else
+    str62=0
+fi
+
+if [[ $appstore -eq 1 ]]; then
+    str83=1
+else
+    str83=0
+fi
+
+function write_ovr {
+    if [[ ! -f res/strings/${strset}.ovr ]]; then
+        cp res/strings/${strset} res/strings/${strset}.ovr
+    fi
+
+    sedi "s/^str29=.*//" res/strings/${strset}.ovr
+    sedi "s/^str33=.*//" res/strings/${strset}.ovr
+    sedi "s/^str41=.*//" res/strings/${strset}.ovr
+    sedi "s/^str42=.*//" res/strings/${strset}.ovr
+    sedi "s/^str45=.*//" res/strings/${strset}.ovr
+    sedi "s/^str62=.*//" res/strings/${strset}.ovr
+    sedi "s/^str83=.*//" res/strings/${strset}.ovr
+    sedi "s/^str100=.*//" res/strings/${strset}.ovr
+
+    echo "str29=$str29 #dbg" >> res/strings/${strset}.ovr
+    echo "str33=$str33 #logs" >> res/strings/${strset}.ovr
+    echo "str41=$str41 #counters" >> res/strings/${strset}.ovr
+    echo "str42=$str42 #connlog" >> res/strings/${strset}.ovr
+    echo "str45=$str45 #fcgi" >> res/strings/${strset}.ovr
+    echo "str62=$str62 #test" >> res/strings/${strset}.ovr
+    echo "str83=$str83 #appstore" >> res/strings/${strset}.ovr
+    echo "str100=$str100 #OS 0-linux 1-freeBSD" >> res/strings/${strset}.ovr
+
+    cat res/strings/${strset}.ovr | grep -v "^$" > res/strings/${strset}.ovr_
+    mv res/strings/${strset}.ovr_ res/strings/${strset}.ovr
+}
+
+function checkbin {
+    which ${make}
+    if [[ $? -ne 0 ]]; then
+        >&2 echo "KO 44921 ${make} not found. run bin/apt first"
+        exit 1
+    fi
+}
+
+checkbin
+
+function gen_mim {
+    echo "generating classes from MIM."
+    pushd mim > /dev/null
+        ${make} -j${jobs} clean
+        if [[ $? -ne 0 ]]; then
+            >&2 echo "KO 14938 "
+            exit 1
+        fi
+        if [[ $dbg -eq 1 ]]; then
+            ${make} -j${jobs} debug
+        else
+            ${make} -j${jobs} release
+        fi
+        if [[ $? -ne 0 ]]; then
+            >&2 echo "KO 14939 "
+            exit 1
+        fi
+    popd > /dev/null
+    echo ""
+}
+
+
+let warngit=0
+function gen_api {
+    echo "generating RPC-API stubs with ${jobs} jobs."
+    pushd api > /dev/null
+        ${make} clean
+        if [[ $? -ne 0 ]]; then
+            >&2 echo "KO 24939 "
+            exit 1
+        fi
+        ${make} -j${jobs}
+        if [[ $? -ne 0 ]]; then
+            >&2 echo "KO 24938 "
+            exit 1
+        fi
+    popd > /dev/null
+    echo ""
+
+    let api_v_gov=`cat api/generated/gov/svc_cur_v`
+    let api_v_wallet=`cat api/generated/wallet/svc_cur_v`
+    echo "RPC-API versions per unix process:"
+    echo "  * gov: ${api_v_gov}"
+    echo "  * wallet: ${api_v_wallet}"
+    echo "Blob serialization version: ${str60}"
+
+    if [[ ${api_v_gov0} -ne ${api_v_gov} ]]; then
+        if [[ $gitenv == 1 ]]; then
+            echo "Updating strset with gov api versioning info ${api_v_gov0} -> ${api_v_gov}"
+            sedi "s/^str97=[0-9]*/str97=${api_v_gov}/" res/strings/${strset}
+            let api_v_gov0=$api_v_gov
+            let warngit=1
+        else
+            >&2 echo "KO 79588 Inconsistency in gov RPC-API versions."
+            exit 1
+        fi
+    fi
+
+    if [[ ${api_v_wallet0} -ne ${api_v_wallet} ]]; then
+        if [[ $gitenv == 1 ]]; then
+            echo "Updating strset with wallet api versioning info ${api_v_wallet0} -> ${api_v_wallet}"
+            sedi "s/^str98=[0-9]*/str98=${api_v_wallet}/" res/strings/${strset}
+            let api_v_wallet0=$api_v_wallet
+            let warngit=1
+        else
+            >&2 echo "KO 79589 Inconsistency in wallet RPC-API versions."
+            exit 1
+        fi
+    fi
+
+}
+
+delimiter_open="//------------------------------------------------------------__begin__------generated by configure, do not edit."
+delimiter_close="//-/----------------------------------------------------------___end___------generated by configure, do not edit."
+
+patch_java_src_file2() {
+    file=$1
+    origfile=$2
+    if [[ ! -f ${file}  ]]; then
+        echo "file ${file} does not exist. from `pwd`"
+        exit 1
+    fi
+    if [[ ! -f ${origfile}  ]]; then
+        echo "file ${origfile} does not exist. from `pwd`"
+        exit 1
+    fi
+    if [[ -L ${file} ]]; then
+        echo "file ${file} is a symlink. from `pwd`"
+        exit 1
+    fi
+
+    num=`cat ${file} | grep "^ *//#include <us/$origfile>" | wc -l`
+    if [[ ${num} -ne 1  ]]; then
+        echo "repeated entry $origfile in file $file"
+        exit 1
+    fi
+    cat $file | grep "//#include" | grep $'\t' > /dev/null
+    if [[ $? -eq 0  ]]; then
+        echo "tabs found before //#include in file ${file}. required only spaces."
+        exit 1
+    fi
+    cp $file ${file}_old
+    if [[ $? -ne 0  ]]; then
+        echo "copy file ${file} failed. write permissions?"
+        exit 1
+    fi
+    n=`cat ${file}_old | wc -l`
+    dst=${file}
+    indent=$(cat ${file}_old | grep "^ *//#include <us/$origfile>" | sed "s~^\( *\)//.*~\1~")
+    cat ${file}_old | grep "^ *//#include <us/$origfile>" -B$n > $dst
+    if [[ $? -ne 0  ]]; then
+        echo "write to ${dst} failed. permissions?"
+        exit 1
+    fi
+    echo "$indent$delimiter_open" >> $dst
+    echo "$indent//content of file: <us/$origfile>" >> $dst
+    cat $origfile | grep -v "generated by apitool" | sed -e '/./,$!d' -e :a -e '/^\n*$/{$d;N;ba' -e '}' | sed "s/^/$indent/" | sed 's/^[[:space:]]*$//' >> $dst
+    echo "$indent$delimiter_close" >> $dst
+    nextline=`cat ${file}_old | grep "//#include <us/$origfile>" -A1 | tail -n1`
+    if [[ "$nextline" = *"$delimiter_open" ]]; then
+        nn=`cat ${file}_old | grep "^ *//#include <us/$origfile>" -A$n | nl -ba | grep "$delimiter_close" | head -n1 | awk '{ print $1 }'`
+        let nn=$nn+1
+        cat ${file}_old | grep "^ *//#include <us/$origfile>" -A$n | tail -n +$nn >> $dst
+    else
+        cat ${file}_old | grep "^ *//#include <us/$origfile>" -A$n | tail -n +2 >> $dst
+    fi
+    rm ${file}_old
+}
+
+patch_java_src_file() {
+    file=$1
+    incfiles=$(cat $file | grep "^ *//#include " | sed "s~^ *//#include <us/\(.*\)>.*~\1~" | sort | uniq)
+    for f in $incfiles; do
+        progress
+        patch_java_src_file2 $file $f
+    done
+    progress
+}
+
+patch_sdk_src() {
+    echo "patching sdk java sources"
+    usdir="."
+    pfx="$usdir/sdk/wallet/java"
+    files=$(find $pfx/us -type f ! -type l -name "*.java" -exec grep -H "^ *//#include " {} \; | tr ':' ' ' | awk '{print $1}' | sort | uniq)
+    for f in $files; do
+        patch_java_src_file $f
+    done
+}
+
+patch_masterfiles0() {
+    files=$(find $1 -type f ! -type l -name "*.java" -exec grep -H "^ *//#include " {} \; | tr ':' ' ' | awk '{print $1}' | sort | uniq)
+    for f in $files; do
+        patch_java_src_file $f
+    done
+}
+
+patch_masterfiles() {
+    usdir="."
+    pfx="$usdir/mim"
+    patch_masterfiles0 ${pfx}/core0/core0_5
+    #patch_masterfiles0 ${pfx}/core0_6
+    #patch_masterfiles0 ${pfx}/core0_7
+}
+
+function configure_sdk {
+    if [[ ! -f vcs_git_java ]]; then
+        >&2 echo "KO 89345 failed vcs_git_java"
+        exit 1
+    fi
+    progress_reset
+    patch_sdk_src
+    progress_reset
+    echo "patching java masterfiles"
+    patch_masterfiles
+    usdir="."
+    pfx="$usdir/sdk/wallet/java"
+    sedregex="s/^import org.spongycastle./import org.bouncycastle./g"
+    for f in $(find $pfx/us/gov/crypto -type f ! -type l -name "*.java"); do
+        sedi "$sedregex" $f
+    done
+    progress
+    for f in $(find $pfx/test/us/gov/crypto  -type f ! -type l -name "*.java"); do
+        sedi "$sedregex" $f
+    done
+    progress
+    for f in $(find $usdir/mim/core0/core0_5/us/gov/socket/datagram/java/datagram.java -type f ! -type l); do
+        sedi "$sedregex" $f
+    done
+
+    progress
+    rm -f sdk/wallet/java/selected_cryptosuite
+    echo ""
+    echo "java sdk: crypto-suite  (*)bouncycastle  ( )spongycastle"
+}
+
+let w=0
+
+function progress_reset {
+    let w=0
+    echo ""
+}
+
+function progress {
+    echo -n "."
+    let w=$w+1
+    if [[ $w -gt 40 ]]; then
+        let w=4
+        echo ""
+        echo -n "    "
+    fi
+}
+
+function patch {
+    ifile="${1}.in"
+    ofile=$1
+    #echo "patch $ifile $ofile"
+    if [[ "_$2" != "_" ]]; then
+        #echo "$1 -> $2"
+        ofile=$2
+    fi
+    cp $ifile $ofile
+    strs=$(cat $ifile  | grep -o "##str[0-9]*##" | sed "s/#//g")
+    for s in $strs; do
+        progress
+        # echo -n "$s = ${!s}; "
+        sedi "s%##$s##%${!s}%g" $ofile
+    done
+    progress
+}
+
+function patchin {
+    ifile=$(dirname $1)/$(basename $1 .in)
+    #echo "ifile=$ifile"
+    patch $ifile
+}
+
+function reroot {
+    if [[ "_$1" != "_$2" ]]; then
+        cp -r $1 $2
+    fi
+    progress
+}
+
+function embed_shenv {
+  file=$1
+  cat $file | grep "##embed-shenv##" -B10000000 > ${file}_0
+  echo "# ----------------------lib/shenv---------------"  >> ${file}_0
+  cat lib/shenv | grep -v "^#\!/bin/bash" >> ${file}_0
+  echo "# -/--------------------lib/shenv---------------"  >> ${file}_0
+  cat $file | grep "##embed-shenv##" -A10000000 >> ${file}_0
+  mv ${file}_0 ${file}
+}
+
+let str100=0 #0-debian; 1-freeBSD
+if [[ $freebsd -eq 1 ]]; then
+    let str100=1
+fi
+
+function osStr {
+    if [[ $str100 -eq 0 ]]; then
+        echo "Linux"
+        return
+    fi
+    if [[ $str100 -eq 1 ]]; then
+        echo "freeBSD"
+        return
+    fi
+    echo "unknown"
+}
+
+function gen_template_file_1 {
+    templid="$1"
+    templ="class_templates/$templid.javapp"
+    param1="$2"
+    params="<$param1>"
+    srcname="${templid}${params}"
+    newp1="$3"
+    newp="<$newp1>"
+    name="$4"
+    tgt=$5
+    ac=$6
+
+    if [[ $ac -eq 0 ]]; then
+        echo "clean file $tgt"
+        rm -f $tgt
+        return
+    fi
+
+    if [[ -f $tgt ]]; then  #<orma ref=1/>
+        echo "Already produced: $tgt"
+        return
+    fi
+
+    cat << EOF > $tgt  #imports
+// This file has been generated by make.sh#gen_templates
+// <orma src="class_templates/oneparam.java"/>
+
+EOF
+    cat $templ | head -n1 >> $tgt  #package line
+    cat tmpincl >> $tgt  #imports
+    cat $templ | tail -n +2 | sed "s~${srcname}~${name}~g" | sed "s~${params}~${newp}~g" \
+    sed "s~${param1} ${param1}_;~${newp1} ${param1}_;~g" | sed "s~${param1}_ = new ${param1}();~${param1}_ = new ${newp1}();~g" >> $tgt
+    echo "Produced $tgt"
+}
+
+function gen_template_file_2 {
+    templid="$1"
+    templ="class_templates/$templid.javapp"
+    param1="$2"
+    param2="$3"
+    params="<$param1, $param2>"
+    srcname="${templid}${params}"
+    newp1="$4"
+    newp2="$5"
+    newp="<$newp1, $newp2>"
+    name="$6"
+    tgt=$7
+    ac=$8
+
+    if [[ $ac -eq 0 ]]; then
+        echo "clean file $tgt"
+        rm -f $tgt
+        return
+    fi
+
+    if [[ -f $tgt ]]; then  #<orma ref=1/>
+        echo "Already produced: $tgt"
+        return
+    fi
+
+    cat << EOF > $tgt  #imports
+// This file has been generated by make.sh#gen_templates
+// <orma src="class_templates/seriable_map.java"/>
+
+EOF
+    cat $templ | head -n1 >> $tgt  #package line
+    cat tmpincl >> $tgt  #imports
+    cat $templ | tail -n +2 | sed "s~${srcname}~${name}~g" | sed "s~${params}~${newp}~g" \
+    | sed "s~${param1} ${param1}_;~${newp1} ${param1}_;~g" | sed "s~${param1}_ = new ${param1}();~${param1}_ = new ${newp1}();~g" \
+    | sed "s~${param2} ${param2}_;~${newp2} ${param2}_;~g" | sed "s~${param2}_ = new ${param2}();~${param2}_ = new ${newp2}();~g" >> $tgt
+
+    echo "Produced $tgt"
+}
+
+function gen_templates__seriable_map {
+    ac=$1
+    templid="seriable_map"
+    param1="k"
+    param2="v"
+    newp1="$2"
+    newp2="$3"
+    namesuffix="$4"
+    name="${templid}__${namesuffix}"
+    tgt="sdk/wallet/java/us/gov/io/$name.java"
+    gen_template_file_2 "${templid}" "${param1}" "${param2}" "${newp1}" "${newp2}" "${name}" "$tgt" $ac
+}
+
+function gen_templates1 {
+    ac=$1
+    newp1="hash_t"
+    newp2="cash_t"
+    namesuffix="hash_cash"
+    if [[ $ac -eq 1 ]]; then
+        cat << EOF > tmpincl  #imports
+import static us.gov.cash.types.cash_t;
+import us.gov.crypto.ripemd160.hash_t;
+EOF
+    fi
+    gen_templates__seriable_map $ac "${newp1}" "${newp2}" "${namesuffix}"
+}
+
+function gen_templates2 {
+    ac=$1
+    newp1="hash_t"
+    newp2="fileattr_t"
+    namesuffix="hash_fileattr"
+    if [[ $ac -eq 1 ]]; then
+        cat << EOF > tmpincl  #imports
+import us.gov.crypto.ripemd160.hash_t;
+import us.gov.dfs.fileattr_t;
+EOF
+    fi
+    gen_templates__seriable_map $ac "${newp1}" "${newp2}" "${namesuffix}"
+}
+
+function gen_templates3 {
+    ac=$1
+    newp1="string"
+    newp2="string"
+    namesuffix="string_string"
+    if [[ $ac -eq 1 ]]; then
+        cat << EOF > tmpincl  #imports
+import us.string;
+EOF
+    fi
+    gen_templates__seriable_map $ac "${newp1}" "${newp2}" "${namesuffix}"
+}
+
+function gen_templates4 {
+    ac=$1
+    newp1="hash_t"
+    newp2="account_t"
+    namesuffix="hash_account"
+    if [[ $ac -eq 1 ]]; then
+        cat << EOF > tmpincl  #imports
+import us.gov.crypto.ripemd160.hash_t;
+import us.gov.cash.account_t;
+EOF
+    fi
+    gen_templates__seriable_map $ac "${newp1}" "${newp2}" "${namesuffix}"
+}
+
+function gen_templates__single_type {
+    ac=$1
+    templid="listview_fragment"
+    param1="t"
+    newp1="$2"
+    namesuffix="$4"
+    name="${templid}__${namesuffix}"
+    tgt="android/app/src/main/java/us/cash/$name.java"
+    gen_template_file_1 "${templid}" "${param1}" "${newp1}" "${name}" "$tgt" $ac
+}
+
+function gen_templates5 {
+    ac=$1
+    newp1="cert_index_t"
+    namesuffix="cert_index"
+    if [[ $ac -eq 1 ]]; then
+        cat << EOF > tmpincl  #imports
+import us.wallet.trader.cert.cert_index_t.java
+EOF
+    fi
+    gen_templates__single_type $ac "${newp1}" "${namesuffix}"
+}
+
+function gen_templates {
+    ac=$1
+    if [[ $ac -eq 1 ]]; then
+        echo "generating templates"
+    else
+        echo "cleaning up templates"
+    fi
+    gen_templates1 $ac
+    gen_templates2 $ac
+    gen_templates3 $ac
+    gen_templates4 $ac   #<orma src="us/gov/cash/accounts_t.java"/>
+    #gen_templates5 $ac   #<orma src="us/android/app/src/main/java/us/cash/cert_listview.java"/>
+    if [[ $ac -eq 1 ]]; then
+        rm -f tmpincl
+    fi
+}
+
+if [[ clean_conf -eq 1 ]]; then
+    echo "Cleaning up conf produced by MIM."
+    pushd mim > /dev/null
+        ${make} -j${jobs} clean_conf
+    popd > /dev/null
+
+    echo "Removing generated classes."
+    gen_templates 0 #action0 = clean
+    for f in $(find . -type f ! -type l -name "*.in" | sed "s#\(.*\)\.in\$#\1#"); do
+        if [[ -f $f ]]; then
+            if [[ "_$f" == "_./etc/rc.local" ]]; then
+                continue
+            fi
+            echo "rm $f"
+            rm $f;
+        fi
+    done
+    exit 0
+fi
+
+banner
+#dump_conf
+
+progress_reset
+
+echo "Writing ovr. static variables."
+write_ovr
+
+echo "Instanciating java templates as classes."
+gen_templates 1 #action1 = generate
+
+
+javapkgdir=`echo $str28 | sed "s#\.#/#g"`
+echo "java_pkg_dir: $javapkgdir"
+echo "processing .in files "
+
+patch raspbian/make
+patch raspbian/10-us/files/rc.local
+patch etc/motd etc/${str3}_motd
+mkdir -p etc/rc.local.d
+patch etc/rc.local etc/rc.local.d/${str6}_${str3}_rclocal
+chmod +x etc/rc.local.d/${str6}_${str3}_rclocal
+patch etc/999999999_rclocal etc/999999999_${str3}_rclocal
+patch doc/HOWTOFAQ
+patch doc/user_manual
+patch bin/install_blob
+embed_shenv bin/install_blob
+chmod +x bin/install_blob
+patch bin/apply_blob
+patch bin/ush
+patch bin/upload_blob bin/${str3}-upload_blob
+patch etc/config
+patch etc/wallet/config
+patch gov/config.h
+patch bin/us-ports bin/${str3}-ports
+patch bin/us-seeds bin/${str3}-seeds
+patch makefile
+patch gov/makefile
+patch wallet/makefile
+patch bz/makefile
+patch test/makefile
+patch govx/makefile
+patch walletx/makefile
+patch bzx/makefile
+patch testx/makefile
+patch etc/systemd/system/us-gov.service etc/systemd/system/${str3}-gov.service
+patch etc/systemd/system/us-wallet.service etc/systemd/system/${str3}-wallet.service
+patch etc/sudoers.d/usgov
+patch bin/us-help bin/${str3}-help
+patch etc/bash_aliases
+patch etc/bashrc
+patch etc/tor/torrc.d/us-hidden etc/tor/torrc.d/${str3}-hidden
+patch etc/cron.daily/us-ports etc/cron.daily/${str3}-ports
+patch etc/cron.daily/us-seeds etc/cron.daily/${str3}-seeds
+patch etc/cron.daily/install_blobs
+patch etc/nginx/sites-available/us.conf etc/nginx/sites-available/${str3}.conf
+reroot var/us var/${str3}
+reroot var/www/html var/www/${str3}_html
+reroot var/www/html var/www/${str3}_anon
+patch bin/distr_make bin/${str3}_distr_make
+patch etc/nginx/conf.d/us-hidden.conf etc/nginx/conf.d/${str3}-hidden.conf
+patch snippet/distr_makefile snippet/${str3}_distr_makefile
+patch android/app/src/main/AndroidManifest.xml
+patch android/app/build.gradle
+patch android/wearable_JClife/build.gradle
+patch android/blesdk_2025/build.gradle
+if [[ $appstore -eq 1 ]]; then
+    sedi "s~<uses-permission android:name=\"android.permission.REQUEST_INSTALL_PACKAGES\" />~~" android/app/src/main/AndroidManifest.xml
+fi
+patch android/bin/sign_apk
+#for f in $(find android/app/src/main/java -name CFG.java.in); do
+#    patchin $f
+#done
+patch sdk/wallet/java/us/CFG.java
+patch api/config.h
+patch Doxyfile
+patch test/makefile
+patch walletj/bin/walletj walletj/bin/${str3}-walletj
+patch walletj/bin/examples walletj/bin/${str3}-examples
+patch bin/uninstall bin/${str3}-uninstall
+patch walletj/make.sh
+patch etc/bind/zones/db.bind_domain
+patch etc/bind/named.conf.local
+patch etc/home_skel/rest/timeseries/index.php
+
+#---------------------------------------------------------------
+
+echo ""
+
+let gitenv=0
+if [[ -f ../../.git/config ]]; then
+    let gitenv=1
+fi
+
+androidname=${str28}
+if [[ "_${androidname}" != "_${androidname0}" ]]; then
+    if [[ $gitenv -eq 1 ]]; then
+        echo "git environment: android app name remains ${androidname0}"
+        sedi "s/package=\"${androidname}\"/package=\"${androidname0}\"/" android/app/src/main/AndroidManifest.xml
+        androidname=${androidname0}
+    fi
+fi
+
+echo "VCS"
+bin/gen_vcs_git
+if [[ ! -f vcs_git_env ]]; then
+    >&2 echo "KO 30219 configure finished with error."
+    exit 1
+fi
+
+echo ""
+echo "Generating classes from the MIM (Master Information Model)"
+gen_mim
+
+echo ""
+echo "API"
+gen_api
+
+echo ""
+echo "SDK"
+configure_sdk
+
+echo ""
+echo "RASPI/VM setup"
+chmod +x raspbian/make
+echo "ok"
+
+echo ""
+echo "ANDROID"
+pushd android > /dev/null
+    ./configure
+    if [[ $? -ne 0 ]]; then
+        >&2 echo "KO 44938 "
+        exit 1
+    fi
+popd > /dev/null
+
+echo ""
+echo "Instrumentation"
+let instr=$logs
+if [[ $instr -eq 0 ]]; then
+    if [[ -f ../../.git/config ]]; then
+        let instr=1
+    fi
+    if [[ $instr -eq 1 ]]; then
+        echo "WARNING 30392 Instrumentation code has not been stripped because this is a git working copy."
+        echo "              To generate fully ready-for-release binaries use bin/apply_brand."
+    fi
+fi
+
+if [[ $instr -eq 0 ]]; then
+     echo "stripping instrumentation code...";
+     bin/strip .
+     if [[ $? -ne 0 ]]; then
+         >&2 echo "KO 66975 Strip failed"
+         exit 1
+     fi
+else
+    echo "The code goes instrumented."
+fi
+
+function pdots {
+   l="$1 `yes . | head -n50 | tr -d '\n'`"
+   l2="${l:1:50}"
+   echo "$l2 $2"
+}
+
+#echo ""
+#echo "SUMMARY"
+. vcs_git_env
+
+cat << EOF
+$(banner)
+
+version $core0_version_name $core0_build_date
+
+$brand successfully configured with flags: (see bin/configure --help)
+$(dump_conf)
+
+Sources are ready.
+
+Build:
+EOF
+
+pdots "  C++:  core programs ($str3-gov, $str3-wallet):" "${make}"
+pdots "  java: ${androidname} (SDK+android app):" "${make} android"
+pdots "        SDK for console apps:" "cd sdk/wallet/java; ${make} bouncy"
+pdots "        SDK for android apps:" "cd sdk/wallet/java; ${make} spongy"
+#pdots "        wallet java console client ($str3-walletj):" "cd walletj; ${make}"
+echo ""
+
+if [[ $warngit -eq 1 ]]; then
+    echo "WARNING: The configure script has updated the source tree. Check git"
+fi
+
+exit 0
+

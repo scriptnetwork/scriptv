@@ -1,0 +1,25 @@
+#!/bin/bash
+
+function proc1 {
+    x=$(ls -1 ../../../../../poc_spec/IoE/actors/out)
+    for role in ${x}; do
+        git rm -r $role 
+        cp -r ../../../../../poc_spec/IoE/actors/out/$role .
+
+echo "====> Review this. symmetric roles unable to find their data by the code if it sits in a role dir. workaround: copying data in parent dir." 
+        if [[ -d $role/wallet_template/trader/b2b/b ]]; then
+echo "copying"
+            cp -r $role/wallet_template/trader/b2b/b/* $role/wallet_template/trader/b2b/
+        fi
+        git add $role
+    done
+    
+}
+
+
+pushd bde_data/wallet/template > /dev/null
+    proc1    
+popd > /dev/null
+
+exit 0
+

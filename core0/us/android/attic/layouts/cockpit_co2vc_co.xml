@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ xmlns:app="http://schemas.android.com/apk/res-auto"
+ xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cockpit_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+>
+    <TextView
+         android:layout_gravity="top"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:text="Current Shared"
+         android:textSize="15dp" />
+        <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="280dp"
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/ep_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
+        </com.google.android.material.textfield.TextInputLayout>
+        <EditText
+            android:id="@+id/content_edit"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="7dp"
+            android:lines="8"
+            android:gravity="top|start"
+            android:scrollbars="vertical"
+            android:inputType="textMultiLine"
+        />
+</LinearLayout>
+

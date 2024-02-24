@@ -1,0 +1,44 @@
+#!/bin/bash
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+
+if [ ! -f ../sdk/wallet/java/$us-sdk_sc.jar ]; then
+    echo -n "KO 40098 $us-sdk_sc.jar not found at "
+    realpath ../sdk/wallet/java/
+    echo "Hint: cd sdk/wallet/java; make spongy"
+    exit 1
+fi
+
+mkdir -p app/libs
+pushd app/libs >/dev/null
+    rm -f *.jar
+    ln -s ../../../sdk/wallet/java/$us-sdk_sc.jar .
+    ln -s ../../../sdk/wallet/java/libs_spongy/core-1.58.0.0.jar .
+    ln -s ../../../sdk/wallet/java/libs_spongy/pg-1.54.0.0.jar .
+    ln -s ../../../sdk/wallet/java/libs_spongy/pkix-1.54.0.0.jar .
+    ln -s ../../../sdk/wallet/java/libs_spongy/prov-1.58.0.0.jar .
+popd >/dev/null
+
+exit 0
+

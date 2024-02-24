@@ -1,0 +1,20 @@
+# Bazel workspace
+
+######################
+# WARNING:
+# Bazel support is a work in progress. If you can read this tt is incomplete and cannot be used to produce builds yet.
+# 
+# Meanwhile run:
+# bin/configure
+######################
+
+#Invocation use cases:
+#bazel build --jobs 1 --verbose_failures --subcommands //...
+
+load("//tools/workspace:default.bzl", "add_default_repositories")
+
+add_default_repositories()
+
+load("@rpi_bazel//tools/workspace:default.bzl", rpi_bazel_add = "add_default_repositories")
+
+#rpi_bazel_add()

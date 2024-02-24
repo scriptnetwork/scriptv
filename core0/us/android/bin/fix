@@ -1,0 +1,105 @@
+#!/bin/bash
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+
+function help {
+	cat << EOF
+$0 [-r]
+Opens gedit on the line in the first build error.
+	-0	only one error and exit.
+	-2	only one error and exit. No popup.
+        -1      continuous
+EOF
+}
+
+if [[ -f x ]]; then
+	echo "remove file x"
+	exit 1
+fi
+
+let mode=0
+if [[ "_$1" == "_-0" ]]; then
+	let mode=0
+fi
+if [[ "_$1" == "_-1" ]]; then
+	let mode=1
+fi
+if [[ "_$1" == "_-2" ]]; then
+	let mode=2
+fi
+if [[ "_$1" == "_" ]]; then
+	help
+	exit 1
+fi
+
+function f() {
+
+make 2>x
+echo "=====================output================="
+cat x
+echo "===================/=output================="
+line=$(cat x | tr ':' ' ' | grep " error " | awk '{print $1" "$2}' | head -n1)
+echo "line: $line"
+msg=$(cat x | tr ':' ' ' | grep " error " | head -n10 | sed "s~.* error \(.*\)~\1~")
+lin=$(echo $line | awk '{print $2}')
+file=$(echo $line | awk '{print $1}')
+echo "gedit +$lin $file"
+gedit +$lin $file &
+if [[ mode -eq 2 ]]; then
+    return
+fi
+sleep 1
+echo "==================="
+echo $msg
+#zenity --info --text "$msg" &
+echo "==================="
+
+echo "$msg" | zenity --text-info --title="Line $lin" --width=800 --height=400
+
+#sleep 1  # Give some time for the windows to open
+
+#wmctrl -r :ACTIVE: -b add,maximized_vert,maximized_horz
+#xdotool getactivewindow windowmove 0 0
+#xdotool windowsize $(xdotool getactivewindow) 100% 10%
+
+#xdotool search --class "gedit" windowmove 0 0
+#xdotool windowsize $(xdotool search --class "gedit") 100% 90%
+
+
+wait
+}
+
+if [[ mode -eq 1 ]]; then
+    while [[ true ]]; do
+        f
+    done
+else
+    f
+fi
+
+rm -f x
+
+echo "Exit"
+exit 0
+

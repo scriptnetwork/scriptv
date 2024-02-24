@@ -1,0 +1,103 @@
+----------------------------------------------
+##str4##
+----------------------------------------------
+                  HOWTOFAQ
+----------------------------------------------
+
+CHANNELS
+    0 - Public Mainnet
+    1 - Public Testnet
+    2 - Local testnet
+
+BUILD, DEBUG & INSTALL
+
+    bin/configure --help
+    make
+    make install
+
+change to user ##str11## (short for governance account)
+    sudo su - ##str11##
+    All commands in this document shall be executed under this user
+
+CONTROL DAEMONS - systemd
+    sudo systemctl ##str3##-gov status|start|restart|stop
+    sudo systemctl ##str3##-wallet status|start|restart|stop
+
+LISTENING PORTS
+    The computer opens and listens to incoming connections on the following TCP ports:
+
+    ssh maintenance on port ##str17##
+    ##str3##-gov listens on port ##str18##
+    ##str3##-wallet listens on port ##str19##
+    http content served on port ##str16##
+    https content served on port ##str78##
+
+IMPORTANT FILES (to backup)
+    The data directory is located at directory DATA=/home/##str11##/.##str3##
+                (or at /home/##str11##/.##str3##/<channel> if channel is not 0)
+
+    THE NODE PRIVATE KEY: DATA/##str12##/k
+    THE PRIVATE WALLET
+        PRIVATE KEY: DATA/##str13##/k
+        ADDRESS KEYS: DATA/##str13##/keys
+
+RUN AN INTROSPECTIVE SHELL INTO GOV PROCESS
+    just type ##str12##
+    ##str12## is an shell alias for ##str3##-##str12## (see file .bash_aliases)
+
+BUILD & INSTALL ANDROID APP
+    - note: USE JDK-8 - 9 and 10 wont work with android sdk
+    apt install openjdk-8-jdk or oracle
+
+    cd cash/android
+    JAVA_HOME=<your jdk8> ./make
+    example:
+    $> JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 ./make
+
+    find . -name "*.apk" 
+    
+SEE THE NODES
+    ##str12## -cmd app 20 db
+
+SEE THE LEDGER
+    ##str12## -cmd app 30 db
+
+SEE THE TRADERS
+    ##str12## -cmd app 40 db
+
+SEE THE BLOCKCHAIN STATE
+    blocks are temprarily cached at directory: DATA/##str11##/blocks/
+    current ledger dump: ##str12## cmd n
+    
+CHECK YOUR BALANCE
+    ##str13## balance
+
+INSTALL THE ANDROID APP
+    Find the apk file on the following URL: http://<your_node_ip>:##str78##/downloads
+    Download and install it (allowing installations from 'unknown sources')
+
+PAIR YOUR MOBILE
+    On its first run the app will generate a new device keypair used to identify itself.
+    Input the following information on the settings screen and connect using PIN=0:
+        Node IP address=<your_node_ip>, port=##str19##, channel=##str6##
+    You'll receive an 'authorization denied' error response. (That's because the node doesn't recognize it yet)
+
+    In order to authorize the new device proceed as follows:    
+    In the node type:
+    ##str13## list_devices
+
+    lookup your app public key down in the failed attempts section
+
+    then type
+    ##str13## pair <publickey>
+
+    Once the device is paired you can proceed to connect again.
+
+Find the complete list of functions 
+    ##str12## -h
+    ##str13## -h
+
+--
+
+Copyright (C) ##str59##
+

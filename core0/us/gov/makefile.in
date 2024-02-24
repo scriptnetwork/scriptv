@@ -1,0 +1,106 @@
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+LIBUSGOV:=lib##str3##gov
+CXXFLAGS=-O0 -g -std=c++20 -DDEBUG -Wno-psabi
+CPPS:=$(wildcard *.cpp)
+HS:=$(wildcard *.h)
+OS:=$(shell uname)
+ifeq (${OS},Linux)
+    ARCH:=$(shell uname -m)
+else
+    ifeq (${OS},FreeBSD)
+      ARCH:=$(shell uname -p)
+    endif
+endif
+ifeq (${OS},Linux)
+    EC:=$(shell pkg-config --libs libsecp256k1)
+    LIBCRYPTO:=$(shell pkg-config --libs libcrypto++)
+else
+    ifeq (${OS},FreeBSD)
+        EC:=$(shell PKG_CONFIG_PATH=/usr/local/lib/pkgconfig pkg-config --libs libsecp256k1)
+        LIBCRYPTO:=-L/usr/local/lib -lcryptopp
+    endif
+endif
+
+OBJS:=$(CPPS:.cpp=.o)
+DOBJS:=cli/cli.o
+DOBJS+=io/io.o
+DOBJS+=crypto/crypto.o
+DOBJS+=socket/socket.o
+DOBJS+=peer/peer.o
+DOBJS+=relay/relay.o
+DOBJS+=dfs/dfs.o
+DOBJS+=engine/engine.o
+DOBJS+=id/id.o
+DOBJS+=auth/auth.o
+DOBJS+=cash/cash.o
+DOBJS+=sys/sys.o
+DOBJS+=traders/traders.o
+DOBJS+=log/log.o
+
+INC:=-I../.. -I/usr/local/include
+
+LIB+=${EC} ${LIBCRYPTO} -lb64
+#ifeq (${CXX},g++)
+#    LIB+=-lstdc++fs
+#endif
+LIB+=-pthread
+
+ifeq (${ARCH},armv7l)
+    LIB+=-latomic
+endif
+
+RPATH:=-Wl,-z,defs
+
+all: ${LIBUSGOV}.so
+
+%.o: %.cpp
+	$(CXX) -fPIC -c ${CXXFLAGS} ${INC} $^ -o $@
+
+subojs:
+	@for a in $$(ls); do \
+	if [ -f $$a/makefile ]; then \
+	echo "==============directory gov/$$a"; \
+	$(MAKE) -C $$a; \
+	fi; \
+	done;
+
+${LIBUSGOV}.so: subojs ${OBJS}
+	@echo ""
+	@echo "[--->Link shared library: ${LIBUSGOV}.so]"
+	$(CXX) -fPIC -shared ${CXXFLAGS} ${RPATH} ${OBJS} ${DOBJS} ${LIB} -o ${LIBUSGOV}.so
+	@echo ""
+
+clean:
+	@for a in $$(ls); do \
+	if [ -d $$a ]; then \
+	    $(MAKE) -C $$a clean; \
+	fi; \
+	done;
+	$(RM) -f vcs_git
+	$(RM) -f *.o
+	$(RM) -f ${LIBUSGOV}.so
+
+.PHONY: all subojs clean
+

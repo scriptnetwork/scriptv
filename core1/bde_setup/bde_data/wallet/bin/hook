@@ -1,0 +1,92 @@
+#!/bin/bash
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+
+cmd=$1
+shift
+
+if [[ ! -f /var/us_nets ]]; then
+    echo "KO 78699 install node software first."
+    exit 1
+fi
+
+brand=$(cat /var/us_nets | awk '{print $2}')
+if [[ $? -ne 0 ]]; then
+    echo "KO 78669 /var/us_nets is in a bad state."
+    exit 1
+fi
+
+function new_wallet {
+    template=$1
+    tgtdir=$2
+    sk=$3
+    if [[ "_$template" != "_-" ]]; then
+        if [[ ! -d $template ]]; then
+            echo "KO 86753 missing dir template/$template" | tee -a /var/log/${brand}/hook_new_wallet
+            exit 1
+        fi
+        t=$(basename $template)
+        pdir=$(dirname $template)
+        tinputdir="${pdir}-input"
+        name=$(cat $tinputdir/$t/name)
+
+        mkdir -p ${tgtdir}
+        cp -rp ${template}/* ${tgtdir}/
+        r=$?
+        if [[ $r -ne 0 ]]; then
+            pwd | tee -a /var/log/${brand}/hook_new_wallet
+            echo "KO 67588 copy failed: cp -rp ${template}/* ${tgtdir}/" | tee -a /var/log/${brand}/hook_new_wallet
+        fi
+        if [[ -d $tgtdir/trader ]]; then
+            f=$(find $tgtdir/trader -name "params_private.in")
+            for file in $f; do
+                nfn=$(echo "$file" | sed "s~params_private\.in~params_private~")
+                mv $file $nfn
+                echo "    params_private -> $nfn" >> /var/log/${brand}/hook_new_wallet
+                sed -i "s/##personality_sk##/${sk}/" $nfn
+            done
+
+            f=$(find $tgtdir/trader -name "name.in")
+            for file in $f; do
+                nfn=$(echo "$file" |  sed "s~name\.in~name~")
+                mv $file $nfn
+                echo "    name -> $nfn" >> /var/log/${brand}/hook_new_wallet
+                sed -i "s/##name##/${name}/" $nfn
+            done
+        fi
+    fi
+    echo "$template $tgtdir $r" >> /var/log/${brand}/hook_new_wallet
+    exit $r
+}
+
+if [[ "_$cmd" == "_new_wallet" ]]; then
+    template=$1
+    tgtdir=$2
+    sk=$3
+    echo "new_wallet $template $tgtdir *****" >> /var/log/${brand}/hook_new_wallet
+    new_wallet $template $tgtdir $sk
+fi
+echo "KO 86752 invalid cmd $cmd"
+exit 1
+

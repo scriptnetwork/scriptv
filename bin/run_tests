@@ -1,0 +1,16 @@
+#!/bin/bash
+
+US=`ls -1 core1/brands/ | head -n1`
+
+echo "Running core0 tests"
+pushd core0/us/test > /dev/null
+    LD_LIBRARY_PATH="../gov:../wallet" ./${US}_test . || exit 1
+popd > /dev/null
+
+echo "Running core1 tests"
+pushd core1/us/trader/test > /dev/null
+    LD_LIBRARY_PATH="../../../../core0/us/gov:../../../../core0/us/wallet" ./${US}-trader_test || exit 1
+popd > /dev/null
+
+exit 0
+

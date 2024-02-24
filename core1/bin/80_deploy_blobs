@@ -1,0 +1,183 @@
+#!/bin/bash
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+echo "#####################"
+echo "## 80_deploy_blobs ##"
+echo "#####################"
+
+function help {
+    cat << EOF
+--no-scp-blobs              Do not transfer blobs to our bde.
+--no-upload-blobs           Do not invoke up_blobs in our bde.
+EOF
+}
+
+let oub=0
+if [[ "_$1" == "_--no-upload-blobs" ]]; then
+    let oub=1
+fi
+
+let ocb=0
+if [[ "_$1" == "_--no-scp-blobs" ]]; then
+    let ocb=1
+fi
+
+if [[ ! -d blobs ]]; then
+   echo "KO 2291 blobs dir doesn't exists"
+   exit 1
+fi
+
+if [[ -f .cbs/config ]]; then
+    . .cbs/config
+else
+    echo "KO 85851 Missing .cbs/config."
+    exit 1
+fi
+
+grootkey=`ush show_groot_key`
+ssh="ssh -i ${grootkey}"
+scp="scp -i ${grootkey}"
+
+#rm -f /tmp/msg1091
+
+#set -x
+
+function up_blobs {
+    for blob in `find blobs/ -type f -name "*.tzst"`; do
+        echo "------------------------------------------------------------------------------------"
+        echo "------------------------------------------------------------------------------------"
+        echo "blob: $blob"
+        echo "------------------------------------------------------------------------------------"
+        echo "------------------------------------------------------------------------------------"
+        bname=$(basename $blob)
+        brand=`echo "$bname" | tr '_' ' ' | awk '{ print $1 }'`
+        branch=`echo "$bname" | tr '_' ' ' | awk '{ print $2 }'`
+        hash=`echo "$bname" | tr '_' ' ' | awk '{ print $3 }'`
+        flags=`echo "$bname" | tr '_' ' ' | awk '{ print $4 }'`
+        if [[ ! -f $blob.partid ]]; then
+            echo "KO 78699 $blob.partid not found."
+            exit 1
+        fi
+        partid=`cat $blob.partid`
+        echo ""
+        echo "brand $brand branch $branch hash $hash flags $flags partid $partid"
+        if [[ -f ./.cbs/config_$brand ]]; then
+            . ./.cbs/config_$brand
+        else
+            echo "KO 70694 Missing .cbs/config_$brand file"
+            exit 1
+        fi
+        dir=$(dirname $blob)
+        part=`cat $blob.partid`
+        node=$distr_node_pkh
+        echo "node $node"
+        ush -pkh nick $node > /tmp/usho
+        r=$?
+        cat /tmp/usho
+        if [[ $r -ne 0 ]]; then
+            exit 1
+        fi
+        ip=$(cat /tmp/usho | grep "^reachable_addr" | awk '{ print $NF }')
+        port=$(cat /tmp/usho | grep "^reachable_ssh_port" | awk '{ print $NF }')
+        rm /tmp/usho
+        if [[ $oub -eq 0 ]]; then
+            $ssh -p $port gov@$ip bin/up_blobs ${brand}
+            if [[ $? -ne 0 ]]; then
+                echo "KO 88791 cannot ssh to BDN brand $brand"
+                exit 1
+            fi
+        fi
+
+    done
+}
+
+function scp_blobs {
+    if [[ $ocb -eq 1 ]]; then
+        echo "skipping scp blobs to our bde"
+        return
+    fi
+    for blob in `find blobs/ -type f -name "*.tzst"`; do
+        echo "------------------------------------------------------------------------------------"
+        echo "------------------------------------------------------------------------------------"
+        echo "blob: $blob"
+        echo "------------------------------------------------------------------------------------"
+        echo "------------------------------------------------------------------------------------"
+        bname=$(basename $blob)
+        brand=`echo "$bname" | tr '_' ' ' | awk '{ print $1 }'`
+        branch=`echo "$bname" | tr '_' ' ' | awk '{ print $2 }'`
+        hash=`echo "$bname" | tr '_' ' ' | awk '{ print $3 }'`
+        flags=`echo "$bname" | tr '_' ' ' | awk '{ print $4 }'`
+        if [[ ! -f $blob.partid ]]; then
+            echo "KO 78699 $blob.partid not found."
+            exit 1
+        fi
+        partid=`cat $blob.partid`
+        echo ""
+        echo "brand $brand branch $branch hash $hash flags $flags partid $partid"
+        if [[ -f ./.cbs/config_$brand ]]; then
+            . ./.cbs/config_$brand
+        else
+            echo "KO 70694 Missing .cbs/config_$brand file"
+            exit 1
+        fi
+        dir=$(dirname $blob)
+        part=`cat $blob.partid`
+        node=$distr_node_pkh
+        echo "node $node"
+        ush -pkh nick $node > /tmp/usho
+        r=$?
+        cat /tmp/usho
+        if [[ $r -ne 0 ]]; then
+            exit 1
+        fi
+        ip=`cat /tmp/usho | grep "^reachable_addr" | awk '{ print $NF }'`
+        port=`cat /tmp/usho | grep "^reachable_ssh_port" | awk '{ print $NF }'`
+        rm /tmp/usho
+        if [[ $oub -eq 0 ]]; then
+            $ssh -p$port $ip "mkdir -p /var/$brand/blob; mkdir -p /var/$brand/blob_prev; touch /var/$brand/blob/mvbug.tzst; mv /var/$brand/blob/*.tzst /var/$brand/blob_prev/; rm /var/$brand/blob_prev/mvbug.tzst; echo "$partid" > /var/$brand/blob/partid"
+            if [[ $? -ne 0 ]]; then
+                exit 1
+            fi
+            $scp -P$port $blob $ip:/var/$brand/blob/
+            if [[ $? -ne 0 ]]; then
+                echo "KO 55031"
+                exit 1
+            fi
+        fi
+    done
+}
+
+if [[ ! $noscp ]]; then
+    scp_blobs
+fi
+
+echo
+echo "upload to blockchain"
+up_blobs
+
+echo "Blobs have been delivered to BDPs, and they have uploaded the blob to blockchain."
+echo "Next step:"
+echo "bin/90_propagate_blobs"
+
+exit 0

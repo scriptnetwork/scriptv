@@ -1,0 +1,18 @@
+US=##str3##
+JAILDIR=
+PREFIX=/usr/local
+
+install:
+	bin/${US}_distr_make . install ${PREFIX} ${JAILDIR}
+
+install-system-base:
+	bin/${US}_distr_make . install-system-base ${PREFIX} ${JAILDIR}
+
+install-dev:
+	bin/${US}_distr_make . install-dev ${PREFIX} ${JAILDIR}
+
+clean:
+	echo "nothing to clean"
+
+.PHONY: install install-nginx install-system-base install-system-dev clean
+
