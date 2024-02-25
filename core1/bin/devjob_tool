@@ -647,16 +647,13 @@ function apply_changes_upstream1 {
     mv core2/brands/$brand core1/brands/
     mv core2/brand_seeds/$brand core1/brand_seeds/
 
-cat << EOF
-    mkdir -p core1/brands
-    mkdir -p core1/brand_seeds
-    mv core2/brands/$brand core1/brands/
-    mv core2/brand_seeds/$brand core1/brand_seeds/
-EOF
-pwd
-echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-exit 1
-
+#cat << EOF
+#    mkdir -p core1/brands
+#    mkdir -p core1/brand_seeds
+#    mv core2/brands/$brand core1/brands/
+#    mv core2/brand_seeds/$brand core1/brand_seeds/
+#EOF
+#pwd
     rm core2 -rf
     cp core1/brands/$brand/devjob_skel/* ./ -R
     if [[ -d core1/brands/$brand/devjob_skel/.github ]]; then
@@ -703,7 +700,7 @@ exit 1
     echo "    ############################"
     echo "    ## merging upstream main ##"
     echo "    ############################"
-    git checkout main
+    git checkout master
     if [[ $? -ne 0 ]]; then
         echo "KO 87028"
         exit 1
@@ -771,7 +768,13 @@ exit 1
     fi
     git add -u
     if [[ -n "$(git status --porcelain)" ]]; then
-        GNUPGHOME=$dj_gpgh git commit -q -e -F ../msg4upstream --author="$dj_author" -S$dj_gpgkey
+
+        cat << EOF
+Commit:
+GIT_COMMITTER_NAME="$dj_committer_name" GIT_COMMITTER_EMAIL="$dj_committer_email" GNUPGHOME=$dj_gpgh git commit -q -m "ds ${downstream_hash}" --author="$dj_author" -S$dj_gpgkey
+EOF
+
+        GIT_COMMITTER_NAME="$dj_committer_name" GIT_COMMITTER_EMAIL="$dj_committer_email" GNUPGHOME=$dj_gpgh git commit -q -e -F ../msg4upstream --author="$dj_author" -S$dj_gpgkey
         if [[ $? -ne 0 ]]; then
             echo "KO 87032 "
             exit 1
@@ -1320,6 +1323,27 @@ function sync_devjob {
     fi
 }
 
+function err_commit {
+            cat << EOF
+KO 87060 Error signing commit.
+
+Hint. reproduce the gpg command git is doing (do lines below to see it), enter any message and ctrl-D, then input the password, satisfy gpgagent.
+cd $(pwd)
+GIT_TRACE=1 GNUPGHOME=$dj_gpgh git commit -q -m "..." --author="$dj_author" -S$dj_gpgkey
+
+
+This will likely lead to the need to do this sequence manually:
+        cat $dj_gpgh/passphrase
+        <dont't hit enter>
+        gpg --homedir $dj_gpgh --status-fd=2 -bsau $dj_gpgkey
+        <copy it to clipboard the passphrase onscreen above>
+        <now you hit enter>
+        ^D
+        <enter password>
+Easy peasy, we just need to unlock the gpg agent before retrying. Over to you. follow the above sequence and, only when you see a successfully generated GPG signature, run again the command $@.
+EOF
+}
+
 function new_devjob {
     if [[ "_$brand" == "_" ]]; then
         echo "KO 38750 Invalid brand"
@@ -1478,24 +1502,7 @@ EOF
         GIT_COMMITTER_NAME="$dj_committer_name" GIT_COMMITTER_EMAIL="$dj_committer_email" GNUPGHOME=$dj_gpgh git commit -q -m "ds ${downstream_hash}" --author="$dj_author" -S$dj_gpgkey
 
         if [[ $? -ne 0 ]]; then
-            cat << EOF
-KO 87060 Error signing commit.
-
-Hint. reproduce the gpg command git is doing (do lines below to see it), enter any message and ctrl-D, then input the password, satisfy gpgagent.
-cd $(pwd)
-GIT_TRACE=1 GNUPGHOME=$dj_gpgh git commit -q -m "ds ${downstream_hash}" --author="$dj_author" -S$dj_gpgkey
-
-
-This will likely lead to the need to do this sequence manually:
-        cat $dj_gpgh/passphrase
-        <dont't hit enter>
-        gpg --homedir $dj_gpgh --status-fd=2 -bsau $dj_gpgkey
-        <copy it to clipboard the passphrase onscreen above>
-        <now you hit enter>
-        ^D
-        <enter password>
-Easy peasy, we just need to unlock the gpg agent before retrying. Over to you. follow the above sequence and, only when you see a successfully generated GPG signature, run again the command $@.
-EOF
+            err_commit
             exit 1
         fi
         upstream_hash=`git log | grep "^commit" | head -n1 | awk '{ print $2 }'`
@@ -1514,7 +1521,8 @@ GIT_COMMITTER_NAME="$dj_committer_name" GIT_COMMITTER_EMAIL="$dj_committer_email
 EOF
         GIT_COMMITTER_NAME="$dj_committer_name" GIT_COMMITTER_EMAIL="$dj_committer_email" GNUPGHOME=$dj_gpgh git commit -q -m "revs" --author="$dj_author" -S$dj_gpgkey
         if [[ $? -ne 0 ]]; then
-            echo "KO 87061 Error signing commit"
+            #echo "KO 87061 Error signing commit"
+            err_commit
             exit 1
         fi
         git push
@@ -1545,3 +1553,4 @@ else
    exit 1
 fi
 exit 0
+
