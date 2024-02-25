@@ -3,7 +3,8 @@
 # scriptv 
     Node software.
     P2P Network for Watch-to-earn Distributed Content Distribution
-    Inconsistent Consensus + PBFT cooperative consensus
+    Inconsistent Consensus
+    PBFT cooperative consensus
     Distributed File System
     Tokenization. FT and NFT
     Frontent: Text Console / Android APP 
@@ -18,13 +19,6 @@
     cpp:          78830 (48.91%)
     java:         56189 (34.86%)
     sh:           12671 (7.86%)
-    xml:           5951 (3.69%)
-    ansic:         5231 (3.25%)
-    cs:            1622 (1.01%)
-    pascal:         559 (0.35%)
-    objc:            89 (0.06%)
-    javascript:        47 (0.03%)
-    
     Total Physical Source Lines of Code (SLOC)                = 161,189
     
 # INSTRUCTIONS
