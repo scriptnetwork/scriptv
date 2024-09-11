@@ -42,10 +42,10 @@ REVIEW=0
 
 #Run layer:
 #opts=-maxz 0.1 -v ${VERBOSE}
-#opts=-maxz 0.5 -v ${VERBOSE}
+opts=-maxz 0.5 -v ${VERBOSE}
 #opts=-maxz 0.61 -v ${VERBOSE}
 #opts=-maxz 0.65 -v ${VERBOSE}
-opts=-maxz 0.7 -v ${VERBOSE}
+#opts=-maxz 0.7 -v ${VERBOSE}
 #opts=-maxz 0.81 -v ${VERBOSE}
 #opts=-maxz 0.82 -v ${VERBOSE}
 #opts=-maxz 0.83 -v ${VERBOSE}

@@ -156,7 +156,7 @@ public class device_endpoints__conf__list_view__itemview__widgets extends list_v
             //papyrus.setBackgroundColor(Color.parseColor("#ff0000"));
             //android:background="#FFFFFF"
             label = new text_view_t(ctx, 1); {
-                label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+                label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
             }
             ssid = new text_view_t(ctx, 1); {
                 ssid.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
@@ -167,7 +167,7 @@ public class device_endpoints__conf__list_view__itemview__widgets extends list_v
             status = new text_view_t(ctx, 1); {
                 status.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
             }
-            canvas_t pan = new canvas_t(ctx, 1, 0); { //android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal"
+            canvas_t pan = new canvas_t(ctx, 1, canvas_t.H); { //android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal"
                 pan.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL); //android:gravity="right|center_vertical"
                 int bottom_margin = us.cash.app.a.le.dp2px(10);
                 pan.setPadding(0, 0, 0, bottom_margin); // Set bottom margin using padding; android:layout_marginBottom="10dp"
@@ -221,7 +221,7 @@ public class device_endpoints__conf__list_view__itemview__widgets extends list_v
                             if (listener == null) return;
                             listener.on_menu__click(list_view__itemview.getBindingAdapterPosition());
                         }
-                    }); { 
+                    }); {
                 }
 
                 trash = new button_t(ctx, R.raw.trash, new View.OnClickListener() {
@@ -241,7 +241,6 @@ public class device_endpoints__conf__list_view__itemview__widgets extends list_v
                 pan.addView(menu);
                 pan.addView(trash);
             }
-            
             papyrus.addView(label);
             papyrus.addView(ssid);
             papyrus.addView(address);

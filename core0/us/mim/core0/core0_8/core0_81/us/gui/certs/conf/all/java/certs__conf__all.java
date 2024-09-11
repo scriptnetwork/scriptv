@@ -30,7 +30,7 @@
 //MIM    mim file: core0/core0_6/core0_61/us/gui/activity/listview_controller/mim.h
 //MIM  Params:
 //MIM    'classname': 'certs__conf__all'
-//MIM    'conf_button__click_handler': 'void on_confitem_but...' @ core0/core0_6/core0_61/us/gui/activity/listview_controller/mim.h
+//MIM    'conf_button__click_handler': '@Override public voi...' @ core0/core0_6/core0_61/us/gui/activity/listview_controller/mim.h
 //MIM    'data_identifier': 'data' @ core0/core0_8/core0_81/us/gui/certs/conf/all/mim.h
 //MIM    'datatype': 'certs__conf__all0__datatype_t' @ core0/core0_8/core0_81/us/gui/certs/conf/all/mim.h
 //MIM    'highlight_nft__def': 'String highlight_nft...' @ core0/core0_6/core0_61/us/gui/activity/listview_controller/mim.h
@@ -38,7 +38,7 @@
 //MIM    'itemtype': 'certs__conf__all0__itemtype_t' @ core0/core0_8/core0_81/us/gui/certs/conf/all/mim.h
 //MIM    'nft_support__bind': 'adapter.highlight_nf...' @ core0/core0_6/core0_61/us/gui/activity/listview_controller/mim.h
 //MIM    'popups': '' @ core0/core0_6/core0_61/us/gui/activity/listview_controller/mim.h
-//MIM  kickoff code hash: JCBLpY44wgqgqJKZuK7cCNLXGLp (change this hash to force a review)
+//MIM  kickoff code hash: 7oj4yYqv8VMLWAh7tGrCaYvq7qv (change this hash to force a review)
 //MIM  ******************************************************************************
 package us.cash;
 import android.os.Bundle;                                                                      // Bundle
@@ -70,7 +70,10 @@ import android.content.DialogInterface;                                         
 import android.os.Bundle;
 import static us.gov.crypto.ripemd160.hash_t;
 
-public final class certs__conf__all extends certs__conf__all0 {
+
+public final class certs__conf__all extends certs__conf__all0
+         implements us.cash.scr.list_view_t.itemclick_listener_t,
+                     us.cash.scr.certs__conf__all__list_view__itemview__widgets.listener_t {
 
     private static void log(final String line) {           //--strip
         CFG.log_android("certs__conf__all: " + line);         //--strip
@@ -85,8 +88,6 @@ public final class certs__conf__all extends certs__conf__all0 {
     //--------------lifecycle-------------------------------------------------------
     @Override protected void controller__on_create(Bundle saved_state) {  //create/resume order: 1-general class; 2-specialized class
         log("on_create"); //--strip
-        adapter = create_adapter();
-        assert adapter != null; //--strip
         super.controller__on_create(saved_state);
         w = (us.cash.scr.certs__conf__all__widgets) super.w;
         assert w != null; //--strip
@@ -106,17 +107,11 @@ public final class certs__conf__all extends certs__conf__all0 {
     @Override protected void controller__on_resume() { //create/resume order: 1-general class; 2-specialized class
         super.controller__on_resume();
         log("controller__on_resume"); //--strip
-        if (w.list.getAdapter() == null) {
-            w.list.setAdapter(adapter);
-        }
-        else {
-            adapter.notifyDataSetChanged();
-        }
+        w.list_view.notify_dataset_changed();
     }
 
     @Override protected void controller__on_destroy() { //destroy/pause order: 1-specialized class; 2-general class
         log("controller__on_destroy"); //--strip
-        adapter = null;
         w = null;
         super.controller__on_destroy();
     }
@@ -132,32 +127,7 @@ public final class certs__conf__all extends certs__conf__all0 {
 
     @Override public us.cash.scr.view__widgets create_widgets() {
         final certs__conf__all self = this;
-        return new us.cash.scr.certs__conf__all__widgets(new us.cash.scr.list_view_t.itemclick_listener_t() {
-            @Override public void on_item_click(View view, int position) {
-                self.on_item__click(position);
-            }
-            @Override public void on_long_item_click(View view, int position) {
-                self.on_item__long_click(position);
-            }
-            @Override public boolean on_highlighted_item(int pos) {
-                return self.on_item__highlighted(pos);
-            }
-        });
-    }
-
-    us.cash.scr.certs__conf__all__itemview__widgets create_itemview__widgets() {
-        return new us.cash.scr.certs__conf__all__itemview__widgets();
-    }
-
-    public us.cash.scr.list_view__itemview_t create_itemview(Context ctx) {
-         return new us.cash.scr.certs__conf__all__itemview_t(ctx, create_itemview__widgets(), adapter);
-    }
-
-    public certs__conf__all__adapter_t create_adapter() {
-        log("create_adapter");
-        adapter = new certs__conf__all__adapter_t(this);
-        log("create_adapter returns = " + adapter);
-        return adapter;
+        return new us.cash.scr.certs__conf__all__widgets(this, this);
     }
 
     //    +-----+------------------------------+-------+
@@ -165,20 +135,20 @@ public final class certs__conf__all extends certs__conf__all0 {
     //    | <===+=============click============+=====> +
     //    | <========================================> |
     //    +-----+--------------------------------------+
-    void on_item__click(final int pos) {
+    @Override public void on_item__click(View v, final int pos) {
         log("on_item__click pos=" + pos); //--strip
-        adapter.toggle_sel(pos);
+        w.list_view.toggle_sel(pos);
     }
 
-    void on_item__long_click(final int pos) {
+    @Override public void on_item__long_click(View v, final int pos) {
         log("on_item__long_click pos " + pos); //--strip
         //TODO: do something
-        //certs__conf__all0__itemtype_t item = adapter.get_item(pos);
+        //certs__conf__all0__itemtype_t item = w.list_view.get_item(pos);
     }
 
-    boolean on_item__highlighted(int pos) {
+    @Override public boolean on_item__highlighted(int pos) {
         log("on_item__highlighted_item pos " + pos); //--strip
-        certs__conf__all0__itemtype_t item = adapter.get_item(pos);
+        certs__conf__all0__itemtype_t item = w.list_view.get_item(pos);
         if (certs__conf_.mode == 1) {
             String[] options = {"Select this certificate", "View certificate", a.getResources().getString(R.string.cancel)};
             //final certs i = certs.this;
@@ -201,11 +171,23 @@ public final class certs__conf__all extends certs__conf__all0 {
         return true; //true: leaves it highlighted; false: changes to not highlighted
     }
 
+    //    +-----+------------------------------+-------+
+    //    | ico | head                         | btn <-+--- click
+    //    |     |------------------------------+-------+
+    //    |     | tail                                 |
+    //    +-----+--------------------------------------+
+    //MIM begin token 'conf_button__click_handler'
+    @Override public void list_view__on_confitem_button_click(int pos) {
+        log("list_view__on_confitem_button_click pos " + pos); //--strip
+        //final certs__conf__all0__itemtype_t item = adapter.get_item(pos);
+        //a.launch_(item.o);
+    }
+    //MIM end token 'conf_button__click_handler'
+
     @Override public void on_ready(final ko load_result) {
         log("on_ready"); //--strip
         a.assert_ui_thread(); //--strip
-        assert adapter != null;
-        adapter.set_data(data);
+        w.list_view.set_data(data);
         bind(data);
     }
 
@@ -326,7 +308,6 @@ public final class certs__conf__all extends certs__conf__all0 {
 
     String highlight_nft = null; //MIM token 'highlight_nft__def'
     protected us.cash.scr.certs__conf__all__widgets w = null;
-    public certs__conf__all__adapter_t adapter = null;
 
 }
 

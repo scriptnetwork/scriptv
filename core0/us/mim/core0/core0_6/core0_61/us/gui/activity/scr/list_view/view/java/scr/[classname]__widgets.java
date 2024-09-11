@@ -51,7 +51,7 @@ public class ##classname##__widgets {
 
     public canvas_t papyrus;
     public list_view_t list;
-    private text_view_t empty_list;
+    public text_view_t empty_list;
     public ##classname##__itemview__widgets.listener_t itemview_listener;
 
 }

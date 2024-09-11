@@ -31,7 +31,7 @@
 
 #include <us/gov/likely.h>
 #include <us/gov/likely.h>
-#include <us/gov/io/cfg0.h>
+//#include <us/gov/io/cfg0.h>
 
 #include <us/gov/crypto/base58.h>
 #include <us/gov/crypto/endian_rw.h>

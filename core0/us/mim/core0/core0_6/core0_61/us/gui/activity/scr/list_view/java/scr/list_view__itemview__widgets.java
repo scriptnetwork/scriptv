@@ -43,7 +43,7 @@ public class list_view__itemview__widgets extends view__widgets {
     }
 
     @Override public ViewGroup create_tree(Context ctx) { //aka inflate
-        papyrus = new canvas_t(ctx, 7, canvas_t.H); {
+        papyrus = new canvas_t(ctx, 7, canvas_t.V); {
         }
         return papyrus;
     }

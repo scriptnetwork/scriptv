@@ -31,7 +31,7 @@
 //MIM  Params:
 //MIM    'classname': 'device_endpoints__conf__list_view'
 //MIM    'include': ''
-//MIM  kickoff code hash: 2L3vr7y2NfE75uLXAsPoY82oFi9D (change this hash to force a review)
+//MIM  kickoff code hash: uAd9AFV65RH8un99fevD21adLjD (change this hash to force a review)
 //MIM  ******************************************************************************
 package us.cash.scr;
 import android.content.Context;                                                                // Context
@@ -50,15 +50,19 @@ public class device_endpoints__conf__list_view__widgets {
     public device_endpoints__conf__list_view__widgets(Context ctx, final list_view_t.itemclick_listener_t list_listener_, final device_endpoints__conf__list_view__itemview__widgets.listener_t itemview_listener_) {
         super();
         itemview_listener = itemview_listener_;
-        empty_list = new text_view_t(ctx, 1); {
-            empty_list.setText("Empty");
-        }
-        list = new list_view_t(ctx, 2, list_listener_, empty_list); {
+        papyrus = new canvas_t(ctx, 10, canvas_t.V); {
+            empty_list = new text_view_t(ctx, 1); {
+                empty_list.setText("Empty");
+            }
+            list = new list_view_t(ctx, 2, list_listener_, empty_list);
+            papyrus.addView(empty_list);
+            papyrus.addView(list);
         }
     }
 
-    public text_view_t empty_list;
+    public canvas_t papyrus;
     public list_view_t list;
+    public text_view_t empty_list;
     public device_endpoints__conf__list_view__itemview__widgets.listener_t itemview_listener;
 
 }

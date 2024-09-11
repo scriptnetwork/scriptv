@@ -298,7 +298,6 @@ function checkbin {
 checkbin
 
 function gen_mim {
-    echo "generating classes from MIM."
     pushd mim > /dev/null
         ${make} -j${jobs} clean
         if [[ $? -ne 0 ]]; then
@@ -880,7 +879,7 @@ if [[ ! -f vcs_git_env ]]; then
 fi
 
 echo ""
-echo "Generating classes from the MIM (Master Information Model)"
+echo "Generating classes from MIM (Master Information Model)"
 gen_mim
 
 echo ""

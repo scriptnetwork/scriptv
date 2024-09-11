@@ -31,7 +31,7 @@
 //MIM  Params:
 //MIM    'classname': 'certs__conf__all'
 //MIM    'include': 'import java.util.Arr...'
-//MIM  kickoff code hash: 3TjGutrRFrQZgnr6BiF57iTVXcm3 (change this hash to force a review)
+//MIM  kickoff code hash: 3hBFU7fdC2ZLYABDL8cX4kMxeAj1 (change this hash to force a review)
 //MIM  ******************************************************************************
 package us.cash.scr;
 import android.content.Context;                                                                // Context
@@ -53,27 +53,25 @@ public class certs__conf__all__widgets extends certs__conf__all0__widgets  {
         us.cash.CFG.log_scr("certs__conf__all__widgets: " + s);            //--strip
     }                                                                //--strip
 
-    public certs__conf__all__widgets(final list_view_t.itemclick_listener_t list_listener_) {
+    public certs__conf__all__widgets(
+            final list_view_t.itemclick_listener_t list_view__listener_,
+            final certs__conf__all__list_view__itemview__widgets.listener_t itemview_listener_
+        ) {
         super();
-        listener = list_listener_;
+        list_view__listener = list_view__listener_;
+        itemview_listener = itemview_listener_;
     }
 
     @Override public ViewGroup create_tree(Context ctx) { //aka inflate
         assert papyrus == null;
-        papyrus = new canvas_t(ctx, 10, 1); {
-            empty_list = new text_view_t(ctx, 1); {
-                empty_list.setText("Empty");
-            }
-            list = new list_view_t(ctx, 2, listener, empty_list);
-            papyrus.addView(empty_list);
-            papyrus.addView(list);
-        }
+        papyrus = new certs__conf__all__list_view(ctx, list_view__listener, itemview_listener);
         return papyrus;
     }
 
-    public list_view_t list;
-    private text_view_t empty_list;
-    private list_view_t.itemclick_listener_t listener;
+    public certs__conf__all__list_view list_view;
+
+    list_view_t.itemclick_listener_t list_view__listener;
+    certs__conf__all__list_view__itemview__widgets.listener_t itemview_listener;
 
 }
 

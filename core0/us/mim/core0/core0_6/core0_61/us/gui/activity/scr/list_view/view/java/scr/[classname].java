@@ -37,6 +37,7 @@ import android.content.DialogInterface;                                         
 import android.content.Intent;                                                                 // Intent
 import us.cash.##itemtype##;
 import us.cash.##datatype##;
+import us.cash.CFG;
 
 ##include##
 

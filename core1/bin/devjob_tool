@@ -776,7 +776,8 @@ EOF
 
         GIT_COMMITTER_NAME="$dj_committer_name" GIT_COMMITTER_EMAIL="$dj_committer_email" GNUPGHOME=$dj_gpgh git commit -q -e -F ../msg4upstream --author="$dj_author" -S$dj_gpgkey
         if [[ $? -ne 0 ]]; then
-            echo "KO 87032 "
+            #echo "KO 87032 "
+            err_commit
             exit 1
         fi
     else
@@ -1337,8 +1338,8 @@ This will likely lead to the need to do this sequence manually:
         <dont't hit enter>
         gpg --homedir $dj_gpgh --status-fd=2 -bsau $dj_gpgkey
         <copy it to clipboard the passphrase onscreen above>
-        <now you hit enter>
-        ^D
+        <now you hit enter, then the program requires your input>
+        write random message + ^D
         <enter password>
 Easy peasy, we just need to unlock the gpg agent before retrying. Over to you. follow the above sequence and, only when you see a successfully generated GPG signature, run again the command $@.
 EOF

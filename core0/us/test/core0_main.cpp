@@ -940,7 +940,7 @@ void test_l2_main(string logdir0) {
     string vardir = logdir0 + "/var";
 
     cout << "This machine local IP addresses: \n";
-    system("ifconfig | grep \"inet \" | grep -v \"inet 127.0.0.1\" | nl");
+    system("/sbin/ifconfig | grep \"inet \" | grep -v \"inet 127.0.0.1\" | nl");
     cout << "Enter local IP address [" << node::localip << "]: ";
     cout.flush();
     string inputip;

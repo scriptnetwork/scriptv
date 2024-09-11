@@ -34,7 +34,7 @@
 //MIM    'highlight_nft__def': '' @ core0/core0_6/core0_61/us/gui/activity/listview_controller/mim.h
 //MIM    'include': ''
 //MIM    'itemtype': 'device_endpoint_t' @ core0/core0_7/us/gui/device_endpoints/mim.h
-//MIM  kickoff code hash: 4MHxDpfHMa6fbcV35UT9pK2hANn1 (change this hash to force a review)
+//MIM  kickoff code hash: 3Par4FwLNFf2a7cHYxuUBe7QAjqq (change this hash to force a review)
 //MIM  ******************************************************************************
 package us.cash.scr;
 import android.os.Bundle;                                                                      // Bundle
@@ -52,6 +52,7 @@ import android.content.DialogInterface;                                         
 import android.content.Intent;                                                                 // Intent
 import us.cash.device_endpoint_t;
 import us.cash.device_endpoints_t;
+import us.cash.CFG;
 
 
 public class device_endpoints__conf__list_view extends canvas_t {
