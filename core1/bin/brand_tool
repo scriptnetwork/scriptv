@@ -921,6 +921,8 @@ EOF
     fi
     idrsapub=$(cat /root/.ssh/id_rsa.pub)
     echo "Access to BDE root@{$unixname} port 22:"
+
+    echo "WA 44096 It may hang now if host is unknown for ssh. If so run manually ssh root@${unixname} and after answering the question (yes)  restart this program again."
     ssh root@${unixname} ${idfile} "if [[ ! -d /root/.ssh ]]; then ssh-keygen; fi; echo \"$idrsapub #brand_tool\" >> /root/.ssh/authorized_keys; cat /root/.ssh/authorized_keys"
     if [[ $? -ne 0 ]]; then
         >&2 echo "KO 87984 something went wrong"

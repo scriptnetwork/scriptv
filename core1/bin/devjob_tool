@@ -54,7 +54,7 @@ Commands:
         --brand <brand>     .
         Available brands:   { $(ls -1 $brands | xargs) }
 
-    sync <options>     Synchronize upstream devjob.
+    sync     Synchronize upstream devjob.
         --id <id>           by id (ids in file .cbs/devjobs_active)
         --url <url>         upstream devjob git url
         --dryrun            Don't push neither upstream nor downstream.
