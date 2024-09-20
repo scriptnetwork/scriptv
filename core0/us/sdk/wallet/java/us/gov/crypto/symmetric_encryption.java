@@ -26,6 +26,7 @@ import org.bouncycastle.util.Arrays;                                            
 import org.bouncycastle.jce.provider.BouncyCastleProvider;                                     // BouncyCastleProvider
 import us.CFG;                                                                                 // CFG
 import javax.crypto.Cipher;                                                                    // Cipher
+import javax.crypto.KeyGenerator;
 import org.bouncycastle.math.ec.ECPoint;                                                       // ECPoint
 import java.security.GeneralSecurityException;                                                 // GeneralSecurityException
 import javax.crypto.spec.IvParameterSpec;                                                      // IvParameterSpec
@@ -36,6 +37,7 @@ import us.pair;                                                                 
 import java.security.PrivateKey;                                                               // PrivateKey
 import java.security.PublicKey;                                                                // PublicKey
 import javax.crypto.SecretKey;                                                                 // SecretKey
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;                                                        // SecretKeySpec
 import java.security.SecureRandom;                                                             // SecureRandom
 import java.security.Security;                                                                 // Security
@@ -50,6 +52,7 @@ public class symmetric_encryption {
     static SecureRandom random = null;
     public static final int iv_size = 12;
     public static final int key_size = 16;
+    public static final int tag_size = 16 * 8;  // Authentication tag size (128 bits)
 
     public static final ko KO_89601 = new ko("KO 89601 Invalid length.");
     public static final ko KO_40751 = new ko("KO 40751 Unable to decrypt.");
@@ -78,21 +81,16 @@ public class symmetric_encryption {
             enc = Cipher.getInstance("AES/GCM/NoPadding");
             dec = Cipher.getInstance("AES/GCM/NoPadding");
             key = ec.instance.generate_shared_key(priv_a, pub_b, key_size);
-            if (key == null) {
-                ko r=new ko("KO 66053 Invalid key.");
-                log(r.msg); //--strip
-                return r;
-            }
-            if(key.length != key_size) {
-                ko r=new ko("KO 66054 Invalid key size.");
+            if (key == null || key.length != key_size) {
+                ko r = new ko("KO 66053 Invalid key.");
                 log(r.msg); //--strip
                 return r;
             }
         }
         catch (Exception e) {
-                ko r=new ko("KO 66055 Invalid keys.");
-                log(r.msg); //--strip
-                return r;
+            ko r=new ko("KO 66055 Invalid keys.");
+            log(r.msg + " " + e.getMessage()); //--strip
+            return r;
         }
         return ok;
     }
@@ -104,8 +102,12 @@ public class symmetric_encryption {
     public pair<ko, byte[]> encrypt(byte[] plaintext) {
         try {
             random.nextBytes(iv);
-            enc.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(iv), random);
-            return new pair<ko, byte[]>(ok, Arrays.concatenate(enc.doFinal(plaintext), iv));
+            enc.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), new GCMParameterSpec(tag_size, iv), random);
+//new IvParameterSpec(iv), random);
+            byte[] encrypted = enc.doFinal(plaintext);
+            byte[] ciphertext = Arrays.concatenate(iv, encrypted);
+            return new pair<ko, byte[]>(ok, ciphertext);
+//            return new pair<ko, byte[]>(ok, Arrays.concatenate(enc.doFinal(plaintext), iv));
         }
         catch (Exception e) {
             ko r = KO_44302;
@@ -117,15 +119,20 @@ public class symmetric_encryption {
     //Decrypt returns an empty byte array if the ciphertext is invalid. Invalid ciphertext would
     //otherwise cause an exception as the algorithm is unable to authenticate the ciphertext.
     public pair<ko, byte[]> decrypt(byte[] encrypted, int offset, int length) {
-        int sz = length - iv_size;
-        if (sz<0){
-            ko r=KO_89601;
+//        int sz = length - iv_size;
+        if (length < iv_size) {
+            ko r = KO_89601;
             log(r.msg); //--strip
             return new pair<ko, byte[]>(r, null);
         }
         try {
-            dec.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(encrypted, offset+sz, iv_size), random);
-            return new pair<ko, byte[]>(ok, dec.doFinal(encrypted, offset, sz));
+            byte[] iv = Arrays.copyOfRange(encrypted, offset, offset + iv_size);
+            byte[] ciphertext = Arrays.copyOfRange(encrypted, offset + iv_size, offset + length);
+            dec.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"), new GCMParameterSpec(tag_size, iv), random);
+            byte[] plaintext = dec.doFinal(ciphertext);
+            return new pair<ko, byte[]>(ok, plaintext);
+            //dec.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(encrypted, offset+sz, iv_size), random);
+            //return new pair<ko, byte[]>(ok, dec.doFinal(encrypted, offset, sz));
         }
         catch (Exception e) {
             ko r = KO_40751;
