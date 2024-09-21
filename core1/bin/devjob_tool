@@ -337,11 +337,21 @@ function apply1 {
     echo ""
     git reset --soft ${downstream_head}
     if [[ $? -ne 0 ]]; then
+        echo "git reset --soft ${downstream_head}"
+        echo "pwd $pwd"
         echo "KO 87012"
         exit 1
     fi
     git add -u
     if [[ -n "$(git status --porcelain)" ]]; then
+        echo -n "pwd: "
+        pwd
+        cat << EOF
+Commit:
+        GNUPGHOME=$gpgh git commit -q -e -F ../msg4downstream --author="$author" -S$gpgkey
+EOF
+#GIT_COMMITTER_NAME="$dj_committer_name" GIT_COMMITTER_EMAIL="$dj_committer_email" GNUPGHOME=$dj_gpgh git commit -q -m "ds ${downstream_hash}" --author="$dj_author" -S$dj_gpgkey
+
         GNUPGHOME=$gpgh git commit -q -e -F ../msg4downstream --author="$author" -S$gpgkey
         if [[ $? -ne 0 ]]; then
             echo "KO 87013"

@@ -144,7 +144,7 @@ struct auth_app: us::gov::engine::auth::app, us::test::test_platform {
         check(pool->online.begin()->second.port, (uint16_t)16672); //--------------------
         os << endl;
 
-        os << "db import poolic" << endl;
+        os << "db import poolic\n";
         us::gov::engine::auth::app::delta* d = new us::gov::engine::auth::delta();
         d->merge(ld);
         d->end_merge();
@@ -165,6 +165,7 @@ struct auth_app: us::gov::engine::auth::app, us::test::test_platform {
         growth = prevpol_ng;
         min_growth = prevpol_mg;
 
+        os << "--\n";
     }
 
     void self_test() {

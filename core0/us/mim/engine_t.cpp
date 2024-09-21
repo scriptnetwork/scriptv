@@ -107,7 +107,7 @@ void c::init(float maxz, const string& output_dir_) {
     home = "cores"; //core0
     output_dir = output_dir_;
     assert(!output_dir_.empty());
-    assert(output_dir_.back() == '/');
+    assert(output_dir_.back() == '/'); //back=last character
 
     using x = mim::android_vertex_t;
     x::cfg_str28 = get_cfg("str28"); // "us.cash"; //Android app package name
@@ -145,7 +145,7 @@ void c::systemx(const string& filename, const string& content) {
     if (dryrun) {
         cout << "[dryrun] skipped writting file: " << filename << '\n';
         return;
-    } 
+    }
     cout << "Executing: write file: " << filename << '\n';
     ofstream os(filename);
     os << content;
@@ -159,14 +159,14 @@ ko c::configure() {
         case mode_dev: {
             if (features.dev.gitignore) {
                 ostringstream cmd;
-                cmd << "cat " << output_dir << ".gitignore | grep -v \"# --MIM\" > /tmp/gitign";
+                cmd << "cat " << output_dir << "us/.gitignore | grep -v \"# --MIM\" > /tmp/gitign";
                 systemx(cmd.str());
             }
             mim::core0::vertex_t core0;
             core0.gen_merge_configure(features.max_zorder);
             if (features.dev.gitignore) {
                 ostringstream cmd;
-                cmd << "mv /tmp/gitign " << output_dir << ".gitignore";
+                cmd << "mv /tmp/gitign " << output_dir << "us/.gitignore";
                 systemx(cmd.str());
             }
         }
@@ -443,7 +443,7 @@ void c::produce_file(const pair<string, filedef_t>& filedef, const string& tgt, 
             else {
                 ostringstream cmd;
                 if (features.mode == mode_dev) {
-                    cmd << "ln -s $(realpath " << src << '/' << file << ") " << fn;
+                    cmd << "bin/mk_symlink " << src << ' ' << file << ' ' << fn;
                 }
                 else if (features.mode == mode_cbs) {
                     cmd << "cp " << src << '/' << file << ' ' << fn;

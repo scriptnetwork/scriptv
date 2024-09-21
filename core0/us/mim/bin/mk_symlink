@@ -1,0 +1,66 @@
+#!/bin/bash
+#===-                           S C R I P T  T.V.
+#===-                           https://script.tv
+#===-
+#===-            Copyright (C) 2017-2024 Script Network
+#===-            Copyright (C) 2017-2024 manicberet@gmail.com
+#===-
+#===-                      GNU GENERAL PUBLIC LICENSE
+#===-                       Version 3, 29 June 2007
+#===-
+#===-    This program is free software: you can redistribute it and/or modify
+#===-    it under the terms of the GPLv3 License as published by the Free
+#===-    Software Foundation.
+#===-
+#===-    This program is distributed in the hope that it will be useful,
+#===-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#===-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#===-
+#===-    You should have received a copy of the General Public License
+#===-    along with this program, see LICENCE file.
+#===-    see https://www.gnu.org/licenses
+#===-
+#===----------------------------------------------------------------------------
+#===-
+
+#XXXXXXXXXXXXXXXXXXXXXX us /root/us/core0/us
+#XXXXXXXXXXXXXXXXXXXXXX tgt sdk/wallet/c++/us/gov/socket
+#XXXXXXXXXXXXXXXXXXXXXX pwd /root/us/core0/us/1sdk/2wallet/3c++/4us/5gov/6socket
+#XXXXXXXXXXXXXXXXXXXXXX src 6../5../4../3../2../1../mim/core0/core0_5/us/gov/socket/datagram/c++
+#XXXXXXXXXXXXXXXXXXXXXX file datagram.h
+
+
+src=$(realpath $1)
+file=$2
+tgt=$(dirname $(realpath $3))
+
+us=$(realpath $(pwd)/..)
+src=$(echo $src | sed "s~${us}/\(.*\)~\1~")
+tgt=$(echo $tgt | sed "s~${us}/\(.*\)~\1~")
+
+pushd $us > /dev/null
+    pushd $tgt > /dev/null
+        n=$(echo $tgt | tr '/' ' ' | xargs -n1 | wc -l)
+        pfx=$(yes "../" | head -n $n | xargs | sed 's/ //g')
+        src=$pfx$src
+#echo "XXXXXXXXXXXXXXXXXXXXXX us $us"
+#echo "XXXXXXXXXXXXXXXXXXXXXX tgt $tgt"
+#echo "XXXXXXXXXXXXXXXXXXXXXX pwd $(pwd)"
+#echo "XXXXXXXXXXXXXXXXXXXXXX src $src"
+#echo "XXXXXXXXXXXXXXXXXXXXXX file $file"
+        echo "bin/mk_symlink: pwd: $(pwd)"
+        echo "bin/mk_symlink: ln -s $src/$file"
+        ln -s $src/$file
+    popd > /dev/null
+popd > /dev/null
+
+
+
+
+#pushd $(dirname ${tgt}) > /dev/null
+#    ln -s ${src}/$file}
+#popd > /dev/null
+
+
+exit 0
+

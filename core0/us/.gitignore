@@ -85,3 +85,9 @@
 /walletx/makefile
 /walletx/us-wallet
 /srctool/srctool
+us/sdk/wallet/c++/us/wallet/cli/hmi.cpp # --MIM
+us/sdk/wallet/c++/us/wallet/cli/hmi.h # --MIM
+us/sdk/wallet/java/us/wallet/cli/hmi.java # --MIM
+us/sdk/wallet/c++/us/gov/socket/datagram.cpp # --MIM
+us/sdk/wallet/c++/us/gov/socket/datagram.h # --MIM
+us/sdk/wallet/java/us/gov/socket/datagram.java # --MIM

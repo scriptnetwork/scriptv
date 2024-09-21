@@ -370,7 +370,6 @@ function clear_ccache_arch {
 if [[ "_$cmd" == "_clear_ccache" ]]; then
     set -x
     ccache -C
-#    archs="x86_64 armv7l "
     for arch in $cbs_archs; do
         vhost=host_$arch
         vport=port_ssh_$arch
