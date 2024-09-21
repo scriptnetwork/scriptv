@@ -14,7 +14,7 @@
         Wallet (Private System - Privacy, Anonymity): C++
     Lightweight
 
-# stats 22 Feb 2024
+# LOC stats 22 Feb 2024
     Lines of Code (LOC): Totals grouped by language (dominant language first):
     cpp:          78830 (48.91%)
     java:         56189 (34.86%)
