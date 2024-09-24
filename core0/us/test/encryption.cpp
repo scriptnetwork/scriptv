@@ -27,6 +27,7 @@
 
 #include <us/gov/config.h>
 #include <us/gov/crypto/symmetric_encryption.h>
+#include <us/gov/crypto/base58.h>
 
 #include "encryption.h"
 
@@ -46,12 +47,13 @@ using us::is_ko;
 using us::ko;
 
 void check_ok(ko r) {
-    if (r!=ok) cout << (const char*) r << endl;
-    assert(r==ok);
+    if (r != ok) cout << (const char*) r << endl;
+    assert(r == ok);
 }
 
 void test_symmetric_encryption() {
     //test that encryption then decryption will retrieve original plaintext.
+    log("test_symmetric_encryption");
     test_encrypt_decrypt("encrypt this");
     test_encrypt_decrypt("");
     test_encrypt_decrypt(",./;'#[]-=123456DFJLSKDFJERUEIUR  \n rtr");
@@ -74,29 +76,43 @@ void test_symmetric_encryption() {
 }
 
 void test_encrypt_decrypt(string plaintext_string) {
+    log("test_encrypt_decrypt ", plaintext_string);
     keys a = keys::generate();
     keys b = keys::generate();
-    test_encrypt_decrypt(plaintext_string,a.priv,a.pub,b.priv,b.pub,true);
+    test_encrypt_decrypt(plaintext_string, a.priv, a.pub, b.priv, b.pub, true);
 }
 
-void test_encrypt_decrypt(string plaintext_string,const keys::priv_t& priv_a, const keys::pub_t& pub_a, const keys::priv_t& priv_b, const keys::pub_t& pub_b, bool expected_ok) {
+void test_encrypt_decrypt_(int offset, string plaintext_string, const keys::priv_t& priv_a, const keys::pub_t& pub_a, const keys::priv_t& priv_b, const keys::pub_t& pub_b, bool expected_ok) {
     cout << "plaintext size " << plaintext_string.size() << endl;
-    vector<unsigned char> plaintext(plaintext_string.begin(),plaintext_string.end());
+
+//    vector<unsigned char> plaintext;
+//    plaintext.resize(plaintext_string.size());
+//    std::copy(plaintext_string.begin(), plaintext_string.end(), plaintext.begin());
+
+    vector<unsigned char> plaintext(plaintext_string.begin(), plaintext_string.end());
+
     symmetric_encryption se_a;
     assert(is_ok(se_a.init(priv_a, pub_b)));
 //    cout << "instantiated symenc" << endl;
     vector<unsigned char> ciphertext;
-    assert(se_a.encrypt(plaintext, ciphertext, 0)==ok);
-    vector<unsigned char> ciphertext_2;
-    assert(se_a.encrypt(plaintext, ciphertext_2, 0)==ok);
-    assert(ciphertext!=ciphertext_2); //encrypted text doesn't repeat
-
+    log("========encrypt=======");
+    assert(se_a.encrypt(plaintext, ciphertext, offset) == ok);
+    log("======/=encrypt=======");
+    { //test ciphertext is not repeated
+        vector<unsigned char> ciphertext_2;
+        assert(se_a.encrypt(plaintext, ciphertext_2, offset) == ok);
+        assert(ciphertext != ciphertext_2); //encrypted text doesn't repeat
+    }
+    
     cout << "encrypted vector " << ciphertext.size() << " bytes" << endl;
 
     symmetric_encryption se_b;
-    assert(is_ok(se_b.init(priv_b,pub_a)));
+    assert(is_ok(se_b.init(priv_b, pub_a)));
+
     vector<unsigned char> decodedtext;
-    auto r=se_b.decrypt(ciphertext, decodedtext);
+    log("========decrypt=======");
+    auto r = se_b.decrypt(ciphertext.data() + offset, ciphertext.size() - offset, decodedtext);
+    log("======/=decrypt=======");
     if (expected_ok) {
         check_ok(r);
     }
@@ -104,7 +120,15 @@ void test_encrypt_decrypt(string plaintext_string,const keys::priv_t& priv_a, co
         assert(is_ko(r));
     }
     cout << "decrypted vector " <<decodedtext.size() << " bytes" << endl;
-    assert(plaintext==decodedtext?expected_ok:!expected_ok);
+    cout << "Decrypted text size: " << decodedtext.size() << endl;
+    cout << "Original text size: " << plaintext.size() << endl;
+
+    assert(plaintext == decodedtext ? expected_ok : !expected_ok);
+}
+
+void test_encrypt_decrypt(string plaintext_string, const keys::priv_t& priv_a, const keys::pub_t& pub_a, const keys::priv_t& priv_b, const keys::pub_t& pub_b, bool expected_ok) {
+    test_encrypt_decrypt_(0, plaintext_string, priv_a, pub_a, priv_b, pub_b, expected_ok);
+    test_encrypt_decrypt_(10, plaintext_string, priv_a, pub_a, priv_b, pub_b, expected_ok);
 }
 
 using namespace chrono;

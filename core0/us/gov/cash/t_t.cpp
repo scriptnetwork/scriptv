@@ -183,7 +183,7 @@ ko c::from_blob(blob_reader_t& reader) {
     }
     // <orma backwards_compatibility_hack version_from=0 version_to=11/>
     log("reader.header.version", +reader.header.version);
-    if (reader.header.version < 11) {
+    if (reader.header.version > 0 && reader.header.version < 11) {
         log("old version. flags set to 0");
         flags = 0; //unsealed
     }

@@ -248,17 +248,6 @@ ko c::read_header_prev(const string& file, blob_reader_t::blob_header_t& header,
     if (!is.good()) {
         return blob_reader_t::KO_60498;
     }
-/*
-    if (unlikely(header.version != blob_reader_t::current_version)) {
-        log("Blob is not current version.", +header.version, +blob_reader_t::current_version);
-        if (header.version == blob_reader_t::current_version - 1) {
-            log("Blob is prev version.", +header.version, +blob_reader_t::current_version);
-            return ok;
-        }
-        log(blob_reader_t::KO_60499, +header.version, +blob_reader_t::current_version);
-        return blob_reader_t::KO_60499;
-    }
-*/
     return prev.read(is);
 }
 

@@ -26,13 +26,27 @@
 #include <iostream>
 #include <string>
 
+#define loglevel "test"
+#define logclass "symm_enc"
+#include <us/gov/logs.inc>
+
+
 #include <us/gov/crypto/ec.h>
 
 using namespace std;
 using namespace us::gov::crypto;
 
+//using namespace us::test;
+
 int main ()
 {
+
+
+    us::dbg::thread_logger::set_root_logdir("logs");
+    log_pstart("generate_keys");
+    log_start("", "main");
+
+
     ec::keys k = ec::keys::generate();
     std::cout << k.priv << " " << k.pub << endl;
     //std::cout << "4ACKBcXXhtGb3NtZzSfwgSs3GqCgCBY65juF2UVSJQR2 dPtUg631Hh7tL8t3wK6KHDwFfQzLmcHtkEAH5mSsANX3" << endl;

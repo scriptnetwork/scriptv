@@ -22,42 +22,53 @@
 //===----------------------------------------------------------------------------
 //===-
 import us.wallet.*;
+import us.gov.crypto.base58;
+import us.gov.crypto.ec;
+import us.gov.crypto.symmetric_encryption;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.GeneralSecurityException;
+import us.pair;
+import us.ko;
 
 public class Main{
     public static void main(String [ ] args) throws GeneralSecurityException{
-        if (args.length > 3){
-            try{
+        if (args.length <= 3) {
+            return;
+        }
+                ec.create_instance();
 
-                byte[] priv=Base58.decode(args[0]);
-                byte[] pub=Base58.decode(args[1]);
+                PrivateKey privateKey = ec.instance.get_private_key(args[0]);
+                PublicKey publicKey = ec.instance.get_public_key(args[1]);
+
+
+//                byte[] priv=base58.decode(args[0]);
+//                byte[] pub=base58.decode(args[1]);
                 String command = args[2];
 
-                PrivateKey privateKey = EllipticCryptography.secp256k1.getPrivateKey(priv);
-                PublicKey publicKey = EllipticCryptography.secp256k1.getPublicKey(pub);
+//                PrivateKey privateKey = EllipticCryptography.secp256k1.getPrivateKey(priv);
+//                PublicKey publicKey = EllipticCryptography.secp256k1.getPublicKey(pub);
 
-                SymmetricEncryption se = new SymmetricEncryption(privateKey, publicKey);
+                symmetric_encryption se = new symmetric_encryption();
+                se.init(privateKey, publicKey);
 
-                if(command.equals("decrypt")){
+                if (command.equals("decrypt")) {
 
-                    byte[] message = Base58.decode(args[3]);
-                    byte[] decrypted = se.decrypt(message);
+                    byte[] message = base58.decode(args[3]);
+
+                    pair<ko, byte[]> r = se.decrypt(message);
+                    byte[] decrypted = r.second;
                     String decrypted_string = new String(decrypted);
                     System.out.println(decrypted_string);
                 }
-                if(command.equals("encrypt")){
+                if (command.equals("encrypt")) {
 
                     byte[] message = args[3].getBytes();
-                    byte[] encrypted = se.encrypt(message);
-                    System.out.println(Base58.encode(encrypted));
+
+                    pair<ko, byte[]> r = se.encrypt(message);
+                    byte[] encrypted = r.second;
+                    System.out.println(base58.encode(encrypted));
                 }
-            }
-            catch(GeneralSecurityException e){
-                System.out.println("error in java code: " + e);
-            }
-        }
 
 
 

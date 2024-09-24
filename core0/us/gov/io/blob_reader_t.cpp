@@ -227,6 +227,7 @@ template<> ko c::read(keys& o) {
 }
 
 template<> ko c::read(sig_t& o) {
+/*
     if (header.version == 7) {
         if ((cur + 1) > end) {
             log(KO_67217);
@@ -256,6 +257,7 @@ template<> ko c::read(sig_t& o) {
         }
         return ok;
     }
+*/
     if ((cur + o.mem_size) > end) {
         log(KO_67217);
         return KO_67217;
@@ -374,3 +376,4 @@ ko c::readD(const datagram& d, blob_reader_t::readable& o) {
     return o.read(d);
 }
 */
+

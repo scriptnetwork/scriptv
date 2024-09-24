@@ -23,24 +23,41 @@
 #===----------------------------------------------------------------------------
 #===-
 
-read -r priv_a public_a <<< $(LD_LIBRARY_PATH=../../gov:/usr/lib ../helpers/generate_keys_cpp) 
-read -r priv_b public_b <<< $(LD_LIBRARY_PATH=../../gov:/usr/lib ../helpers/generate_keys_cpp) 
+echo "generating keys"
 
-MESSAGE=$1
+read -r priv_a public_a <<< $(LD_LIBRARY_PATH=../../gov:/usr/lib ./generate_keys)
+read -r priv_b public_b <<< $(LD_LIBRARY_PATH=../../gov:/usr/lib ./generate_keys)
 
-encrypted="$(LD_LIBRARY_PATH=../../gov:/usr/lib ./test_cpp $priv_a $public_b encrypt "$MESSAGE")"
 
-decrypted="$(java -cp ".:../../sdk/java/libs/*:../../sdk/java/us-wallet-sdk.jar" Main $priv_b $public_a "decrypt" $encrypted)"
+echo "A: priv_a ${priv_a} public_a ${public_a}"
+echo "B: priv_b ${priv_b} public_b ${public_b}"
 
-encrypted2="$(java -cp ".:../../sdk/java/libs/*:../../sdk/java/us-wallet-sdk.jar" Main $priv_b $public_a "encrypt" "$MESSAGE")"
+bcv="jdk15to18-1.78.1"
+libs="../../sdk/wallet/java"
+libspath="${libs}:${libs}/libs_bouncy/bcprov-${bcv}.jar:${libs}/libs_bouncy/bcpkix-${bcv}.jar:${libs}/libs_bouncy/bcpg-${bcv}.jar:${libs}/libs_bouncy/bctls-${bcv}.jar:${libs}/libs_bouncy/bcmail-${bcv}.jar"
+depjar="../../sdk/wallet/java/us-sdk_bc.jar"
+classpath=".:${libspath}:${depjar}"
 
-decrypted2="$(LD_LIBRARY_PATH=../../gov:/usr/lib ./test_cpp $priv_a $public_b decrypt $encrypted2)"
+echo "classpath=$classpath"
+
+MESSAGE="$1"
+echo "msg=${MESSAGE}"
+
+encrypted=$(LD_LIBRARY_PATH=../../gov:/usr/lib ./test_cpp $priv_a $public_b encrypt "$MESSAGE")
+echo "encrypted (C++) ${encrypted}"
+
+decrypted=$(java -cp "${classpath}" Main $priv_b $public_a "decrypt" $encrypted)
+echo "decrypted (java) ${decrypted}"
+
+encrypted2=$(java -cp "${classpath}" Main $priv_b $public_a "encrypt" "$MESSAGE")
+echo "encrypted (java) ${encrypted2}"
+
+decrypted2=$(LD_LIBRARY_PATH=../../gov:/usr/lib ./test_cpp $priv_a $public_b decrypt $encrypted2)
+echo "decrypted (C++) ${decrypted2}"
+
 if [ "$MESSAGE" == "$decrypted" ] && [ "$MESSAGE" == "$decrypted2" ]
 then
     echo "PASSED"
-else 
+else
     echo "FAILED"
 fi
-
-
-

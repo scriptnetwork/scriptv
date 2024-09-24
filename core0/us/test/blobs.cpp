@@ -416,22 +416,151 @@ struct blobs_t: us::test::test_platform {
     using accounts_t = us::gov::cash::accounts_t;
     using account_t = us::gov::cash::account_t;
 
+/*
+/test_ev_ser_cash_accounts
+A3
+o>     1111111111111111HMYxF OIL 819; 1 files. 0 MiB; 1 coins
+o>     11111111111111115NecGP OIL 889; 1 coins
+test_ev_ser_cash_accounts
+o>     1111111111111111HMYxF OIL 819; 1 files. 0 MiB; 1 coins
+o>     11111111111111115NecGP OIL 889; 1 coins
+-----------------------------------o
+-----------------------------------  write o->blob
+-----------------------------------o2
+-----------------------------------  read o2 <- blob
+-----------------------------------  write o2 -> blob2
+-----------------------------------o3
+-----------------------------------  read o3 <- blob2
+-----------------------------------
+blob1: 155
+blob2: 125
+blob1: 02000000000000000000000000000000000B080000023303000000000000060100000000000000000000000000000000FF0E0000488B00000867647367667364670100000000000000000000000000000000A6520300D9D40000000000000000000000000000000000000000000000AB17000004790300000000000004010000000000000000000000000000000004950300591900000000000000
+blob2: 02000000000000000000000000000000000B080000023303000000000000060100000000000000000000000000000000FF0E0000488B00000867647367667364670100000000000000000000000000000000A6520300D9D4000000000000000000000000000000000000000000000000AB170000047903000000000000
+Fail. vector sizes differ. Expected 125, got 155
+
+===========================================
+
+0x2dc566665a6d test ../../us/gov/logs.inc 76 -----------------------------------o 
+0x2dc566666788 test ../../us/gov/logs.inc 76 -----------------------------------  write o->blob 
+0x2dc566667426 gov/io writable.cpp 23 writable::write to blob 
+0x2dc566669289 gov/io blob_writer_t.cpp 40 write at blob offset 0 
+0x2dc566669aa9 gov/io blob_writer_t.cpp 167 write at blob offset 1 
+0x2dc56666a293 gov/cash account_t.cpp 216 to_blob cur 21 
+0x2dc56666a9f3 gov/io blob_writer_t.cpp 93 write at blob offset 21 
+0x2dc56666b183 gov/cash safe_deposit_box.cpp 134 to_blob cur 22 
+0x2dc56666b872 gov/io blob_writer_t.cpp 81 write at blob offset 22 
+0x2dc56666bef5 gov/io blob_writer_t.cpp 93 write at blob offset 30 
+0x2dc56666ceff gov/io blob_writer_t.cpp 40 write at blob offset 31 
+0x2dc56666d64e gov/io blob_writer_t.cpp 167 write at blob offset 32 
+0x2dc56666e029 gov/dfs fileattr_t.cpp 40 to_blob cur 52 
+0x2dc56666e723 gov/io blob_writer_t.cpp 105 write at blob offset 52 
+0x2dc56666f001 gov/io blob_writer_t.cpp 40 write at blob offset 56 
+0x2dc56666f6e3 gov/io blob_writer_t.cpp 130 write at blob offset 57 
+0x2dc56666febc gov/cash t_t.cpp 150 to_blob cur 65 
+0x2dc5666705cf gov/io blob_writer_t.cpp 40 write at blob offset 65 
+0x2dc566670d0a gov/io blob_writer_t.cpp 167 write at blob offset 66 
+0x2dc566671408 gov/io blob_writer_t.cpp 81 write at blob offset 86 
+0x2dc566671b05 gov/io blob_writer_t.cpp 93 write at blob offset 94 
+0x2dc5666722b5 gov/io blob_writer_t.cpp 167 write at blob offset 95 
+0x2dc5666729aa gov/cash account_t.cpp 216 to_blob cur 115 
+0x2dc56667309b gov/io blob_writer_t.cpp 93 write at blob offset 115 
+0x2dc566673790 gov/cash safe_deposit_box.cpp 134 to_blob cur 116 
+0x2dc566673e5c gov/io blob_writer_t.cpp 81 write at blob offset 116 
+0x2dc56667450d gov/io blob_writer_t.cpp 93 write at blob offset 124 
+-------------------------------------------------------------------------------diff starts 
+******************************************************************************
+0x2dc566674b96 gov/cash t_t.cpp 150 to_blob cur 125 
+0x2dc566675263 gov/io blob_writer_t.cpp 40 write at blob offset 125 
+0x2dc56667595e gov/io blob_writer_t.cpp 167 write at blob offset 126 
+0x2dc566676030 gov/io blob_writer_t.cpp 81 write at blob offset 146 
+0x2dc56667673f gov/io blob_writer_t.cpp 93 write at blob offset 154 
+0x2dc566676f10 test ../../us/gov/logs.inc 76 -----------------------------------o2 
+0x2dc56667dcc8 test ../../us/gov/logs.inc 76 -----------------------------------  read o2 <- blob 
+0x2dc56667f78d gov/io readable.cpp 20 readable::read from blob 155 serid 0 
+0x2dc5666806ab gov/cash account_t.cpp 222 from_blob cur 21 
+0x2dc56668107d gov/cash safe_deposit_box.cpp 147 from_blob cur 22 
+0x2dc566682ca3 gov/dfs fileattr_t.cpp 46 from_blob cur 52 
+0x2dc566684893 gov/cash t_t.cpp 156 from_blob cur 65 
+0x2dc566687248 gov/cash t_t.cpp 162 reader.header.version 0 
+0x2dc566687ab9 gov/cash t_t.cpp 164 old version. flags set to 0 
+0x2dc5666893d4 gov/cash account_t.cpp 222 from_blob cur 114 
+0x2dc566689c6d gov/cash safe_deposit_box.cpp 147 from_blob cur 115 
+0x2dc56668aa14 test ../../us/gov/logs.inc 76 -----------------------------------  write o2 -> blob2 
+0x2dc56668b84a gov/io writable.cpp 23 writable::write to blob 
+0x2dc56668c8c2 gov/io blob_writer_t.cpp 40 write at blob offset 0 
+0x2dc56668d1be gov/io blob_writer_t.cpp 167 write at blob offset 1 
+0x2dc56668d910 gov/cash account_t.cpp 216 to_blob cur 21 
+0x2dc56668e0a0 gov/io blob_writer_t.cpp 93 write at blob offset 21 
+0x2dc56668e7c5 gov/cash safe_deposit_box.cpp 134 to_blob cur 22 
+0x2dc56668eeb2 gov/io blob_writer_t.cpp 81 write at blob offset 22 
+0x2dc56668f55a gov/io blob_writer_t.cpp 93 write at blob offset 30 
+0x2dc56668fc6c gov/io blob_writer_t.cpp 40 write at blob offset 31 
+0x2dc566690372 gov/io blob_writer_t.cpp 167 write at blob offset 32 
+0x2dc566690aa0 gov/dfs fileattr_t.cpp 40 to_blob cur 52 
+0x2dc566691164 gov/io blob_writer_t.cpp 105 write at blob offset 52 
+0x2dc56669180c gov/io blob_writer_t.cpp 40 write at blob offset 56 
+0x2dc566691e86 gov/io blob_writer_t.cpp 130 write at blob offset 57 
+0x2dc566692610 gov/cash t_t.cpp 150 to_blob cur 65 
+0x2dc566692d34 gov/io blob_writer_t.cpp 40 write at blob offset 65 
+0x2dc56669342e gov/io blob_writer_t.cpp 167 write at blob offset 66 
+0x2dc566693af6 gov/io blob_writer_t.cpp 81 write at blob offset 86 
+0x2dc56669418d gov/io blob_writer_t.cpp 93 write at blob offset 94 
+0x2dc5666948a9 gov/io blob_writer_t.cpp 167 write at blob offset 95 
+0x2dc566694f2c gov/cash account_t.cpp 216 to_blob cur 115 
+0x2dc5666955c5 gov/io blob_writer_t.cpp 93 write at blob offset 115 
+0x2dc566695c72 gov/cash safe_deposit_box.cpp 134 to_blob cur 116 
+0x2dc56669631b gov/io blob_writer_t.cpp 81 write at blob offset 116 
+0x2dc56669697f gov/io blob_writer_t.cpp 93 write at blob offset 124 
+------------------------------------------------------------------------------Unexpected stop
+******************************************************************************
+
+... missing stuff
+
+0x2dc56669714f test ../../us/gov/logs.inc 76 -----------------------------------o3 
+0x2dc566697e74 test ../../us/gov/logs.inc 76 -----------------------------------  read o3 <- blob2 
+0x2dc566698ac1 gov/io readable.cpp 20 readable::read from blob 125 serid 0 
+0x2dc56669940c gov/cash account_t.cpp 222 from_blob cur 21 
+0x2dc566699b7c gov/cash safe_deposit_box.cpp 147 from_blob cur 22 
+0x2dc56669a49a gov/dfs fileattr_t.cpp 46 from_blob cur 52 
+0x2dc56669b25a gov/cash t_t.cpp 156 from_blob cur 65 
+0x2dc56669bcd8 gov/cash t_t.cpp 162 reader.header.version 0 
+0x2dc56669c416 gov/cash t_t.cpp 164 old version. flags set to 0 
+0x2dc56669d622 gov/cash account_t.cpp 222 from_blob cur 114 
+0x2dc56669dea4 gov/cash safe_deposit_box.cpp 147 from_blob cur 115 
+0x2dc56669e9b0 test ../../us/gov/logs.inc 76 ----------------------------------- 
+
+
+*/
+
+
     void test_ev_ser_cash_accounts(accounts_t& o) {
         tee("test_ev_ser_cash_accounts");
+        o.dump("o> ", 1, cout);
+        tee("-----------------------------------o");
+        tee("-----------------------------------  write o->blob");
         blob_t blob;
         o.write(blob);
-        tee("o", o.size());
+
+        tee("-----------------------------------o2");
         accounts_t o2;
+        tee("-----------------------------------  read o2 <- blob");
         assert(is_ok(o2.read(blob)));
+
+        tee("-----------------------------------  write o2 -> blob2");
         blob_t blob2;
         o2.write(blob2);
-        tee("o2", o2.size());
+        tee("-----------------------------------o3");
         accounts_t o3;
+        tee("-----------------------------------  read o3 <- blob2");
         assert(is_ok(o3.read(blob2)));
-        tee("o3", o3.size());
+        tee("-----------------------------------");
         assert(o.size() == o3.size());
-        cout << " blob: " << blob.size() << endl;
-        cout << "blob2: " << blob2.size() << endl;
+        cout << "blob1: " << blob.size() << '\n';
+        cout << "blob2: " << blob2.size()  << '\n';
+        cout << "blob1: " << us::gov::crypto::b58::to_hex(blob) << endl;
+        cout << "blob2: " << us::gov::crypto::b58::to_hex(blob2) << endl;
+        
+
         check(blob, blob2);
         cout << blob.size() << endl;
         tee("/test_ev_ser_cash_accounts");
@@ -486,6 +615,7 @@ struct blobs_t: us::test::test_platform {
                 }
                 o.emplace(hash_t(2059), a);
             }
+            o.dump("o> ", 1, cout);
             test_ev_ser_cash_accounts(o);
         }
     }
@@ -714,7 +844,6 @@ void test_locking_program_input() {
     locking_program_input_t o1;
     assert(is_ok(o1.read(blob0)));
 }
-
 
 void test_tx() {
     us::wallet::wallet::algorithm w("");

@@ -499,7 +499,7 @@ struct tengine: us::gov::engine::daemon_t, us::test::test_platform {
                 blob_serialization__new_version = true;
 
                 cout << "#######################################################\n";
-                cout << "TASK: scp -i /media/mm/ARKITECH/id_rsa_groot pi2:/home/gov/.us/gov/blocks/* verser/xx/blocks \n";
+                cout << "TASK: scp -i /media/mm/ARKITECH/id_rsa_groot pi2:/home/gov/.us/gov/blocks/" << "* verser/xx/blocks \n";
                 cout << "TASK: Update per-brand default connection blobs after new verser (str95)\n";
                 b = us::gov::io::cfg0::dir_exists(fn.str());
 
@@ -884,14 +884,10 @@ struct network_c0: network {
                 cout << s << endl;
                 }
             }
-            
         }
-
-
     }
 
     void stage1_ff_configure() override {
-
     }
 
 };
@@ -914,8 +910,6 @@ void test_r2r(const string& homedir, const string& logdir, const string& vardir)
         }
         auto b = n.bookmarks();
         b.dump("bookmarks>", cout);
-        
-
     }
 
     cout << "CORE0-L2 TESTS PASS" << endl;

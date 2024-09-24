@@ -99,12 +99,11 @@ public class symmetric_encryption {
         return key_size;
     }
 
-    public pair<ko, byte[]> encrypt(byte[] plaintext) {
+    public pair<ko, byte[]> encrypt(byte[] cleartext) {
         try {
             random.nextBytes(iv);
-            enc.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), new GCMParameterSpec(tag_size, iv), random);
-//new IvParameterSpec(iv), random);
-            byte[] encrypted = enc.doFinal(plaintext);
+            enc.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), new GCMParameterSpec(tag_size, iv), random); //new IvParameterSpec(iv), random);
+            byte[] encrypted = enc.doFinal(cleartext);
             byte[] ciphertext = Arrays.concatenate(iv, encrypted);
             return new pair<ko, byte[]>(ok, ciphertext);
 //            return new pair<ko, byte[]>(ok, Arrays.concatenate(enc.doFinal(plaintext), iv));

@@ -298,6 +298,15 @@ public class ec {
         return get_public_key(v);
     }
 
+    public PublicKey get_public_key(String b58) {
+        try {
+            return get_public_key(base58.decode(b58));
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
+
     public boolean verify(PublicKey pub, sha256.hash_t msgh, sig_der_t sig_der) {
         log("verify msgh " + msgh.b58() + " pubk " + to_b58(pub) + " sig " + base58.encode(sig_der.value) + " siglen = " + sig_der.value.length); //--strip
         try {

@@ -27,9 +27,9 @@ suffix:=bc
 build:=build_${suffix}
 javafiles:=$(wildcard */*/*/*/*.java) $(wildcard */*/*/*.java) $(wildcard */*/*.java) $(wildcard */*.java) $(wildcard *.java)
 classfiles:=$(patsubst %.java, ${build}/%.class, $(javafiles))
-
+bcv:=jdk15to18-1.78.1
 flags:=-g
-libspath:=..:../libs_bouncy/bcprov-jdk15on-164.jar:../libs_bouncy/bcpkix-jdk15on-164.jar:../libs_bouncy/bcpg-jdk15on-164.jar:../libs_bouncy/bctls-jdk15on-164.jar:../libs_bouncy/bcmail-jdk15on-164.jar
+libspath:=..:../libs_bouncy/bcprov-${bcv}.jar:../libs_bouncy/bcpkix-${bcv}.jar:../libs_bouncy/bcpg-${bcv}.jar:../libs_bouncy/bctls-${bcv}.jar:../libs_bouncy/bcmail-${bcv}.jar
 depjar:=../${us}-sdk_${suffix}.jar
 jarfile:=${us}-sdk-test_${suffix}.jar
 

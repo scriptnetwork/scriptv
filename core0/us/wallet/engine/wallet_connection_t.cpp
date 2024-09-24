@@ -144,15 +144,6 @@ ko c::from_blob(blob_reader_t& reader) {
         ko r = reader.read(addr);
         if (is_ko(r)) return r;
     }
-/*
-    if (reader.header.serid == 'X' && reader.header.version == 11) {
-        cerr << "Remove old code. sync with sdk/wallet/java/us/wallet/engine/wallet_connection_t.java" << endl;
-        assert(false);
-        return "KO 59200 Remove old code";
-    }
-    bool miss_subhome = (reader.header.serid == 'X' && reader.header.version == 9);
-    if (!miss_subhome) {
-*/
     {
         ko r = reader.read(subhome);
         if (is_ko(r)) return r;
@@ -165,7 +156,6 @@ ko c::from_blob(blob_reader_t& reader) {
         ko r = reader.read(ts);
         if (is_ko(r)) return r;
     }
-//cout << "Read ts " << ts << endl;
     log("read wallet connection named", name_);
     return ok;
 }

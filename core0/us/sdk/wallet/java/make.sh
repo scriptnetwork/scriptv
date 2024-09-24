@@ -34,6 +34,8 @@ fi
 cmd=$1
 shift
 
+bcv="jdk15to18-1.78.1"  #bouncy-castle version
+
 cyphersuite="bouncycastle"
 if [[ "_$cmd" == "_-android" ]]; then
     cyphersuite="spongycastle"
@@ -70,7 +72,7 @@ if [[ "_$cyphersuite" == "_spongycastle" ]]; then
     android=1
     suffix="sc"
 else
-    libspath="..:../libs_bouncy/bcprov-jdk15on-164.jar:../libs_bouncy/bcpkix-jdk15on-164.jar:../libs_bouncy/bcpg-jdk15on-164.jar:../libs_bouncy/bctls-jdk15on-164.jar:../libs_bouncy/bcmail-jdk15on-164.jar"
+    libspath="..:../libs_bouncy/bcprov-${bcv}.jar:../libs_bouncy/bcpkix-${bcv}.jar:../libs_bouncy/bcpg-${bcv}.jar:../libs_bouncy/bctls-${bcv}.jar:../libs_bouncy/bcmail-${bcv}.jar"
     android=0
     suffix="bc"
 fi
@@ -140,13 +142,19 @@ function getdeps {
         fi
     fi
     if [[ $android -eq 0 ]]; then
-        if [[ ! -f libs_bouncy/bcmail-jdk15on-164.jar ]]; then
+        if [[ ! -f libs_bouncy/bcmail-${bcv}.jar ]]; then
             mkdir libs_bouncy
-            wget_cache https://www.bouncycastle.org/download/bcprov-jdk15on-164.jar libs_bouncy/bcprov-jdk15on-164.jar
-            wget_cache https://www.bouncycastle.org/download/bcpkix-jdk15on-164.jar libs_bouncy/bcpkix-jdk15on-164.jar
-            wget_cache https://www.bouncycastle.org/download/bcpg-jdk15on-164.jar libs_bouncy/bcpg-jdk15on-164.jar
-            wget_cache https://www.bouncycastle.org/download/bctls-jdk15on-164.jar libs_bouncy/bctls-jdk15on-164.jar
-            wget_cache https://www.bouncycastle.org/download/bcmail-jdk15on-164.jar libs_bouncy/bcmail-jdk15on-164.jar
+            wget_cache https://downloads.bouncycastle.org/java/bcprov-${bcv}.jar libs_bouncy/bcprov-${bcv}.jar
+            wget_cache https://downloads.bouncycastle.org/java/bcpkix-${bcv}.jar libs_bouncy/bcpkix-${bcv}.jar
+            wget_cache https://downloads.bouncycastle.org/java/bcpg-${bcv}.jar libs_bouncy/bcpg-${bcv}.jar
+            wget_cache https://downloads.bouncycastle.org/java/bctls-${bcv}.jar libs_bouncy/bctls-${bcv}.jar
+            wget_cache https://downloads.bouncycastle.org/java/bcmail-${bcv}.jar libs_bouncy/bcmail-${bcv}.jar
+
+#            wget_cache https://www.bouncycastle.org/download/bcprov-jdk15on-164.jar libs_bouncy/bcprov-jdk15on-164.jar
+#            wget_cache https://www.bouncycastle.org/download/bcpkix-jdk15on-164.jar libs_bouncy/bcpkix-jdk15on-164.jar
+#            wget_cache https://www.bouncycastle.org/download/bcpg-jdk15on-164.jar libs_bouncy/bcpg-jdk15on-164.jar
+#            wget_cache https://www.bouncycastle.org/download/bctls-jdk15on-164.jar libs_bouncy/bctls-jdk15on-164.jar
+#            wget_cache https://www.bouncycastle.org/download/bcmail-jdk15on-164.jar libs_bouncy/bcmail-jdk15on-164.jar
         fi
     fi
 }
