@@ -1,7 +1,7 @@
 ![Script Network Logo](core1/brands/scriptv/brand.png)
 
 # scriptv 
-    Node software.
+    Node software. L1+L2
     P2P Network for Watch-to-earn Distributed Content Distribution
     Inconsistent Consensus
     PBFT cooperative consensus
